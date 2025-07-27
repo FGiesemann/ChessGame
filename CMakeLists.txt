@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(ChessGameModel VERSION 1.0.0 LANGUAGES CXX)
+project(ChessGame VERSION 1.0.0 LANGUAGES CXX)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -39,13 +39,13 @@ install(EXPORT ${PROJECT_NAME}Targets
 set(${PROJECT_NAME}_VERSION ${PROJECT_VERSION})
 
 include(CMakePackageConfigHelpers)
-set(chess_game_model_INCLUDE_DIR "${CMAKE_INSTALL_INCLUDEDIR}/chesscore")
+set(chess_game_INCLUDE_DIR "${CMAKE_INSTALL_INCLUDEDIR}/chesscore")
 configure_package_config_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/cmake/${PROJECT_NAME}Config.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
     INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
     PATH_VARS
-        chess_game_model_INCLUDE_DIR
+        chess_game_INCLUDE_DIR
 )
 write_basic_package_version_file(
     ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake

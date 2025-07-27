@@ -1,6 +1,6 @@
 /* ************************************************************************** *
- * Chess Game Model                                                           *
+ * Chess Game                                                                 *
  * Representation of a single game of chess                                   *
  * ************************************************************************** */
 
-#include "chess_game_model/game_metadata.h"
+#include "chess_game/game_metadata.h"

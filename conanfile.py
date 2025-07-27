@@ -1,8 +1,8 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
 
-class ChessGameModelConan(ConanFile):
-    name = "ChessGameModel"
+class ChessGameConan(ConanFile):
+    name = "ChessGame"
     version = "1.0.0"
     package_type = "library"
 
