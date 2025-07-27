@@ -1,15 +1,15 @@
 /* ************************************************************************** *
- * Chess Game Model                                                           *
+ * Chess Game                                                                 *
  * Representation of a single game of chess                                   *
  * ************************************************************************** */
 /** \file */
 
-#ifndef CHESSGAMEMODEL_GAME_H
-#define CHESSGAMEMODEL_GAME_H
+#ifndef CHESSGAME_GAME_H
+#define CHESSGAME_GAME_H
 
-#include "chess_game_model/game_metadata.h"
+#include "chess_game/game_metadata.h"
 
-namespace chessgamemodel {
+namespace chessgame {
 
 /**
  * \brief A game of chess.
@@ -38,6 +38,6 @@ private:
     GameMetadata m_metadata{}; ///< Meta data for the game.
 };
 
-} // namespace chessgamemodel
+} // namespace chessgame
 
 #endif

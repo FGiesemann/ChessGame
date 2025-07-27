@@ -1,18 +1,18 @@
 /* ************************************************************************** *
- * Chess Game Model                                                           *
+ * Chess Game                                                                 *
  * Representation of a single game of chess                                   *
  * ************************************************************************** */
 /** \file */
 
-#ifndef CHESSGAMEMODEL_GAME_METADATA_H
-#define CHESSGAMEMODEL_GAME_METADATA_H
+#ifndef CHESSGAME_GAME_METADATA_H
+#define CHESSGAME_GAME_METADATA_H
 
 #include <optional>
 #include <string>
 
 #include "chesscore/fen.h"
 
-namespace chessgamemodel {
+namespace chessgame {
 
 /**
  * \brief Description of a player.
@@ -77,6 +77,6 @@ struct GameMetadata {
     std::optional<Player> annotator;                      ///< A single annotator of the game, if available.
 };
 
-} // namespace chessgamemodel
+} // namespace chessgame
 
 #endif

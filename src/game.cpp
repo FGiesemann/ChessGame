@@ -1,8 +1,8 @@
 /* ************************************************************************** *
- * Chess Game Model                                                           *
+ * Chess Game                                                                 *
  * Representation of a single game of chess                                   *
  * ************************************************************************** */
 
-#include "chess_game_model/game.h"
+#include "chess_game/game.h"
 
 namespace chesscore {}
