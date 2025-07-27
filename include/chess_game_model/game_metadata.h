@@ -29,13 +29,28 @@ struct Player {
 };
 
 /**
+ * \brief Description of an event.
+ */
+struct Event {
+    std::string original_name;        ///< Name as it appears in sources (like PGN-Files).
+    std::string name;                 ///< Name used for sorting.
+    std::optional<int> edition;       ///< Edition number of the event.
+    std::optional<int> year;          ///< Year of the event.
+    std::optional<std::string> round; ///< Round of the game during the event.
+
+    std::string site; ///< Location of the event.
+    std::string date; ///< Date of the event.
+};
+
+/**
  * \brief Stores meta data for a game of chess.
  *
  * Handles meta data like the names of players, the event, etc.
  */
 struct GameMetadata {
-    Player white_player;
-    Player black_player;
+    Player white_player; ///< Player of white pieces.
+    Player black_player; ///< Player of black pieces.
+    Event event;         ///< Event of the game.
 };
 
 } // namespace chessgamemodel
