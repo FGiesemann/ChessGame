@@ -43,6 +43,20 @@ struct Event {
 };
 
 /**
+ * \brief Possible ends of a game of chess.
+ */
+enum class GameResult {
+    WhiteWins,   ///< White player winds.
+    BlackWins,   ///< Black player wins.
+    Draw,        ///< Game ended in a draw.
+    InProgress,  ///< Game stil in progress.
+    Unknown,     ///< Unknown end of the game.
+    Abandoned,   ///< Game was abandoned without result.
+    Adjudicaton, ///< Game result was adjudicated.
+    NotPlayed    ///< Game was not played.
+};
+
+/**
  * \brief Stores meta data for a game of chess.
  *
  * Handles meta data like the names of players, the event, etc.
@@ -51,6 +65,7 @@ struct GameMetadata {
     Player white_player; ///< Player of white pieces.
     Player black_player; ///< Player of black pieces.
     Event event;         ///< Event of the game.
+    GameResult result;   ///< Result of the game.
 };
 
 } // namespace chessgamemodel
