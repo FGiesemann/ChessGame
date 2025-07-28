@@ -14,9 +14,9 @@ include(cmake/compiler_warnings.cmake)
 find_package(chesscore REQUIRED COMPONENTS chesscore)
 
 add_library(${PROJECT_NAME}
-    src/game.cpp
     src/game_metadata.cpp
-    src/move_tree.cpp
+    src/game_tree.cpp
+    src/game.cpp
 )
 target_include_directories(${PROJECT_NAME} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
