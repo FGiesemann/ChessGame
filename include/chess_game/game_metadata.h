@@ -59,6 +59,16 @@ enum class GameResult {
 };
 
 /**
+ * \brief A custom metadata tag.
+ *
+ * This allows adding arbitrary metadata to a game.
+ */
+struct CustomTag {
+    std::string name;  ///< Name of the tag.
+    std::string value; ///< Value of the tag.
+};
+
+/**
  * \brief Stores meta data for a game of chess.
  *
  * Handles meta data like the names of players, the event, etc.
@@ -75,6 +85,7 @@ struct GameMetadata {
     int ply_count;                                        ///< Number of (half) moves in the game
     std::string source;                                   ///< Source of the information.
     std::optional<Player> annotator;                      ///< A single annotator of the game, if available.
+    std::vector<CustomTag> custom_tags;                   ///< Additional custom tags.
 };
 
 } // namespace chessgame
