@@ -36,6 +36,7 @@ public:
     auto metadata() -> GameMetadata & { return m_metadata; }
 private:
     GameMetadata m_metadata{}; ///< Meta data for the game.
+    GameNode m_root{};         ///< Root node of the game tree.
 };
 
 } // namespace chessgame
