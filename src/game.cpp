@@ -19,11 +19,4 @@ auto Game::add_node(GameNode *parent, const chesscore::Move &move) -> GameNode *
     return child.get();
 }
 
-auto Game::play_move(const chesscore::Move &move) -> GameNode * {
-    auto *new_node = add_node(m_current_node, move);
-    m_current_node = new_node;
-    m_metadata.ply_count++;
-    return new_node;
-}
-
 } // namespace chessgame
