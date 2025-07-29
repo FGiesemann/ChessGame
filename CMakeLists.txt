@@ -16,6 +16,7 @@ find_package(chesscore REQUIRED COMPONENTS chesscore)
 add_library(${PROJECT_NAME}
     src/game_metadata.cpp
     src/game_tree.cpp
+    src/game_types.cpp
     src/game.cpp
 )
 target_include_directories(${PROJECT_NAME} PUBLIC

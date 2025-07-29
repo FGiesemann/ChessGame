@@ -10,6 +10,8 @@
 #include <memory>
 #include <vector>
 
+#include "chess_game/game_types.h"
+
 #include "chesscore/move.h"
 
 namespace chessgame {
@@ -68,7 +70,7 @@ public:
      * \param move The move that led to this node.
      * \param parent The parent node.
      */
-    explicit GameNode(NodeId id, chesscore::Move move = {}, std::shared_ptr<GameNode> parent = nullptr) : m_id(id), m_move(move), m_parent(parent) {}
+    explicit GameNode(NodeId id, chesscore::Move move = {}, const std::shared_ptr<GameNode> &parent = nullptr) : m_id(id), m_move(move), m_parent(parent) {}
 
     /**
      * \brief Get the id of the node.
@@ -114,13 +116,6 @@ public:
     auto get_child(size_t index) -> std::shared_ptr<GameNode> { return m_children[index]; }
 
     /**
-     * \brief Add a new child node.
-     *
-     * \param child The child to add.
-     */
-    auto add_chlid(std::shared_ptr<GameNode> child) -> void { m_children.push_back(child); }
-
-    /**
      * \brief Return the comment of the game node.
      *
      * This is a comment of the game position or the move that lead to it.
@@ -135,12 +130,37 @@ public:
      * \param comment The comment.
      */
     auto setComment(const std::string &comment) -> void { m_comment = comment; }
+
+    /**
+     * \brief Get the position of the game node.
+     *
+     * \return The position.
+     */
+    auto position() const -> const std::optional<Position> & { return m_position; }
+
+    /**
+     * \brief Set the position of the game node.
+     *
+     * \param position The position.
+     */
+    auto setPosition(const Position &position) -> void { m_position = position; }
+
+    /**
+     * \brief Calculate the position of this game node.
+     *
+     * The position is calculated from an ancestor node that has a position and
+     * the sequence of moves that lead to this node from that ancestor. The
+     * computed position is not stored in the node. Use setPosition to do that.
+     * \return The position represented by this node.
+     */
+    auto calculatePosition() const -> Position;
 private:
     NodeId m_id;                                       ///< The id of this node.
     chesscore::Move m_move;                            ///< The move that led to this node (from the parent node).
     std::weak_ptr<GameNode> m_parent;                  ///< Pointer to the parent node.
     std::vector<std::shared_ptr<GameNode>> m_children; ///< List of child nodes. The first entry represetns the "main line".
     std::string m_comment;                             ///< A comment of the position or move.
+    std::optional<Position> m_position;                ///< The position described by this node.
 };
 
 } // namespace chessgame
