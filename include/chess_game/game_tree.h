@@ -37,7 +37,7 @@ struct NodeId {
      * \param other The other node id.
      * \return If the node ids are queal.
      */
-    bool operator==(const NodeId &other) const { return value == other.value; }
+    auto operator==(const NodeId &other) const -> bool { return value == other.value; }
 
     /**
      * \brief Inequality comparison for node ids.
@@ -45,7 +45,7 @@ struct NodeId {
      * \param other The other node id.
      * \return If the node ids are not equal.
      */
-    bool operator!=(const NodeId &other) const { return value != other.value; }
+    auto operator!=(const NodeId &other) const -> bool { return value != other.value; }
 
     static const NodeId Invalid; ///< Constant representing an invalid node id.
 };
