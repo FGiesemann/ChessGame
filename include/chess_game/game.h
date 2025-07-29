@@ -52,9 +52,34 @@ public:
      * \return The game meta data.
      */
     auto metadata() -> GameMetadata & { return m_metadata; }
+
+    /**
+     * \brief Add a new node to the game tree.
+     *
+     * The node is appended as a new child to the given parent node.
+     * \param parent The parent node of the new node.
+     * \param move The move that leads from the parent to the new node.
+     * \return The new node.
+     */
+    auto add_node(GameNode *parent, const chesscore::Move &move) -> GameNode *;
+
+    /**
+     * \brief Play a move in the current position.
+     *
+     * Adds a new game node to the tree that represents the position reached
+     * after playing the given move from the "current position". The current
+     * position is the last position reached on the main line (to simplify
+     * working) with a running game.
+     * Also increments the ply count.
+     * \param move The move to play.
+     * \return The newly created game node.
+     */
+    auto play_move(const chesscore::Move &move) -> GameNode *;
 private:
-    GameMetadata m_metadata{};   ///< Meta data for the game.
-    GameNode m_root{NodeId{1U}}; ///< Root node of the game tree.
+    GameMetadata m_metadata{};         ///< Meta data for the game.
+    GameNode m_root{NodeId{1U}};       ///< Root node of the game tree.
+    NodeId m_next_id{2U};              ///< Next available node id.
+    GameNode *m_current_node{&m_root}; ///< Node for the currently active position of the game.
 };
 
 } // namespace chessgame

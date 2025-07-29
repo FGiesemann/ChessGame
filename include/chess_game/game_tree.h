@@ -47,6 +47,13 @@ struct NodeId {
      */
     auto operator!=(const NodeId &other) const -> bool { return value != other.value; }
 
+    auto operator++() -> NodeId & {
+        ++value;
+        return *this;
+    }
+
+    auto operator++(int) -> NodeId { return NodeId(value++); }
+
     static const NodeId Invalid; ///< Constant representing an invalid node id.
 };
 
@@ -116,6 +123,14 @@ public:
     auto get_child(size_t index) -> std::shared_ptr<GameNode> { return m_children[index]; }
 
     /**
+     * \brief Append a new child node.
+     *
+     * The given node is appended to the list of child nodes.
+     * \param child The child node.
+     */
+    auto append_child(const std::shared_ptr<GameNode> &child) -> void { m_children.push_back(child); }
+
+    /**
      * \brief Return the comment of the game node.
      *
      * This is a comment of the game position or the move that lead to it.
@@ -129,7 +144,7 @@ public:
      * This is a comment of the game position or the move that lead to it.
      * \param comment The comment.
      */
-    auto setComment(const std::string &comment) -> void { m_comment = comment; }
+    auto set_comment(const std::string &comment) -> void { m_comment = comment; }
 
     /**
      * \brief Get the position of the game node.
@@ -143,7 +158,7 @@ public:
      *
      * \param position The position.
      */
-    auto setPosition(const Position &position) -> void { m_position = position; }
+    auto set_position(const Position &position) -> void { m_position = position; }
 
     /**
      * \brief Calculate the position of this game node.
@@ -153,7 +168,7 @@ public:
      * computed position is not stored in the node. Use setPosition to do that.
      * \return The position represented by this node.
      */
-    auto calculatePosition() const -> Position;
+    auto calculate_position() const -> Position;
 private:
     NodeId m_id;                                       ///< The id of this node.
     chesscore::Move m_move;                            ///< The move that led to this node (from the parent node).
