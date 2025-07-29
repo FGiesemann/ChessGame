@@ -3,8 +3,8 @@
  * Representation of a single game of chess                                   *
  * ************************************************************************** */
 
-#include "chess_game/game_tree.h"
-#include "chess_game/game_types.h"
+#include "chess_game/tree.h"
+#include "chess_game/types.h"
 
 namespace chessgame {
 
