@@ -10,13 +10,13 @@ namespace chessgame {
 
 const NodeId NodeId::Invalid{0};
 
-auto GameNode::calculatePosition() const -> Position {
+auto GameNode::calculate_position() const -> Position {
     if (m_position.has_value()) {
         return *m_position;
     }
 
     if (const auto parent = m_parent.lock(); parent) {
-        auto position = parent->calculatePosition();
+        auto position = parent->calculate_position();
         position.make_move(m_move);
         return position;
     }
