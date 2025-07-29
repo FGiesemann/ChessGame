@@ -3,14 +3,4 @@
  * Representation of a single game of chess                                   *
  * ************************************************************************** */
 
-#include "chess_game/game.h"
-
-namespace chessgame {
-
-Game::Game(const chesscore::FenString &fen) {
-    m_root.setPosition(Position{fen});
-}
-
-Game::Game() : Game{chesscore::FenString::starting_position()} {}
-
-} // namespace chessgame
+#include "chess_game/game_types.h"

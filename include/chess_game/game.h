@@ -8,6 +8,9 @@
 #define CHESSGAME_GAME_H
 
 #include "chess_game/game_metadata.h"
+#include "chess_game/game_tree.h"
+
+#include "chesscore/fen.h"
 
 namespace chessgame {
 
@@ -22,6 +25,21 @@ namespace chessgame {
 class Game {
 public:
     /**
+     * \brief Create a new Game.
+     *
+     * The new game starts with the default starting position.
+     */
+    Game();
+
+    /**
+     * \brief Create a new game with a given starting position.
+     *
+     * The new game starts with the starting position given by the FEN string.
+     * \param fen The FEN string describing the starting posiiton.
+     */
+    Game(const chesscore::FenString &fen);
+
+    /**
      * \brief Read-only access to the meta data of the game.
      *
      * \return The game meta data.
@@ -35,8 +53,8 @@ public:
      */
     auto metadata() -> GameMetadata & { return m_metadata; }
 private:
-    GameMetadata m_metadata{}; ///< Meta data for the game.
-    GameNode m_root{};         ///< Root node of the game tree.
+    GameMetadata m_metadata{};   ///< Meta data for the game.
+    GameNode m_root{NodeId{1U}}; ///< Root node of the game tree.
 };
 
 } // namespace chessgame
