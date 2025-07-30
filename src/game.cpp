@@ -3,7 +3,7 @@
  * Representation of a single game of chess                                   *
  * ************************************************************************** */
 
-#include "chess_game/game.h"
+#include "chessgame/game.h"
 
 namespace chessgame {
 

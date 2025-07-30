@@ -3,4 +3,4 @@
  * Representation of a single game of chess                                   *
  * ************************************************************************** */
 
-#include "chess_game/types.h"
+#include "chessgame/types.h"

@@ -10,7 +10,7 @@
 #include <memory>
 #include <vector>
 
-#include "chess_game/types.h"
+#include "chessgame/types.h"
 
 #include "chesscore/move.h"
 

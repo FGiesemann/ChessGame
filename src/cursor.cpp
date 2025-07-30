@@ -3,6 +3,6 @@
  * Representation of a single game of chess                                   *
  * ************************************************************************** */
 
-#include "chess_game/cursor.h"
+#include "chessgame/cursor.h"
 
 namespace chessgame {}
