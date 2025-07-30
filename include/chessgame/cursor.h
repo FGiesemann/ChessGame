@@ -45,30 +45,32 @@ public:
      * \param move The move to apply.
      * \return A cursor pointing to the new position.
      */
-    auto play_move(const chesscore::Move &move) -> Cursor;
+    auto play_move(const chesscore::Move &move) const -> Cursor;
 
     /**
-     * \brief Adds a variation beginning at the cursor position.
+     * \brief Adds a variation of the position.
      *
-     * Branches the line at the cursor and starts a new variation.
+     * Adds a new variation to the position of the game to which this cursor is
+     * pointing. This is done by adding a new child node to the parent of this
+     * cursor's node.
      * \param move The move that starts the variation.
      * \return A cursor pointing to the new line.
      */
-    auto add_variation(const chesscore::Move &move) -> Cursor;
+    auto add_variation(const chesscore::Move &move) const -> std::optional<Cursor>;
 
     /**
      * \brief Sets the comment for the current node.
      *
      * \param comment The comment.
      */
-    auto set_comment(const std::string &comment) -> void;
+    auto set_comment(const std::string &comment) const -> void;
 
     /**
      * \brief Get the parent of the current node.
      *
      * \return Cursor to the parent node, if it exists.
      */
-    auto parent() -> std::optional<Cursor>;
+    auto parent() const -> std::optional<Cursor>;
 
     /**
      * \brief Get a child node of the current node.
@@ -76,7 +78,18 @@ public:
      * \param index Index of the child node.
      * \return Cursor to the child node, if it exists.
      */
-    auto child(size_t index) -> std::optional<Cursor>;
+    auto child(size_t index) const -> std::optional<Cursor>;
+
+    /**
+     * \brief Get the position object represented by this game node.
+     *
+     * Gets or calculates the position for the game node. The position might be
+     * stored in the node already, in which case it is simply returned.
+     * Otherwise, the position is calculated by following the moves from an
+     * ancestor that stores a position.
+     * \return The position of this game node.
+     */
+    auto position() const -> Position;
 private:
     Game *m_game{};
     std::shared_ptr<GameNode> m_node;
