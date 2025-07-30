@@ -7,8 +7,8 @@
 #ifndef CHESSGAME_GAME_H
 #define CHESSGAME_GAME_H
 
-#include "chess_game/metadata.h"
-#include "chess_game/tree.h"
+#include "chessgame/metadata.h"
+#include "chessgame/tree.h"
 
 #include "chesscore/fen.h"
 
