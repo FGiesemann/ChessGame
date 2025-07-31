@@ -10,6 +10,8 @@
 #include <optional>
 #include <string>
 
+#include "chessgame/types.h"
+
 #include "chesscore/piece.h"
 #include "chesscore/square.h"
 
@@ -41,11 +43,12 @@ public:
      * \param piece The moving piece.
      * \param target_square The target square of the move.
      * \param capturing Whether the move is capturing.
+     * \param promotion The promoted piece.
      * \param check_state Check state of the move.
      */
-    SANMove(std::string san, chesscore::Piece piece, chesscore::Square target_square, bool capturing, CheckState check_state)
-        : m_san{std::move(san)}, m_piece{piece}, m_target_square{target_square}, m_capturing{capturing}, m_check_state{check_state}, m_from_file{std::nullopt},
-          m_from_rank{std::nullopt} {}
+    SANMove(std::string san, chesscore::Piece piece, chesscore::Square target_square, bool capturing, std::optional<chesscore::Piece> promotion, CheckState check_state)
+        : m_san{std::move(san)}, m_piece{piece}, m_target_square{target_square}, m_capturing{capturing}, m_promotion{promotion}, m_check_state{check_state},
+          m_from_file{std::nullopt}, m_from_rank{std::nullopt} {}
 
     /**
      * \brief Create a new SANMove.
@@ -55,11 +58,15 @@ public:
      * \param piece The moving piece.
      * \param target_square The target square of the move.
      * \param capturing Whether the move is capturing.
+     * \param promotion The promoted piece.
      * \param check_state Check state of the move.
      * \param from_file The file-disambiguation character of the move.
      */
-    SANMove(std::string san, chesscore::Piece piece, chesscore::Square target_square, bool capturing, CheckState check_state, chesscore::File from_file)
-        : m_san{std::move(san)}, m_piece{piece}, m_target_square{target_square}, m_capturing{capturing}, m_check_state{check_state}, m_from_file{from_file},
+    SANMove(
+        std::string san, chesscore::Piece piece, chesscore::Square target_square, bool capturing, std::optional<chesscore::Piece> promotion, CheckState check_state,
+        chesscore::File from_file
+    )
+        : m_san{std::move(san)}, m_piece{piece}, m_target_square{target_square}, m_capturing{capturing}, m_promotion{promotion}, m_check_state{check_state}, m_from_file{from_file},
           m_from_rank{std::nullopt} {}
 
     /**
@@ -70,12 +77,16 @@ public:
      * \param piece_type The type of the moving piece.
      * \param target_square The target square of the move.
      * \param capturing Whether the move is capturing.
+     * \param promotion The promoted piece.
      * \param check_state Check state of the move.
      * \param from_rank The rank-disambiguation character of the move.
      */
-    SANMove(std::string san, chesscore::Piece piece, chesscore::Square target_square, bool capturing, CheckState check_state, chesscore::Rank from_rank)
-        : m_san{std::move(san)}, m_piece{piece}, m_target_square{target_square}, m_capturing{capturing}, m_check_state(check_state), m_from_file{std::nullopt},
-          m_from_rank{from_rank} {}
+    SANMove(
+        std::string san, chesscore::Piece piece, chesscore::Square target_square, bool capturing, std::optional<chesscore::Piece> promotion, CheckState check_state,
+        chesscore::Rank from_rank
+    )
+        : m_san{std::move(san)}, m_piece{piece}, m_target_square{target_square}, m_capturing{capturing}, m_promotion{promotion}, m_check_state(check_state),
+          m_from_file{std::nullopt}, m_from_rank{from_rank} {}
 
     /**
      * \brief Get the original SAN representation of the move.
@@ -104,6 +115,13 @@ public:
      * \return Whether the move is capturing.
      */
     auto capturing() const -> bool { return m_capturing; }
+
+    /**
+     * \brief Get the promoted piece.
+     *
+     * \return The promoted piece.
+     */
+    auto promotion() const -> std::optional<chesscore::Piece> { return m_promotion; }
 
     /**
      * \brief Get the check state of the move.
@@ -135,13 +153,24 @@ public:
      */
     auto operator==(const SANMove &rhs) const -> bool = default;
 private:
-    std::string m_san;                          ///< The original string representation of the move.
-    chesscore::Piece m_piece;                   ///< The moving piece.
-    chesscore::Square m_target_square;          ///< Target square of the move.
-    bool m_capturing;                           ///< If the move is capturing.
-    CheckState m_check_state{CheckState::None}; ///< Check state of the move.
-    std::optional<chesscore::File> m_from_file; ///< File-distsinguishing character of the move.
-    std::optional<chesscore::Rank> m_from_rank; ///< Rank-distsinguishing character of the move.
+    std::string m_san;                           ///< The original string representation of the move.
+    chesscore::Piece m_piece;                    ///< The moving piece.
+    chesscore::Square m_target_square;           ///< Target square of the move.
+    bool m_capturing;                            ///< If the move is capturing.
+    std::optional<chesscore::Piece> m_promotion; ///< Promotion piece of the move.
+    CheckState m_check_state{CheckState::None};  ///< Check state of the move.
+    std::optional<chesscore::File> m_from_file;  ///< File-distsinguishing character of the move.
+    std::optional<chesscore::Rank> m_from_rank;  ///< Rank-distsinguishing character of the move.
+};
+
+class InvalidSAN : public ChessGameError {
+public:
+    /**
+     * \brief Create an exception with a message.
+     *
+     * @param message The message.
+     */
+    InvalidSAN(const std::string &message) : ChessGameError(message) {}
 };
 
 /**
