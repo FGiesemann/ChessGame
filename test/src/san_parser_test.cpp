@@ -30,12 +30,39 @@ TEST_CASE("SAN Parser.Castling", "[san]") {
     CHECK(check_move(parse_san("O-O-O", Color::Black), Piece::BlackKing, Square::C8, false, std::nullopt, CheckState::None));
 }
 
-TEST_CASE("SAN Parser.Pawn", "[san]") {
+TEST_CASE("SAN Parser.Pieces", "[san]") {
     CHECK(check_move(parse_san("e4", Color::White), Piece::WhitePawn, Square::E4, false, std::nullopt, CheckState::None));
     CHECK(check_move(parse_san("c6", Color::Black), Piece::BlackPawn, Square::C6, false, std::nullopt, CheckState::None));
+    CHECK(check_move(parse_san("Nf3", Color::White), Piece::WhiteKnight, Square::F3, false, std::nullopt, CheckState::None));
+    CHECK(check_move(parse_san("Rc1", Color::Black), Piece::BlackRook, Square::C1, false, std::nullopt, CheckState::None));
+    CHECK(check_move(parse_san("Ba3", Color::White), Piece::WhiteBishop, Square::A3, false, std::nullopt, CheckState::None));
+    CHECK(check_move(parse_san("Qd4", Color::Black), Piece::BlackQueen, Square::D4, false, std::nullopt, CheckState::None));
+    CHECK(check_move(parse_san("Kg8", Color::White), Piece::WhiteKing, Square::G8, false, std::nullopt, CheckState::None));
+}
+
+TEST_CASE("SAN Parser.Captures", "[san]") {
+    CHECK(check_move(parse_san("Bxe5", Color::White), Piece::WhiteBishop, Square::E5, true, std::nullopt, CheckState::None));
+    CHECK(check_move(parse_san("Qxd4", Color::Black), Piece::BlackQueen, Square::D4, true, std::nullopt, CheckState::None));
+}
+
+TEST_CASE("SAN Parser.Disambiguation", "[san]") {
+    CHECK(check_move(parse_san("Ncd4", Color::White), Piece::WhiteKnight, Square::D4, false, std::nullopt, CheckState::None, File{'c'}));
+    CHECK(check_move(parse_san("Ned4", Color::White), Piece::WhiteKnight, Square::D4, false, std::nullopt, CheckState::None, File{'e'}));
+    CHECK(check_move(parse_san("N3d4", Color::White), Piece::WhiteKnight, Square::D4, false, std::nullopt, CheckState::None, Rank{3}));
+    CHECK(check_move(parse_san("Rbd6", Color::Black), Piece::BlackRook, Square::D6, false, std::nullopt, CheckState::None, File{'b'}));
+    CHECK(check_move(parse_san("Rfd6", Color::Black), Piece::BlackRook, Square::D6, false, std::nullopt, CheckState::None, File{'f'}));
     CHECK(check_move(parse_san("dxe5", Color::White), Piece::WhitePawn, Square::E5, true, std::nullopt, CheckState::None, File{'d'}));
     CHECK(check_move(parse_san("bxa6", Color::Black), Piece::BlackPawn, Square::A6, true, std::nullopt, CheckState::None, File{'b'}));
+    CHECK(check_move(parse_san("R5xe2", Color::Black), Piece::BlackRook, Square::E2, true, std::nullopt, CheckState::None, Rank{5}));
+}
+
+TEST_CASE("SAN Parser.Check", "[san]") {
     CHECK(check_move(parse_san("d7+", Color::White), Piece::WhitePawn, Square::D7, false, std::nullopt, CheckState::Check));
     CHECK(check_move(parse_san("dxe3#", Color::Black), Piece::BlackPawn, Square::E3, true, std::nullopt, CheckState::Checkmate));
+    CHECK(check_move(parse_san("Qe3+", Color::White), Piece::WhiteQueen, Square::E3, false, std::nullopt, CheckState::Check));
+    CHECK(check_move(parse_san("Qxe3#", Color::Black), Piece::BlackQueen, Square::E3, true, std::nullopt, CheckState::Checkmate));
+}
+
+TEST_CASE("SAN Parser.Pawn Promotion", "[san]") {
     CHECK(check_move(parse_san("exd8=Q#", Color::White), Piece::WhitePawn, Square::D8, true, Piece::WhiteQueen, CheckState::Checkmate));
 }

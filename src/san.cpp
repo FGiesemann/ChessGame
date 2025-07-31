@@ -119,14 +119,16 @@ auto parse_san(const std::string &san, chesscore::Color side_to_move) -> SANMove
     if (token.type == TokenType::PieceType) {
         piece = chesscore::Piece{.type = chesscore::piece_type_from_char(token.value[0]), .color = side_to_move};
         san_str = san_str.substr(1);
-    } else if (token.type == TokenType::File) {
+        token = get_token(san_str);
+    }
+    if (token.type == TokenType::File) {
         const auto next_token = get_token(san_str.substr(1));
         if (next_token.type != TokenType::Rank) {
             from_file = chesscore::File{token.value[0]};
             san_str = san_str.substr(1);
         }
     } else if (token.type == TokenType::Rank) {
-        from_rank = token.value[0];
+        from_rank = extract_rank(token.value);
         san_str = san_str.substr(1);
     }
     token = get_token(san_str);
