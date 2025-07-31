@@ -85,3 +85,12 @@ TEST_CASE("SAN Parser.Suffix Annotations", "[san]") {
     CHECK(check_move(parse_san("exd8=Q+!!", Color::White), Piece::WhitePawn, Square::D8, true, Piece::WhiteQueen, CheckState::Check, SuffixAnnotation::VeryGoodMove));
     CHECK(check_move(parse_san("dxe2?!", Color::Black), Piece::BlackPawn, Square::E2, true, std::nullopt, CheckState::None, SuffixAnnotation::QuestionableMove));
 }
+
+TEST_CASE("SAN Parser.Mixed Examples", "[san]") {
+    CHECK(check_move(parse_san("Bxc3+", Color::Black), Piece::BlackBishop, Square::C3, true, std::nullopt, CheckState::Check, std::nullopt));
+    CHECK(check_move(parse_san("dxc5", Color::White), Piece::WhitePawn, Square::C5, true, std::nullopt, CheckState::None, std::nullopt));
+    CHECK(check_move(parse_san("Qxd1+", Color::Black), Piece::BlackQueen, Square::D1, true, std::nullopt, CheckState::Check, std::nullopt));
+    CHECK(check_move(parse_san("R8c7", Color::Black), Piece::BlackRook, Square::C7, false, std::nullopt, CheckState::None, Rank{8}, std::nullopt));
+    CHECK(check_move(parse_san("c1=Q", Color::Black), Piece::BlackPawn, Square::C1, false, Piece::BlackQueen, CheckState::None, std::nullopt));
+    CHECK(check_move(parse_san("gxf3+", Color::Black), Piece::BlackPawn, Square::F3, true, std::nullopt, CheckState::Check, std::nullopt));
+}
