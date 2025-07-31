@@ -94,3 +94,11 @@ TEST_CASE("SAN Parser.Mixed Examples", "[san]") {
     CHECK(check_move(parse_san("c1=Q", Color::Black), Piece::BlackPawn, Square::C1, false, Piece::BlackQueen, CheckState::None, std::nullopt));
     CHECK(check_move(parse_san("gxf3+", Color::Black), Piece::BlackPawn, Square::F3, true, std::nullopt, CheckState::Check, std::nullopt));
 }
+
+TEST_CASE("SAN Parser.Invalid SAN", "[san]") {
+    CHECK_THROWS_AS(parse_san("axf9", Color::White), InvalidSAN);
+    CHECK_THROWS_AS(parse_san("Lc4", Color::Black), InvalidSAN);
+    CHECK_THROWS_AS(parse_san("Kg1a", Color::White), InvalidSAN);
+    CHECK_THROWS_AS(parse_san("O-O+#", Color::White), InvalidSAN);
+    CHECK_THROWS_AS(parse_san("Qxd4#+", Color::Black), InvalidSAN);
+}
