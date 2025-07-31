@@ -7,10 +7,9 @@
 #ifndef CHESSGAME_SAN_H
 #define CHESSGAME_SAN_H
 
+#include <expected>
 #include <optional>
 #include <string>
-
-#include "chessgame/types.h"
 
 #include "chesscore/piece.h"
 #include "chesscore/square.h"
@@ -69,14 +68,19 @@ struct SANMove {
     auto operator==(const SANMove &rhs) const -> bool = default;
 };
 
-class InvalidSAN : public ChessGameError {
-public:
-    /**
-     * \brief Create an exception with a message.
-     *
-     * @param message The message.
-     */
-    InvalidSAN(const std::string &message) : ChessGameError(message) {}
+enum class SANParserErrorType {
+    UnexpectedToken,
+    UnexpectedCharsAtEnd,
+    InvalidSuffixAnnotation,
+    CheckAndCheckmate,
+    MissingPieceType,
+    MissingRank,
+    MissingFile,
+};
+
+struct SANParserError {
+    SANParserErrorType error_type;
+    std::string san;
 };
 
 /**
@@ -87,7 +91,7 @@ public:
  * \param side_to_move The side to move.
  * \return The parsed SANMove.
  */
-auto parse_san(const std::string &san, chesscore::Color side_to_move) -> SANMove;
+auto parse_san(const std::string &san, chesscore::Color side_to_move) -> std::expected<SANMove, SANParserError>;
 
 } // namespace chessgame
 
