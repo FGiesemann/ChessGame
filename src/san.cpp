@@ -21,6 +21,7 @@ enum class TokenType {
     Check,
     Checkmate,
     Promotion,
+    SuffixAnnotation,
     Invalid,
 };
 
@@ -68,6 +69,16 @@ auto get_token(std::string_view san_str) -> SANToken {
         return {.type = TokenType::Checkmate, .value = ""};
     case '=':
         return {.type = TokenType::Promotion, .value = ""};
+    case '!':
+    case '?': {
+        if (san_str.size() < 2) {
+            return {.type = TokenType::SuffixAnnotation, .value = san_str.substr(0, 1)};
+        }
+        if (san_str[1] == '!' || san_str[1] == '?') {
+            return {.type = TokenType::SuffixAnnotation, .value = san_str.substr(0, 2)};
+        }
+        return {.type = TokenType::SuffixAnnotation, .value = san_str.substr(0, 2)};
+    }
     default:
         return {.type = TokenType::Invalid, .value = ""};
     }
@@ -77,25 +88,71 @@ auto extract_rank(std::string_view str) -> chesscore::Rank {
     return chesscore::Rank{str[0] - '0'};
 }
 
+auto get_suffix_annotation(std::string_view str) -> SuffixAnnotation {
+    if (str == "!") {
+        return SuffixAnnotation::GoodMove;
+    }
+    if (str == "!!") {
+        return SuffixAnnotation::VeryGoodMove;
+    }
+    if (str == "?") {
+        return SuffixAnnotation::PoorMove;
+    }
+    if (str == "??") {
+        return SuffixAnnotation::VeryPoorMove;
+    }
+    if (str == "!?") {
+        return SuffixAnnotation::SpeculativeMove;
+    }
+    if (str == "?!") {
+        return SuffixAnnotation::QuestionableMove;
+    }
+    throw InvalidSAN("Invalid suffix annotation '" + std::string{str} + "'");
+}
+
+void parse_suffixes(const std::string &san, SANMove &move, std::string_view &san_str, SANToken &token) {
+    if (token.type == TokenType::Check) {
+        move.check_state = CheckState::Check;
+        san_str = san_str.substr(1);
+        token = get_token(san_str);
+    }
+    if (token.type == TokenType::Checkmate) {
+        if (move.check_state != CheckState::None) {
+            throw InvalidSAN("Check and checkmate are mutually exclusive in SAN string '" + san + "'");
+        }
+        move.check_state = CheckState::Checkmate;
+        san_str = san_str.substr(1);
+        token = get_token(san_str);
+    }
+    if (token.type == TokenType::SuffixAnnotation) {
+        move.suffix_annotation = get_suffix_annotation(token.value);
+        san_str = san_str.substr(token.value.length());
+    }
+}
+
 } // namespace
 
 auto parse_san(const std::string &san, chesscore::Color side_to_move) -> SANMove {
     SANMove move;
     move.san_string = san;
-    if (san == "O-O") {
-        const auto target_square = side_to_move == chesscore::Color::White ? chesscore::Square::G1 : chesscore::Square::G8;
-        move.moving_piece = chesscore::Piece{.type = chesscore::PieceType::King, .color = side_to_move};
-        move.target_square = target_square;
-        return move;
-    }
-    if (san == "O-O-O") {
+    std::string_view san_str{san};
+    if (san_str.starts_with("O-O-O")) {
         const auto target_square = side_to_move == chesscore::Color::White ? chesscore::Square::C1 : chesscore::Square::C8;
         move.moving_piece = chesscore::Piece{.type = chesscore::PieceType::King, .color = side_to_move};
         move.target_square = target_square;
+        auto token = get_token(san_str.substr(4));
+        parse_suffixes(san, move, san_str, token);
+        return move;
+    }
+    if (san_str.starts_with("O-O")) {
+        const auto target_square = side_to_move == chesscore::Color::White ? chesscore::Square::G1 : chesscore::Square::G8;
+        move.moving_piece = chesscore::Piece{.type = chesscore::PieceType::King, .color = side_to_move};
+        move.target_square = target_square;
+        auto token = get_token(san_str.substr(3));
+        parse_suffixes(san, move, san_str, token);
         return move;
     }
 
-    std::string_view san_str{san};
     auto token = get_token(san_str);
     if (token.type == TokenType::Invalid) {
         throw InvalidSAN("Could not parse SAN string '" + san + "'");
@@ -148,17 +205,7 @@ auto parse_san(const std::string &san, chesscore::Color side_to_move) -> SANMove
         san_str = san_str.substr(1);
         token = get_token(san_str);
     }
-    if (token.type == TokenType::Check) {
-        move.check_state = CheckState::Check;
-        san_str = san_str.substr(1);
-    }
-    if (token.type == TokenType::Checkmate) {
-        if (move.check_state != CheckState::None) {
-            throw InvalidSAN("Check and checkmate are mutually exclusive in SAN string '" + san + "'");
-        }
-        move.check_state = CheckState::Checkmate;
-        san_str = san_str.substr(1);
-    }
+    parse_suffixes(san, move, san_str, token);
 
     if (!san_str.empty()) {
         throw InvalidSAN("Unexpected characters at end of SAN string '" + san + "'");
