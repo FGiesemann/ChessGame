@@ -12,15 +12,15 @@ using namespace chessgame;
 using namespace chesscore;
 
 auto check_move(const SANMove &move, Piece piece, Square target_square, bool capturing, std::optional<chesscore::Piece> promotion, CheckState check_state) -> bool {
-    return move.piece() == piece && move.target_square() == target_square && move.capturing() == capturing && move.check_state() == check_state && move.promotion() == promotion;
+    return move.moving_piece == piece && move.target_square == target_square && move.capturing == capturing && move.check_state == check_state && move.promotion == promotion;
 }
 
 auto check_move(const SANMove &move, Piece piece, Square target_square, bool capturing, std::optional<chesscore::Piece> promotion, CheckState check_state, File from_file) -> bool {
-    return check_move(move, piece, target_square, capturing, promotion, check_state) && move.from_file() == from_file;
+    return check_move(move, piece, target_square, capturing, promotion, check_state) && move.disambiguation_file == from_file;
 }
 
 auto check_move(const SANMove &move, Piece piece, Square target_square, bool capturing, std::optional<chesscore::Piece> promotion, CheckState check_state, Rank from_rank) -> bool {
-    return check_move(move, piece, target_square, capturing, promotion, check_state) && move.from_rank() == from_rank;
+    return check_move(move, piece, target_square, capturing, promotion, check_state) && move.disambiguation_rank == from_rank;
 }
 
 TEST_CASE("SAN Parser.Castling", "[san]") {

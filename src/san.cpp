@@ -77,29 +77,22 @@ auto extract_rank(std::string_view str) -> chesscore::Rank {
     return chesscore::Rank{str[0] - '0'};
 }
 
-auto get_check_state(bool check, bool checkmate) -> CheckState {
-    if (check && checkmate) {
-        throw InvalidSAN("Check and checkmate are mutually exclusive");
-    }
-    if (check) {
-        return CheckState::Check;
-    }
-    if (checkmate) {
-        return CheckState::Checkmate;
-    }
-    return CheckState::None;
-}
-
 } // namespace
 
 auto parse_san(const std::string &san, chesscore::Color side_to_move) -> SANMove {
+    SANMove move;
+    move.san_string = san;
     if (san == "O-O") {
         const auto target_square = side_to_move == chesscore::Color::White ? chesscore::Square::G1 : chesscore::Square::G8;
-        return SANMove{san, chesscore::Piece{.type = chesscore::PieceType::King, .color = side_to_move}, target_square, false, std::nullopt, CheckState::None};
+        move.moving_piece = chesscore::Piece{.type = chesscore::PieceType::King, .color = side_to_move};
+        move.target_square = target_square;
+        return move;
     }
     if (san == "O-O-O") {
         const auto target_square = side_to_move == chesscore::Color::White ? chesscore::Square::C1 : chesscore::Square::C8;
-        return SANMove{san, chesscore::Piece{.type = chesscore::PieceType::King, .color = side_to_move}, target_square, false, std::nullopt, CheckState::None};
+        move.moving_piece = chesscore::Piece{.type = chesscore::PieceType::King, .color = side_to_move};
+        move.target_square = target_square;
+        return move;
     }
 
     std::string_view san_str{san};
@@ -108,32 +101,27 @@ auto parse_san(const std::string &san, chesscore::Color side_to_move) -> SANMove
         throw InvalidSAN("Could not parse SAN string '" + san + "'");
     }
 
-    std::optional<chesscore::Piece> piece{{.type = chesscore::PieceType::Pawn, .color = side_to_move}};
-    std::optional<chesscore::File> from_file;
-    std::optional<chesscore::Rank> from_rank;
-    bool capturing = false;
-    std::optional<chesscore::Square> target_square;
-    std::optional<chesscore::Piece> promotion;
-    bool check = false;
-    bool checkmate = false;
     if (token.type == TokenType::PieceType) {
-        piece = chesscore::Piece{.type = chesscore::piece_type_from_char(token.value[0]), .color = side_to_move};
+        move.moving_piece = chesscore::Piece{.type = chesscore::piece_type_from_char(token.value[0]), .color = side_to_move};
         san_str = san_str.substr(1);
         token = get_token(san_str);
+    } else {
+        move.moving_piece = chesscore::Piece{.type = chesscore::PieceType::Pawn, .color = side_to_move};
     }
+
     if (token.type == TokenType::File) {
         const auto next_token = get_token(san_str.substr(1));
         if (next_token.type != TokenType::Rank) {
-            from_file = chesscore::File{token.value[0]};
+            move.disambiguation_file = chesscore::File{token.value[0]};
             san_str = san_str.substr(1);
         }
     } else if (token.type == TokenType::Rank) {
-        from_rank = extract_rank(token.value);
+        move.disambiguation_rank = extract_rank(token.value);
         san_str = san_str.substr(1);
     }
     token = get_token(san_str);
     if (token.type == TokenType::Capturing) {
-        capturing = true;
+        move.capturing = true;
         san_str = san_str.substr(1);
         token = get_token(san_str);
     }
@@ -141,7 +129,7 @@ auto parse_san(const std::string &san, chesscore::Color side_to_move) -> SANMove
         chesscore::File to_file{token.value[0]};
         const auto rank_token = get_token(san_str.substr(1));
         if (rank_token.type == TokenType::Rank) {
-            target_square = chesscore::Square{to_file, extract_rank(rank_token.value)};
+            move.target_square = chesscore::Square{to_file, extract_rank(rank_token.value)};
             san_str = san_str.substr(2);
         } else {
             throw InvalidSAN("Expected rank, but not found in SAN string '" + san + "'");
@@ -156,16 +144,19 @@ auto parse_san(const std::string &san, chesscore::Color side_to_move) -> SANMove
         if (token.type != TokenType::PieceType) {
             throw InvalidSAN("Expected promotion piece, but not found in SAN string '" + san + "'");
         }
-        promotion = chesscore::Piece{.type = chesscore::piece_type_from_char(token.value[0]), .color = side_to_move};
+        move.promotion = chesscore::Piece{.type = chesscore::piece_type_from_char(token.value[0]), .color = side_to_move};
         san_str = san_str.substr(1);
         token = get_token(san_str);
     }
     if (token.type == TokenType::Check) {
-        check = true;
+        move.check_state = CheckState::Check;
         san_str = san_str.substr(1);
     }
     if (token.type == TokenType::Checkmate) {
-        checkmate = true;
+        if (move.check_state != CheckState::None) {
+            throw InvalidSAN("Check and checkmate are mutually exclusive in SAN string '" + san + "'");
+        }
+        move.check_state = CheckState::Checkmate;
         san_str = san_str.substr(1);
     }
 
@@ -173,17 +164,7 @@ auto parse_san(const std::string &san, chesscore::Color side_to_move) -> SANMove
         throw InvalidSAN("Unexpected characters at end of SAN string '" + san + "'");
     }
 
-    if (!target_square.has_value()) {
-        throw InvalidSAN("No target square found in SAN string '" + san + "'");
-    }
-
-    if (from_file.has_value()) {
-        return SANMove{san, *piece, *target_square, capturing, promotion, get_check_state(check, checkmate), *from_file};
-    }
-    if (from_rank.has_value()) {
-        return SANMove{san, *piece, *target_square, capturing, promotion, get_check_state(check, checkmate), *from_rank};
-    }
-    return SANMove{san, *piece, *target_square, capturing, promotion, get_check_state(check, checkmate)};
+    return move;
 }
 
 } // namespace chessgame
