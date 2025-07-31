@@ -27,6 +27,21 @@ enum class CheckState {
 };
 
 /**
+ * \brief The possible suffix annotations for a move.
+ *
+ * Suffix annotation can be appended to a SAN move to indicate the quality of
+ * the move.
+ */
+enum class SuffixAnnotation {
+    GoodMove,        ///< !
+    PoorMove,        ///< ?
+    VeryGoodMove,    ///< !!
+    VeryPoorMove,    ///< ??
+    SpeculativeMove, ///< !?
+    QuestionableMove ///< ?!
+};
+
+/**
  * \brief Representation of a move in SAN.
  *
  * A move can be described in Standard Algebraic Notation (SAN). This class
@@ -42,6 +57,7 @@ struct SANMove {
     CheckState check_state{CheckState::None};                         ///< Check state of the move.
     std::optional<chesscore::File> disambiguation_file{std::nullopt}; ///< Disambiguation file information.
     std::optional<chesscore::Rank> disambiguation_rank{std::nullopt}; ///< Disambiguation rank information.
+    std::optional<SuffixAnnotation> suffix_annotation{std::nullopt};  ///< Suffix annotation of the move.
 
     /**
      * \brief Equality comparison of two SANMoves.
