@@ -25,7 +25,7 @@ enum class TokenType {
 };
 
 struct SANToken {
-    TokenType type;
+    TokenType type{TokenType::Invalid};
     std::string_view value;
 };
 
@@ -33,8 +33,8 @@ auto get_token(std::string_view san_str) -> SANToken {
     if (san_str.empty()) {
         return {.type = TokenType::Invalid, .value = ""};
     }
-    char c = san_str[0];
-    switch (c) {
+    char character = san_str[0];
+    switch (character) {
     case 'P':
     case 'R':
     case 'N':
@@ -129,74 +129,7 @@ void parse_suffixes(const std::string &san, SANMove &move, std::string_view &san
     }
 }
 
-} // namespace
-
-auto parse_san(const std::string &san, chesscore::Color side_to_move) -> SANMove {
-    static const std::string long_castling{"O-O-O"};
-    static const std::string short_castling{"O-O"};
-
-    SANMove move;
-    move.san_string = san;
-    std::string_view san_str{san};
-    if (san_str.starts_with(long_castling)) {
-        const auto target_square = side_to_move == chesscore::Color::White ? chesscore::Square::C1 : chesscore::Square::C8;
-        move.moving_piece = chesscore::Piece{.type = chesscore::PieceType::King, .color = side_to_move};
-        move.target_square = target_square;
-        auto token = get_token(san_str.substr(long_castling.length()));
-        parse_suffixes(san, move, san_str, token);
-        return move;
-    }
-    if (san_str.starts_with(short_castling)) {
-        const auto target_square = side_to_move == chesscore::Color::White ? chesscore::Square::G1 : chesscore::Square::G8;
-        move.moving_piece = chesscore::Piece{.type = chesscore::PieceType::King, .color = side_to_move};
-        move.target_square = target_square;
-        auto token = get_token(san_str.substr(short_castling.length()));
-        parse_suffixes(san, move, san_str, token);
-        return move;
-    }
-
-    auto token = get_token(san_str);
-    if (token.type == TokenType::Invalid) {
-        throw InvalidSAN("Could not parse SAN string '" + san + "'");
-    }
-
-    if (token.type == TokenType::PieceType) {
-        move.moving_piece = chesscore::Piece{.type = chesscore::piece_type_from_char(token.value[0]), .color = side_to_move};
-        san_str = san_str.substr(1);
-        token = get_token(san_str);
-    } else {
-        move.moving_piece = chesscore::Piece{.type = chesscore::PieceType::Pawn, .color = side_to_move};
-    }
-
-    if (token.type == TokenType::File) {
-        const auto next_token = get_token(san_str.substr(1));
-        if (next_token.type != TokenType::Rank) {
-            move.disambiguation_file = chesscore::File{token.value[0]};
-            san_str = san_str.substr(1);
-        }
-    } else if (token.type == TokenType::Rank) {
-        move.disambiguation_rank = extract_rank(token.value);
-        san_str = san_str.substr(1);
-    }
-    token = get_token(san_str);
-    if (token.type == TokenType::Capturing) {
-        move.capturing = true;
-        san_str = san_str.substr(1);
-        token = get_token(san_str);
-    }
-    if (token.type == TokenType::File) {
-        chesscore::File to_file{token.value[0]};
-        const auto rank_token = get_token(san_str.substr(1));
-        if (rank_token.type == TokenType::Rank) {
-            move.target_square = chesscore::Square{to_file, extract_rank(rank_token.value)};
-            san_str = san_str.substr(2);
-        } else {
-            throw InvalidSAN("Expected rank, but not found in SAN string '" + san + "'");
-        }
-    } else {
-        throw InvalidSAN("Expected file, but not found in SAN string '" + san + "'");
-    }
-    token = get_token(san_str);
+void parse_promotions(const std::string &san, chesscore::Color &side_to_move, SANMove &move, std::string_view &san_str, SANToken &token) {
     if (token.type == TokenType::Promotion) {
         san_str = san_str.substr(1);
         token = get_token(san_str);
@@ -207,6 +140,96 @@ auto parse_san(const std::string &san, chesscore::Color side_to_move) -> SANMove
         san_str = san_str.substr(1);
         token = get_token(san_str);
     }
+}
+
+void parse_piece_type(chesscore::Color &side_to_move, SANMove &move, std::string_view &san_str, SANToken &token) {
+    if (token.type == TokenType::PieceType) {
+        move.moving_piece = chesscore::Piece{.type = chesscore::piece_type_from_char(token.value[0]), .color = side_to_move};
+        san_str = san_str.substr(1);
+        token = get_token(san_str);
+    } else {
+        move.moving_piece = chesscore::Piece{.type = chesscore::PieceType::Pawn, .color = side_to_move};
+    }
+}
+
+void parse_disambiguation_chars(SANMove &move, std::string_view &san_str, SANToken &token) {
+    if (token.type == TokenType::File) {
+        const auto next_token = get_token(san_str.substr(1));
+        if (next_token.type != TokenType::Rank) {
+            move.disambiguation_file = chesscore::File{token.value[0]};
+            san_str = san_str.substr(1);
+            token = get_token(san_str);
+        }
+    } else if (token.type == TokenType::Rank) {
+        move.disambiguation_rank = extract_rank(token.value);
+        san_str = san_str.substr(1);
+        token = get_token(san_str);
+    }
+}
+
+void parse_capture(SANMove &move, std::string_view &san_str, SANToken &token) {
+    if (token.type == TokenType::Capturing) {
+        move.capturing = true;
+        san_str = san_str.substr(1);
+        token = get_token(san_str);
+    }
+}
+
+void parse_target_square(const std::string &san, SANMove &move, std::string_view &san_str, SANToken &token) {
+    if (token.type == TokenType::File) {
+        chesscore::File to_file{token.value[0]};
+        const auto rank_token = get_token(san_str.substr(1));
+        if (rank_token.type == TokenType::Rank) {
+            move.target_square = chesscore::Square{to_file, extract_rank(rank_token.value)};
+            san_str = san_str.substr(2);
+            token = get_token(san_str);
+        } else {
+            throw InvalidSAN("Expected rank, but not found in SAN string '" + san + "'");
+        }
+    } else {
+        throw InvalidSAN("Expected file, but not found in SAN string '" + san + "'");
+    }
+}
+
+const std::string long_castling{"O-O-O"};
+const std::string short_castling{"O-O"};
+
+auto parse_castling_move(const std::string &san, chesscore::Color side_to_move, SANMove &move, std::string_view san_str) -> void {
+    move.moving_piece = chesscore::Piece{.type = chesscore::PieceType::King, .color = side_to_move};
+    chesscore::Square target_square;
+    SANToken token;
+    if (san_str.starts_with(long_castling)) {
+        target_square = side_to_move == chesscore::Color::White ? chesscore::Square::C1 : chesscore::Square::C8;
+        token = get_token(san_str.substr(long_castling.length()));
+    } else {
+        target_square = side_to_move == chesscore::Color::White ? chesscore::Square::G1 : chesscore::Square::G8;
+        token = get_token(san_str.substr(short_castling.length()));
+    }
+    parse_suffixes(san, move, san_str, token);
+    move.target_square = target_square;
+}
+
+} // namespace
+
+auto parse_san(const std::string &san, chesscore::Color side_to_move) -> SANMove {
+    SANMove move;
+    move.san_string = san;
+    std::string_view san_str{san};
+    if (san_str.starts_with(short_castling)) {
+        parse_castling_move(san, side_to_move, move, san_str);
+        return move;
+    }
+
+    auto token = get_token(san_str);
+    if (token.type == TokenType::Invalid) {
+        throw InvalidSAN("Could not parse SAN string '" + san + "'");
+    }
+
+    parse_piece_type(side_to_move, move, san_str, token);
+    parse_disambiguation_chars(move, san_str, token);
+    parse_capture(move, san_str, token);
+    parse_target_square(san, move, san_str, token);
+    parse_promotions(san, side_to_move, move, san_str, token);
     parse_suffixes(san, move, san_str, token);
 
     if (!san_str.empty()) {
