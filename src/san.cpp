@@ -140,7 +140,7 @@ auto parse_san(const std::string &san, chesscore::Color side_to_move) -> SANMove
         const auto target_square = side_to_move == chesscore::Color::White ? chesscore::Square::C1 : chesscore::Square::C8;
         move.moving_piece = chesscore::Piece{.type = chesscore::PieceType::King, .color = side_to_move};
         move.target_square = target_square;
-        auto token = get_token(san_str.substr(4));
+        auto token = get_token(san_str.substr(5));
         parse_suffixes(san, move, san_str, token);
         return move;
     }

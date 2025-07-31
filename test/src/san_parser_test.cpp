@@ -81,7 +81,7 @@ TEST_CASE("SAN Parser.Suffix Annotations", "[san]") {
     CHECK(check_move(parse_san("Qxe2!", Color::White), Piece::WhiteQueen, Square::E2, true, std::nullopt, CheckState::None, SuffixAnnotation::GoodMove));
     CHECK(check_move(parse_san("Bec3!?", Color::Black), Piece::BlackBishop, Square::C3, false, std::nullopt, CheckState::None, SuffixAnnotation::SpeculativeMove));
     CHECK(check_move(parse_san("O-O??", Color::White), Piece::WhiteKing, Square::G1, false, std::nullopt, CheckState::None, SuffixAnnotation::VeryPoorMove));
-    CHECK(check_move(parse_san("O-O?", Color::Black), Piece::BlackKing, Square::G8, false, std::nullopt, CheckState::None, SuffixAnnotation::PoorMove));
+    CHECK(check_move(parse_san("O-O-O?", Color::Black), Piece::BlackKing, Square::C8, false, std::nullopt, CheckState::None, SuffixAnnotation::PoorMove));
     CHECK(check_move(parse_san("exd8=Q+!!", Color::White), Piece::WhitePawn, Square::D8, true, Piece::WhiteQueen, CheckState::Check, SuffixAnnotation::VeryGoodMove));
     CHECK(check_move(parse_san("dxe2?!", Color::Black), Piece::BlackPawn, Square::E2, true, std::nullopt, CheckState::None, SuffixAnnotation::QuestionableMove));
 }
