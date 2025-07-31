@@ -5,32 +5,43 @@
 
 #include <catch2/catch_all.hpp>
 #include <chesscore/piece.h>
+#include <chesscore/square.h>
 
 #include "chessgame/san.h"
 
 using namespace chessgame;
 using namespace chesscore;
 
+using ParseRes = std::expected<SANMove, SANParserError>;
+
 auto check_move(
-    const SANMove &move, Piece piece, Square target_square, bool capturing, std::optional<chesscore::Piece> promotion, CheckState check_state,
+    const ParseRes &parse_res, Piece piece, Square target_square, bool capturing, std::optional<chesscore::Piece> promotion, CheckState check_state,
     std::optional<SuffixAnnotation> suffix_annotation
 ) -> bool {
+    if (!parse_res.has_value()) {
+        return false;
+    }
+    const auto &move = parse_res.value();
     return move.moving_piece == piece && move.target_square == target_square && move.capturing == capturing && move.check_state == check_state && move.promotion == promotion &&
            move.suffix_annotation == suffix_annotation;
 }
 
 auto check_move(
-    const SANMove &move, Piece piece, Square target_square, bool capturing, std::optional<chesscore::Piece> promotion, CheckState check_state, File from_file,
+    const ParseRes &parse_res, Piece piece, Square target_square, bool capturing, std::optional<chesscore::Piece> promotion, CheckState check_state, File from_file,
     std::optional<SuffixAnnotation> suffix_annotation
 ) -> bool {
-    return check_move(move, piece, target_square, capturing, promotion, check_state, suffix_annotation) && move.disambiguation_file == from_file;
+    return check_move(parse_res, piece, target_square, capturing, promotion, check_state, suffix_annotation) && parse_res.value().disambiguation_file == from_file;
 }
 
 auto check_move(
-    const SANMove &move, Piece piece, Square target_square, bool capturing, std::optional<chesscore::Piece> promotion, CheckState check_state, Rank from_rank,
+    const ParseRes &parse_res, Piece piece, Square target_square, bool capturing, std::optional<chesscore::Piece> promotion, CheckState check_state, Rank from_rank,
     std::optional<SuffixAnnotation> suffix_annotation
 ) -> bool {
-    return check_move(move, piece, target_square, capturing, promotion, check_state, suffix_annotation) && move.disambiguation_rank == from_rank;
+    return check_move(parse_res, piece, target_square, capturing, promotion, check_state, suffix_annotation) && parse_res.value().disambiguation_rank == from_rank;
+}
+
+auto check_error(const ParseRes &parse_res, SANParserErrorType expected_error) {
+    return !parse_res.has_value() && parse_res.error().error_type == expected_error;
 }
 
 TEST_CASE("SAN Parser.Castling", "[san]") {
@@ -96,9 +107,9 @@ TEST_CASE("SAN Parser.Mixed Examples", "[san]") {
 }
 
 TEST_CASE("SAN Parser.Invalid SAN", "[san]") {
-    CHECK_THROWS_AS(parse_san("axf9", Color::White), InvalidSAN);
-    CHECK_THROWS_AS(parse_san("Lc4", Color::Black), InvalidSAN);
-    CHECK_THROWS_AS(parse_san("Kg1a", Color::White), InvalidSAN);
-    CHECK_THROWS_AS(parse_san("O-O+#", Color::White), InvalidSAN);
-    CHECK_THROWS_AS(parse_san("Qxd4#+", Color::Black), InvalidSAN);
+    CHECK(check_error(parse_san("axf9", Color::White), SANParserErrorType::MissingRank));
+    CHECK(check_error(parse_san("Lc4", Color::Black), SANParserErrorType::UnexpectedToken));
+    CHECK(check_error(parse_san("Kg1a", Color::White), SANParserErrorType::UnexpectedCharsAtEnd));
+    CHECK(check_error(parse_san("O-O+#", Color::White), SANParserErrorType::CheckAndCheckmate));
+    CHECK(check_error(parse_san("Qxd4#+", Color::Black), SANParserErrorType::CheckAndCheckmate));
 }

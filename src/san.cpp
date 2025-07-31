@@ -87,7 +87,7 @@ auto extract_rank(std::string_view str) -> chesscore::Rank {
     return chesscore::Rank{str[0] - '0'};
 }
 
-auto get_suffix_annotation(std::string_view str) -> SuffixAnnotation {
+auto get_suffix_annotation(std::string_view str) -> std::expected<SuffixAnnotation, SANParserError> {
     if (str == "!") {
         return SuffixAnnotation::GoodMove;
     }
@@ -106,10 +106,10 @@ auto get_suffix_annotation(std::string_view str) -> SuffixAnnotation {
     if (str == "?!") {
         return SuffixAnnotation::QuestionableMove;
     }
-    throw InvalidSAN("Invalid suffix annotation '" + std::string{str} + "'");
+    return std::unexpected(SANParserError{.error_type = SANParserErrorType::InvalidSuffixAnnotation, .san = std::string{str}});
 }
 
-void parse_suffixes(const std::string &san, SANMove &move, std::string_view &san_str, SANToken &token) {
+auto parse_suffixes(const std::string &san, SANMove &move, std::string_view &san_str, SANToken &token) -> std::optional<SANParserError> {
     if (token.type == TokenType::Check) {
         move.check_state = CheckState::Check;
         san_str = san_str.substr(1);
@@ -117,7 +117,7 @@ void parse_suffixes(const std::string &san, SANMove &move, std::string_view &san
     }
     if (token.type == TokenType::Checkmate) {
         if (move.check_state != CheckState::None) {
-            throw InvalidSAN("Check and checkmate are mutually exclusive in SAN string '" + san + "'");
+            return SANParserError{.error_type = SANParserErrorType::CheckAndCheckmate, .san = san};
         }
         move.check_state = CheckState::Checkmate;
         san_str = san_str.substr(1);
@@ -125,32 +125,38 @@ void parse_suffixes(const std::string &san, SANMove &move, std::string_view &san
     }
     if (token.type == TokenType::Check) {
         if (move.check_state != CheckState::None) {
-            throw InvalidSAN("Check and checkmate are mutually exclusive in SAN string '" + san + "'");
+            return SANParserError{.error_type = SANParserErrorType::CheckAndCheckmate, .san = san};
         }
         move.check_state = CheckState::Check;
         san_str = san_str.substr(1);
         token = get_token(san_str);
     }
     if (token.type == TokenType::SuffixAnnotation) {
-        move.suffix_annotation = get_suffix_annotation(token.value);
+        const auto annotation = get_suffix_annotation(token.value);
+        if (!annotation.has_value()) {
+            return annotation.error();
+        }
+        move.suffix_annotation = annotation.value();
         san_str = san_str.substr(token.value.length());
     }
+    return std::nullopt;
 }
 
-void parse_promotions(const std::string &san, chesscore::Color &side_to_move, SANMove &move, std::string_view &san_str, SANToken &token) {
+auto parse_promotions(const std::string &san, chesscore::Color &side_to_move, SANMove &move, std::string_view &san_str, SANToken &token) -> std::optional<SANParserError> {
     if (token.type == TokenType::Promotion) {
         san_str = san_str.substr(1);
         token = get_token(san_str);
         if (token.type != TokenType::PieceType) {
-            throw InvalidSAN("Expected promotion piece, but not found in SAN string '" + san + "'");
+            return SANParserError{.error_type = SANParserErrorType::MissingPieceType, .san = san};
         }
         move.promotion = chesscore::Piece{.type = chesscore::piece_type_from_char(token.value[0]), .color = side_to_move};
         san_str = san_str.substr(1);
         token = get_token(san_str);
     }
+    return std::nullopt;
 }
 
-void parse_piece_type(chesscore::Color &side_to_move, SANMove &move, std::string_view &san_str, SANToken &token) {
+auto parse_piece_type(chesscore::Color &side_to_move, SANMove &move, std::string_view &san_str, SANToken &token) -> void {
     if (token.type == TokenType::PieceType) {
         move.moving_piece = chesscore::Piece{.type = chesscore::piece_type_from_char(token.value[0]), .color = side_to_move};
         san_str = san_str.substr(1);
@@ -160,7 +166,7 @@ void parse_piece_type(chesscore::Color &side_to_move, SANMove &move, std::string
     }
 }
 
-void parse_disambiguation_chars(SANMove &move, std::string_view &san_str, SANToken &token) {
+auto parse_disambiguation_chars(SANMove &move, std::string_view &san_str, SANToken &token) -> void {
     if (token.type == TokenType::File) {
         const auto next_token = get_token(san_str.substr(1));
         if (next_token.type != TokenType::Rank) {
@@ -175,7 +181,7 @@ void parse_disambiguation_chars(SANMove &move, std::string_view &san_str, SANTok
     }
 }
 
-void parse_capture(SANMove &move, std::string_view &san_str, SANToken &token) {
+auto parse_capture(SANMove &move, std::string_view &san_str, SANToken &token) -> void {
     if (token.type == TokenType::Capturing) {
         move.capturing = true;
         san_str = san_str.substr(1);
@@ -183,7 +189,7 @@ void parse_capture(SANMove &move, std::string_view &san_str, SANToken &token) {
     }
 }
 
-void parse_target_square(const std::string &san, SANMove &move, std::string_view &san_str, SANToken &token) {
+auto parse_target_square(const std::string &san, SANMove &move, std::string_view &san_str, SANToken &token) -> std::optional<SANParserError> {
     if (token.type == TokenType::File) {
         chesscore::File to_file{token.value[0]};
         const auto rank_token = get_token(san_str.substr(1));
@@ -192,17 +198,18 @@ void parse_target_square(const std::string &san, SANMove &move, std::string_view
             san_str = san_str.substr(2);
             token = get_token(san_str);
         } else {
-            throw InvalidSAN("Expected rank, but not found in SAN string '" + san + "'");
+            return SANParserError{.error_type = SANParserErrorType::MissingRank, .san = san};
         }
     } else {
-        throw InvalidSAN("Expected file, but not found in SAN string '" + san + "'");
+        return SANParserError{.error_type = SANParserErrorType::MissingFile, .san = san};
     }
+    return std::nullopt;
 }
 
 const std::string long_castling{"O-O-O"};
 const std::string short_castling{"O-O"};
 
-auto parse_castling_move(const std::string &san, chesscore::Color side_to_move, SANMove &move, std::string_view san_str) -> void {
+auto parse_castling_move(const std::string &san, chesscore::Color side_to_move, SANMove &move, std::string_view san_str) -> std::optional<SANParserError> {
     move.moving_piece = chesscore::Piece{.type = chesscore::PieceType::King, .color = side_to_move};
     chesscore::Square target_square;
     SANToken token;
@@ -214,35 +221,51 @@ auto parse_castling_move(const std::string &san, chesscore::Color side_to_move, 
         san_str = san_str.substr(short_castling.length());
     }
     token = get_token(san_str);
-    parse_suffixes(san, move, san_str, token);
+    auto suffix_err = parse_suffixes(san, move, san_str, token);
+    if (suffix_err) {
+        return suffix_err;
+    }
     move.target_square = target_square;
+    return std::nullopt;
 }
 
 } // namespace
 
-auto parse_san(const std::string &san, chesscore::Color side_to_move) -> SANMove {
+auto parse_san(const std::string &san, chesscore::Color side_to_move) -> std::expected<SANMove, SANParserError> {
     SANMove move;
     move.san_string = san;
     std::string_view san_str{san};
     if (san_str.starts_with(short_castling)) {
-        parse_castling_move(san, side_to_move, move, san_str);
+        const auto castling_err = parse_castling_move(san, side_to_move, move, san_str);
+        if (castling_err) {
+            return std::unexpected(*castling_err);
+        }
         return move;
     }
 
     auto token = get_token(san_str);
     if (token.type == TokenType::Invalid) {
-        throw InvalidSAN("Could not parse SAN string '" + san + "'");
+        return std::unexpected(SANParserError{.error_type = SANParserErrorType::UnexpectedToken, .san = san});
     }
 
     parse_piece_type(side_to_move, move, san_str, token);
     parse_disambiguation_chars(move, san_str, token);
     parse_capture(move, san_str, token);
-    parse_target_square(san, move, san_str, token);
-    parse_promotions(san, side_to_move, move, san_str, token);
-    parse_suffixes(san, move, san_str, token);
+    const auto target_square_err = parse_target_square(san, move, san_str, token);
+    if (target_square_err) {
+        return std::unexpected(*target_square_err);
+    }
+    const auto promotions_err = parse_promotions(san, side_to_move, move, san_str, token);
+    if (promotions_err) {
+        return std::unexpected(*promotions_err);
+    }
+    const auto suffixes_err = parse_suffixes(san, move, san_str, token);
+    if (suffixes_err) {
+        return std::unexpected(*suffixes_err);
+    }
 
     if (!san_str.empty()) {
-        throw InvalidSAN("Unexpected characters at end of SAN string '" + san + "'");
+        return std::unexpected(SANParserError{.error_type = SANParserErrorType::UnexpectedCharsAtEnd, .san = san});
     }
 
     return move;
