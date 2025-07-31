@@ -133,22 +133,25 @@ void parse_suffixes(const std::string &san, SANMove &move, std::string_view &san
 } // namespace
 
 auto parse_san(const std::string &san, chesscore::Color side_to_move) -> SANMove {
+    static const std::string long_castling{"O-O-O"};
+    static const std::string short_castling{"O-O"};
+
     SANMove move;
     move.san_string = san;
     std::string_view san_str{san};
-    if (san_str.starts_with("O-O-O")) {
+    if (san_str.starts_with(long_castling)) {
         const auto target_square = side_to_move == chesscore::Color::White ? chesscore::Square::C1 : chesscore::Square::C8;
         move.moving_piece = chesscore::Piece{.type = chesscore::PieceType::King, .color = side_to_move};
         move.target_square = target_square;
-        auto token = get_token(san_str.substr(5));
+        auto token = get_token(san_str.substr(long_castling.length()));
         parse_suffixes(san, move, san_str, token);
         return move;
     }
-    if (san_str.starts_with("O-O")) {
+    if (san_str.starts_with(short_castling)) {
         const auto target_square = side_to_move == chesscore::Color::White ? chesscore::Square::G1 : chesscore::Square::G8;
         move.moving_piece = chesscore::Piece{.type = chesscore::PieceType::King, .color = side_to_move};
         move.target_square = target_square;
-        auto token = get_token(san_str.substr(3));
+        auto token = get_token(san_str.substr(short_castling.length()));
         parse_suffixes(san, move, san_str, token);
         return move;
     }
