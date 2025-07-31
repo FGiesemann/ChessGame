@@ -6,7 +6,6 @@
 #include "chessgame/san.h"
 
 #include <chesscore/piece.h>
-#include <cstddef>
 #include <string_view>
 
 namespace chessgame {
