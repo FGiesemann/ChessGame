@@ -123,6 +123,14 @@ void parse_suffixes(const std::string &san, SANMove &move, std::string_view &san
         san_str = san_str.substr(1);
         token = get_token(san_str);
     }
+    if (token.type == TokenType::Check) {
+        if (move.check_state != CheckState::None) {
+            throw InvalidSAN("Check and checkmate are mutually exclusive in SAN string '" + san + "'");
+        }
+        move.check_state = CheckState::Check;
+        san_str = san_str.substr(1);
+        token = get_token(san_str);
+    }
     if (token.type == TokenType::SuffixAnnotation) {
         move.suffix_annotation = get_suffix_annotation(token.value);
         san_str = san_str.substr(token.value.length());
@@ -200,11 +208,12 @@ auto parse_castling_move(const std::string &san, chesscore::Color side_to_move, 
     SANToken token;
     if (san_str.starts_with(long_castling)) {
         target_square = side_to_move == chesscore::Color::White ? chesscore::Square::C1 : chesscore::Square::C8;
-        token = get_token(san_str.substr(long_castling.length()));
+        san_str = san_str.substr(long_castling.length());
     } else {
         target_square = side_to_move == chesscore::Color::White ? chesscore::Square::G1 : chesscore::Square::G8;
-        token = get_token(san_str.substr(short_castling.length()));
+        san_str = san_str.substr(short_castling.length());
     }
+    token = get_token(san_str);
     parse_suffixes(san, move, san_str, token);
     move.target_square = target_square;
 }
