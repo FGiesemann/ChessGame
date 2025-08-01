@@ -54,7 +54,7 @@ TEST_CASE("Move Matcher.Disambiguations", "[san][move_matcher]") {
     CHECK(moves1_2.size() == 1);
     CHECK(move_list_contains(moves1_2, Move{.from = Square::B4, .to = Square::D5, .piece = Piece::WhiteKnight}));
 
-    const auto moves1_3 = match_san_move(SANMove{.san_string = "Ned5", .moving_piece = Piece::BlackRook, .target_square = Square::F4, .disambiguation_file = File{'e'}}, moves);
+    const auto moves1_3 = match_san_move(SANMove{.san_string = "Ned5", .moving_piece = Piece::WhiteKnight, .target_square = Square::D5, .disambiguation_file = File{'e'}}, moves);
     CHECK(moves1_3.size() == 1);
     CHECK(move_list_contains(moves1_3, Move{.from = Square::E3, .to = Square::D5, .piece = Piece::WhiteKnight}));
 
