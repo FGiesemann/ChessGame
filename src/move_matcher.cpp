@@ -19,6 +19,9 @@ auto matches(const SANMove &san_move, const chesscore::Move &move) -> bool {
         (san_move.disambiguation_rank.has_value() && san_move.disambiguation_rank.value() != move.from.rank())) {
         return false;
     }
+    if (san_move.capturing && move.captured == std::nullopt) {
+        return false;
+    }
     return true;
 }
 
