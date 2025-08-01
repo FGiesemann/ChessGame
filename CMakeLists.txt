@@ -17,6 +17,7 @@ add_library(${PROJECT_NAME}
     src/cursor.cpp
     src/game.cpp
     src/metadata.cpp
+    src/move_matcher.cpp
     src/san.cpp
     src/tree.cpp
     src/types.cpp
