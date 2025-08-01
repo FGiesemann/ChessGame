@@ -87,3 +87,54 @@ TEST_CASE("Move Matcher.Capture", "[san][move_matcher]") {
     CHECK(moves2.size() == 1);
     CHECK(move_list_contains(moves2, Move{.from = Square::E5, .to = Square::C4, .piece = Piece::BlackKnight, .captured = Piece::WhitePawn}));
 }
+
+TEST_CASE("Move Matcher.Promotion", "[san][move_matcher]") {
+    const MoveList moves{
+        Move{.from = Square::E7, .to = Square::E8, .piece = Piece::WhitePawn, .promoted = Piece::WhiteQueen},                                // e8=Q
+        Move{.from = Square::C2, .to = Square::C1, .piece = Piece::BlackPawn, .promoted = Piece::BlackKnight},                               // c1=N
+        Move{.from = Square::E2, .to = Square::D1, .piece = Piece::BlackPawn, .captured = Piece::BlackRook, .promoted = Piece::WhiteBishop}, // exd1=B
+        Move{.from = Square::A7, .to = Square::B8, .piece = Piece::WhitePawn, .captured = Piece::BlackQueen, .promoted = Piece::WhiteRook},  // axb8=R
+    };
+
+    const auto moves1 = match_san_move(SANMove{.san_string = "e8=Q", .moving_piece = Piece::WhitePawn, .target_square = Square::E8, .promotion = Piece::WhiteQueen}, moves);
+    CHECK(moves1.size() == 1);
+    CHECK(move_list_contains(moves1, Move{.from = Square::E7, .to = Square::E8, .piece = Piece::WhitePawn, .promoted = Piece::WhiteQueen}));
+
+    const auto moves2 = match_san_move(SANMove{.san_string = "e8=Q", .moving_piece = Piece::WhitePawn, .target_square = Square::E8, .promotion = Piece::WhiteBishop}, moves);
+    CHECK(moves2.size() == 0);
+
+    const auto moves3 = match_san_move(SANMove{.san_string = "c1=N", .moving_piece = Piece::BlackPawn, .target_square = Square::C1, .promotion = Piece::BlackKnight}, moves);
+    CHECK(moves3.size() == 1);
+    CHECK(move_list_contains(moves3, Move{.from = Square::C2, .to = Square::C1, .piece = Piece::BlackPawn, .promoted = Piece::BlackKnight}));
+
+    const auto moves4 = match_san_move(
+        SANMove{
+            .san_string = "exd1=B",
+            .moving_piece = Piece::BlackPawn,
+            .target_square = Square::D1,
+            .capturing = true,
+            .promotion = Piece::WhiteBishop,
+            .disambiguation_file = File{'e'}
+        },
+        moves
+    );
+    CHECK(moves4.size() == 1);
+    CHECK(move_list_contains(moves4, Move{.from = Square::E2, .to = Square::D1, .piece = Piece::BlackPawn, .captured = Piece::BlackRook, .promoted = Piece::WhiteBishop}));
+
+    const auto moves5 = match_san_move(
+        SANMove{
+            .san_string = "axb8=R",
+            .moving_piece = Piece::WhitePawn,
+            .target_square = Square::B8,
+            .capturing = true,
+            .promotion = Piece::WhiteRook,
+            .disambiguation_file = File{'a'}
+        },
+        moves
+    );
+    CHECK(moves5.size() == 1);
+    CHECK(move_list_contains(moves5, Move{.from = Square::A7, .to = Square::B8, .piece = Piece::WhitePawn, .captured = Piece::BlackQueen, .promoted = Piece::WhiteRook}));
+
+    const auto moves6 = match_san_move(SANMove{.san_string = "axb8", .moving_piece = Piece::WhitePawn, .target_square = Square::B8, .capturing = true}, moves);
+    CHECK(moves6.size() == 0);
+}

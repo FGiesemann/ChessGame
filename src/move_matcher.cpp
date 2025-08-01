@@ -22,6 +22,9 @@ auto matches(const SANMove &san_move, const chesscore::Move &move) -> bool {
     if (san_move.capturing && move.captured == std::nullopt) {
         return false;
     }
+    if (move.promoted != san_move.promotion) {
+        return false;
+    }
     return true;
 }
 
