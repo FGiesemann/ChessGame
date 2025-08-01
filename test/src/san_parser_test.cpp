@@ -4,6 +4,7 @@
  * ************************************************************************** */
 
 #include <catch2/catch_all.hpp>
+
 #include <chesscore/piece.h>
 #include <chesscore/square.h>
 

@@ -1,5 +1,6 @@
 add_executable(chessgame_tests
     src/san_parser_test.cpp
+    src/move_matcher_test.cpp
 )
 add_compiler_warnings(chessgame_tests)
 
