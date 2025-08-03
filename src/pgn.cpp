@@ -5,6 +5,7 @@
 
 #include "chessgame/pgn.h"
 
+#include <cctype>
 #include <istream>
 
 namespace chessgame {
@@ -27,6 +28,8 @@ auto PGNLexer::next_token() -> std::expected<Token, PGNError> {
             return Token{.type = TokenType::OpenBracket, .line = m_line_number};
         case ']':
             return Token{.type = TokenType::CloseBracket, .line = m_line_number};
+        case '$':
+            return read_nag();
         case '.':
             return Token{.type = TokenType::Dot, .line = m_line_number};
         case '"':
@@ -128,6 +131,20 @@ auto PGNLexer::read_comment() -> std::expected<Token, PGNError> {
         return std::unexpected(PGNError{.type = PGNErrorType::InputError, .line = m_line_number});
     }
     return Token{.type = TokenType::Comment, .line = m_line_number, .value = result};
+}
+
+auto PGNLexer::read_nag() -> std::expected<Token, PGNError> {
+    std::string result{};
+    int c = m_in_stream.get();
+    while (m_in_stream && (std::isdigit(c) != 0)) {
+        result += static_cast<char>(c);
+        c = m_in_stream.get();
+    }
+    if (!m_in_stream) {
+        return std::unexpected(PGNError{.type = PGNErrorType::InputError, .line = m_line_number});
+    }
+    m_in_stream.unget();
+    return Token{.type = TokenType::NAG, .line = m_line_number, .value = result};
 }
 
 } // namespace chessgame
