@@ -62,6 +62,7 @@ public:
         Name,         ///< Name, e.g. of a tag
         String,       ///< String
         Number,       ///< Number (integer)
+        NAG,          ///< Numeric Annotation Glyph
         Dot,          ///< Dot
         OpenParen,    ///< Opening parenthesis (
         CloseParen,   ///< Closing parenthesis )
@@ -114,6 +115,7 @@ private:
     auto read_token_starting_with_number(char first_c) -> std::expected<Token, PGNError>;
     auto read_name(char first_c) -> std::expected<Token, PGNError>;
     auto read_comment() -> std::expected<Token, PGNError>;
+    auto read_nag() -> std::expected<Token, PGNError>;
 };
 
 } // namespace chessgame
