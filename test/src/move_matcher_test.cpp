@@ -14,6 +14,55 @@
 using namespace chessgame;
 using namespace chesscore;
 
+TEST_CASE("Move Matcher.SAN Move.Simple", "[san][move_matcher]") {
+    CHECK(san_move_matches(
+        SANMove{.san_string = "e4", .moving_piece = Piece::WhitePawn, .target_square = Square::E4}, Move{.from = Square::E2, .to = Square::E4, .piece = Piece::WhitePawn}
+    ));
+    CHECK_FALSE(san_move_matches(
+        SANMove{.san_string = "e4", .moving_piece = Piece::WhitePawn, .target_square = Square::E4}, Move{.from = Square::E2, .to = Square::E4, .piece = Piece::WhiteBishop}
+    ));
+    CHECK_FALSE(san_move_matches(
+        SANMove{.san_string = "e4", .moving_piece = Piece::WhitePawn, .target_square = Square::E4}, Move{.from = Square::E2, .to = Square::E3, .piece = Piece::WhitePawn}
+    ));
+    CHECK(san_move_matches(
+        SANMove{.san_string = "Qf3", .moving_piece = Piece::WhiteQueen, .target_square = Square::F3}, Move{.from = Square::D1, .to = Square::F3, .piece = Piece::WhiteQueen}
+    ));
+    CHECK_FALSE(san_move_matches(
+        SANMove{.san_string = "Qf3", .moving_piece = Piece::WhiteQueen, .target_square = Square::F3}, Move{.from = Square::D1, .to = Square::F3, .piece = Piece::WhiteKnight}
+    ));
+    CHECK_FALSE(san_move_matches(
+        SANMove{.san_string = "Qf3", .moving_piece = Piece::WhiteQueen, .target_square = Square::F3}, Move{.from = Square::D1, .to = Square::F4, .piece = Piece::WhiteQueen}
+    ));
+    CHECK_FALSE(san_move_matches(
+        SANMove{.san_string = "Qf3", .moving_piece = Piece::WhiteQueen, .target_square = Square::F3}, Move{.from = Square::D1, .to = Square::F3, .piece = Piece::BlackQueen}
+    ));
+    CHECK(san_move_matches(
+        SANMove{.san_string = "Nce5", .moving_piece = Piece::WhiteKnight, .target_square = Square::E5}, Move{.from = Square::C4, .to = Square::E5, .piece = Piece::WhiteKnight}
+    ));
+    CHECK_FALSE(san_move_matches(
+        SANMove{.san_string = "Nce5", .moving_piece = Piece::WhiteKnight, .target_square = Square::E5}, Move{.from = Square::D3, .to = Square::E6, .piece = Piece::WhiteKnight}
+    ));
+    CHECK(san_move_matches(
+        SANMove{.san_string = "R2e4", .moving_piece = Piece::WhiteRook, .target_square = Square::E4, .disambiguation_rank = Rank{2}},
+        Move{.from = Square::E2, .to = Square::E4, .piece = Piece::WhiteRook}
+    ));
+    CHECK_FALSE(san_move_matches(
+        SANMove{.san_string = "R2e4", .moving_piece = Piece::WhiteRook, .target_square = Square::E4, .disambiguation_rank = Rank{1}},
+        Move{.from = Square::E8, .to = Square::E4, .piece = Piece::WhiteRook}
+    ));
+}
+
+TEST_CASE("Move Matcher.SAN Move.Capture", "[san][move_matcher]") {
+    CHECK(san_move_matches(
+        SANMove{.san_string = "Qxg4", .moving_piece = Piece::WhiteQueen, .target_square = Square::G4, .capturing = true},
+        Move{.from = Square::D1, .to = Square::G4, .piece = Piece::WhiteQueen, .captured = Piece::BlackQueen}
+    ));
+    CHECK_FALSE(san_move_matches(
+        SANMove{.san_string = "Qxg4", .moving_piece = Piece::WhiteQueen, .target_square = Square::G4, .capturing = true},
+        Move{.from = Square::D1, .to = Square::G4, .piece = Piece::WhiteQueen}
+    ));
+}
+
 TEST_CASE("Move Matcher.SAN Move.Promotion", "[san][move_matcher]") {
     CHECK(san_move_matches(
         SANMove{.san_string = "c8=Q", .moving_piece = Piece::WhitePawn, .target_square = Square::C8, .promotion = Piece::WhiteQueen},
