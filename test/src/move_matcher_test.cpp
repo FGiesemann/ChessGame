@@ -5,14 +5,23 @@
 
 #include "chessgame/san.h"
 #include <catch2/catch_all.hpp>
+#include <catch2/internal/catch_string_manip.hpp>
 
-#include <chesscore/move.h>
-#include <chessgame/move_matcher.h>
+#include "chesscore/move.h"
+#include "chessgame/move_matcher.h"
+#include "chessgame/types.h"
 
 using namespace chessgame;
 using namespace chesscore;
 
-TEST_CASE("Move Matcher.Unambiguous Moves", "[san][move_matcher]") {
+TEST_CASE("Move Matcher.SAN Move.Promotion", "[san][move_matcher]") {
+    CHECK(san_move_matches(
+        SANMove{.san_string = "c8=Q", .moving_piece = Piece::WhitePawn, .target_square = Square::C8, .promotion = Piece::WhiteQueen},
+        Move{.from = Square::C7, .to = Square::C8, .piece = Piece::WhitePawn, .promoted = Piece::WhiteQueen}
+    ));
+}
+
+TEST_CASE("Move Matcher.List.Unambiguous Moves", "[san][move_matcher]") {
     const MoveList moves{
         Move{.from = Square::A1, .to = Square::A5, .piece = Piece::WhiteRook},   // Ra5
         Move{.from = Square::C4, .to = Square::E3, .piece = Piece::BlackKnight}, // Ne3
@@ -37,7 +46,7 @@ TEST_CASE("Move Matcher.Unambiguous Moves", "[san][move_matcher]") {
     CHECK(move_list_contains(moves4, Move{.from = Square::G5, .to = Square::F3, .piece = Piece::BlackKnight}));
 }
 
-TEST_CASE("Move Matcher.Disambiguations", "[san][move_matcher]") {
+TEST_CASE("Move Matcher.List.Disambiguations", "[san][move_matcher]") {
     const MoveList moves{
         Move{.from = Square::B4, .to = Square::D5, .piece = Piece::WhiteKnight}, // Nbd5
         Move{.from = Square::E3, .to = Square::D5, .piece = Piece::WhiteKnight}, // Ned5
@@ -72,7 +81,7 @@ TEST_CASE("Move Matcher.Disambiguations", "[san][move_matcher]") {
     CHECK(move_list_contains(moves2_3, Move{.from = Square::F6, .to = Square::F4, .piece = Piece::BlackRook}));
 }
 
-TEST_CASE("Move Matcher.Capture", "[san][move_matcher]") {
+TEST_CASE("Move Matcher.List.Capture", "[san][move_matcher]") {
     const MoveList moves{
         Move{.from = Square::C1, .to = Square::G5, .piece = Piece::WhiteBishop, .captured = Piece::BlackQueen}, // Bxg5
         Move{.from = Square::E5, .to = Square::C4, .piece = Piece::BlackKnight, .captured = Piece::WhitePawn},  // Nxc4
@@ -88,12 +97,13 @@ TEST_CASE("Move Matcher.Capture", "[san][move_matcher]") {
     CHECK(move_list_contains(moves2, Move{.from = Square::E5, .to = Square::C4, .piece = Piece::BlackKnight, .captured = Piece::WhitePawn}));
 }
 
-TEST_CASE("Move Matcher.Promotion", "[san][move_matcher]") {
+TEST_CASE("Move Matcher.List.Promotion", "[san][move_matcher]") {
     const MoveList moves{
         Move{.from = Square::E7, .to = Square::E8, .piece = Piece::WhitePawn, .promoted = Piece::WhiteQueen},                                // e8=Q
         Move{.from = Square::C2, .to = Square::C1, .piece = Piece::BlackPawn, .promoted = Piece::BlackKnight},                               // c1=N
         Move{.from = Square::E2, .to = Square::D1, .piece = Piece::BlackPawn, .captured = Piece::BlackRook, .promoted = Piece::WhiteBishop}, // exd1=B
         Move{.from = Square::A7, .to = Square::B8, .piece = Piece::WhitePawn, .captured = Piece::BlackQueen, .promoted = Piece::WhiteRook},  // axb8=R
+        Move{.from = Square::C7, .to = Square::C8, .piece = Piece::WhitePawn, .promoted = Piece::WhiteQueen},                                // c8=Q
     };
 
     const auto moves1 = match_san_move(SANMove{.san_string = "e8=Q", .moving_piece = Piece::WhitePawn, .target_square = Square::E8, .promotion = Piece::WhiteQueen}, moves);
@@ -137,4 +147,9 @@ TEST_CASE("Move Matcher.Promotion", "[san][move_matcher]") {
 
     const auto moves6 = match_san_move(SANMove{.san_string = "axb8", .moving_piece = Piece::WhitePawn, .target_square = Square::B8, .capturing = true}, moves);
     CHECK(moves6.size() == 0);
+
+    const auto moves7 = match_san_move(SANMove{.san_string = "c8=Q", .moving_piece = Piece::WhitePawn, .target_square = Square::C8, .promotion = Piece::WhiteQueen}, moves);
+    CHECK(moves7.size() == 1);
+    CHECK(move_list_contains(moves7, Move{.from = Square::C7, .to = Square::C8, .piece = Piece::WhitePawn, .promoted = Piece::WhiteQueen}));
+}
 }
