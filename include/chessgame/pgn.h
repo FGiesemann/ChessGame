@@ -9,6 +9,7 @@
 
 #include <expected>
 #include <iosfwd>
+#include <vector>
 
 #include "chessgame/game.h"
 
@@ -38,11 +39,11 @@ struct PGNError {
  * \brief Parse PGN data.
  *
  * Reads PGN data from an input stream. Extracts the game information and
- * returns it as a Game object.
+ * returns it as a list of game objects.
  * \param in_stream The input stream.
- * \return The parsed game or an error description.
+ * \return The parsed games or an error description.
  */
-auto read_pgn(std::istream &in_stream) -> std::expected<Game, PGNError>;
+auto read_pgn(std::istream &in_stream) -> std::expected<std::vector<Game>, PGNError>;
 
 /**
  * \brief Lexical analysis of PGN data.
