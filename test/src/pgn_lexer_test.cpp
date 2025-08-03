@@ -22,7 +22,7 @@ auto check_token(PGNLexer &lexer, PGNLexer::TokenType expected_type, int line, s
     CHECK(token->value == expected_value);
 }
 
-TEST_CASE("PGN.Lexer", "[pgn]") {
+TEST_CASE("PGN.Lexer.Single linear game", "[pgn]") {
     std::string pgn_data{"[Event \"Test Event\"]\n"
                          "[Site \"Test Site\"]\n"
                          "[Date \"2020.01.01\"]\n"
