@@ -21,7 +21,8 @@ namespace chessgame {
  * These errors can appear when parsing PGN data.
  */
 enum class PGNErrorType {
-    EndOfInput ///< Unexpected end of input
+    InputError,    ///< Error reading the input.
+    UnexpectedChar ///< Unexpected character in input.
 };
 
 /**
@@ -68,6 +69,7 @@ public:
         CloseBrace,   ///< Closing brace }
         Move,         ///< Move
         GameResult,   ///< Game result (1-0, 0-1, 1/2-1/2, ...)
+        EndOfInput,   ///< End of input
         Invalid,      ///< Invalid token
     };
 
@@ -77,9 +79,9 @@ public:
      * Describes a lexical unit in the PGN data stream.
      */
     struct Token {
-        TokenType type;    ///< The type of the token.
-        std::string value; ///< The value of the token.
-        int line;          ///< The line number of the token.
+        TokenType type;      ///< The type of the token.
+        int line;            ///< The line number of the token.
+        std::string value{}; ///< The value of the token.
     };
 
     /**
@@ -107,6 +109,11 @@ public:
 private:
     std::istream &m_in_stream; ///< The input stream
     int m_line_number{1};      ///< Current line number
+
+    auto skip_whitespace() -> void;
+    auto read_string() -> std::expected<Token, PGNError>;
+    auto read_number() -> std::expected<Token, PGNError>;
+    auto read_name() -> std::expected<Token, PGNError>;
 };
 
 } // namespace chessgame
