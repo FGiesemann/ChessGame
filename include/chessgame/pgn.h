@@ -67,7 +67,6 @@ public:
         CloseParen,   ///< Closing parenthesis )
         OpenBrace,    ///< Opening brace {
         CloseBrace,   ///< Closing brace }
-        Move,         ///< Move
         GameResult,   ///< Game result (1-0, 0-1, 1/2-1/2, ...)
         EndOfInput,   ///< End of input
         Invalid,      ///< Invalid token
@@ -110,10 +109,11 @@ private:
     std::istream &m_in_stream; ///< The input stream
     int m_line_number{1};      ///< Current line number
 
-    auto skip_whitespace() -> void;
+    [[nodiscard]] static auto is_whitespace(char c) -> bool;
+    auto skip_whitespace(int c) -> void;
     auto read_string() -> std::expected<Token, PGNError>;
-    auto read_number() -> std::expected<Token, PGNError>;
-    auto read_name() -> std::expected<Token, PGNError>;
+    auto read_token_starting_with_number(char first_c) -> std::expected<Token, PGNError>;
+    auto read_name(char first_c) -> std::expected<Token, PGNError>;
 };
 
 } // namespace chessgame
