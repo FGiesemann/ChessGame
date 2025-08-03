@@ -46,6 +46,15 @@ struct Event {
 };
 
 /**
+ * \brief Description of an opening.
+ */
+struct Opening {
+    std::string eco;       ///< The ECO code.
+    std::string name;      ///< The name of the opening.
+    std::string variation; ///< The name of the opening variation.
+};
+
+/**
  * \brief Possible ends of a game of chess.
  */
 enum class GameResult {
@@ -78,10 +87,9 @@ struct GameMetadata {
     Player white_player;                                  ///< Player of white pieces.
     Player black_player;                                  ///< Player of black pieces.
     Event event;                                          ///< Event of the game.
+    Opening opening;                                      ///< Opening of the game.
     GameResult result;                                    ///< Result of the game.
     std::optional<std::string> date;                      ///< Date of the game, if different from event date.
-    std::optional<std::string> eco;                       ///< ECO code of the game.
-    std::optional<std::string> opening;                   ///< Description/Name of the pening of the game.
     std::optional<chesscore::FenString> initial_position; ///< Initial position of the game, if different from the starting position.
     int ply_count;                                        ///< Number of (half) moves in the game
     std::string source;                                   ///< Source of the information.
