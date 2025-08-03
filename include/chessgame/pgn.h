@@ -21,7 +21,7 @@ namespace chessgame {
  * These errors can appear when parsing PGN data.
  */
 enum class PGNErrorType {
-
+    EndOfInput ///< Unexpected end of input
 };
 
 /**
@@ -30,9 +30,9 @@ enum class PGNErrorType {
  * Describes an error that occured while reading PGN data.
  */
 struct PGNError {
-    PGNErrorType type;   ///< Error type.
-    std::string message; ///< Additional description of the error.
-    int line;            ///< Line number where the error occured.
+    PGNErrorType type;     ///< Error type.
+    int line;              ///< Line number where the error occured.
+    std::string message{}; ///< Additional description of the error.
 };
 
 /**
