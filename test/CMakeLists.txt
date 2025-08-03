@@ -1,4 +1,5 @@
 add_executable(chessgame_tests
+    src/pgn_lexer_test.cpp
     src/san_parser_test.cpp
     src/move_matcher_test.cpp
 )
