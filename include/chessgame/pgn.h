@@ -44,6 +44,58 @@ struct PGNError {
  */
 auto read_pgn(std::istream &in_stream) -> std::expected<Game, PGNError>;
 
+/**
+ * \brief Lexical analysis of PGN data.
+ *
+ * Extracts tokens from PGN data.
+ */
+class PGNLexer {
+public:
+    /**
+     * \brief Type of a PGN token.
+     */
+    enum class TokenType {
+
+    };
+
+    /**
+     * \brief A token of PGN data.
+     *
+     * Describes a lexical unit in the PGN data stream.
+     */
+    struct Token {
+        TokenType type;    ///< The type of the token.
+        std::string value; ///< The value of the token.
+        int line;          ///< The line number of the token.
+    };
+
+    /**
+     * \brief Create a PGNLexer for a given input stream.
+     *
+     * \param in_stream The PGN input.
+     */
+    explicit PGNLexer(std::istream &in_stream) : m_in_stream{in_stream} {}
+
+    /**
+     * \brief Retrieve the next token from the input stream.
+     *
+     * Tries to find the next token in the PGN input.
+     * \return The token or an error description.
+     */
+    [[nodiscard]] auto next_token() -> std::expected<Token, PGNError>;
+
+    /**
+     * \brief The current line number.
+     *
+     * The number of the line the lexer is currently analysing.
+     * \return The current line number.
+     */
+    [[nodiscard]] auto line_number() const -> int { return m_line_number; }
+private:
+    std::istream &m_in_stream; ///< The input stream
+    int m_line_number{1};      ///< Current line number
+};
+
 } // namespace chessgame
 
 #endif
