@@ -162,7 +162,7 @@ auto check_single_move(const std::string &san_str, Color side_to_move, const Mov
     CHECK(move_list_contains(matched_moves, expected_move));
 }
 
-TEST_CASE("Move Matcher.Position.1", "[san][move_matcher]") {
+TEST_CASE("Move Matcher.Position.White", "[san][move_matcher]") {
     const chessgame::Position position_w{FenString{"3r4/ppP4k/1q2Np1r/b4Np1/1RP1B1nP/3n3P/P4B2/1KR5 w - - 0 1"}};
 
     const auto white_moves = position_w.all_legal_moves();
@@ -218,7 +218,9 @@ TEST_CASE("Move Matcher.Position.1", "[san][move_matcher]") {
     check_single_move("hxg5", Color::White, white_moves, Move{.from = Square::H4, .to = Square::G5, .piece = Piece::WhitePawn, .captured = Piece::BlackPawn});
     check_single_move("h5", Color::White, white_moves, Move{.from = Square::H4, .to = Square::H5, .piece = Piece::WhitePawn});
     check_single_move("hxg4", Color::White, white_moves, Move{.from = Square::H3, .to = Square::G4, .piece = Piece::WhitePawn, .captured = Piece::BlackKnight});
+}
 
+TEST_CASE("Move Matcher.Position.Black", "[move_matcher]") {
     const chessgame::Position position_b{FenString{"3r4/ppP4k/1q2Np1r/b4Np1/1RP1B1nP/3n3P/P4B2/1KR5 b - - 0 1"}};
     const auto black_moves = position_b.all_legal_moves();
     CHECK(black_moves.size() == 43);
