@@ -9,9 +9,7 @@
 
 namespace chessgame {
 
-namespace {
-
-auto matches(const SANMove &san_move, const chesscore::Move &move) -> bool {
+auto san_move_matches(const SANMove &san_move, const chesscore::Move &move) -> bool {
     if (san_move.moving_piece != move.piece || san_move.target_square != move.to) {
         return false;
     }
@@ -19,7 +17,7 @@ auto matches(const SANMove &san_move, const chesscore::Move &move) -> bool {
         (san_move.disambiguation_rank.has_value() && san_move.disambiguation_rank.value() != move.from.rank())) {
         return false;
     }
-    if (san_move.capturing && move.captured == std::nullopt) {
+    if ((san_move.capturing && move.captured == std::nullopt) || (!san_move.capturing && move.captured != std::nullopt)) {
         return false;
     }
     if (move.promoted != san_move.promotion) {
@@ -28,10 +26,8 @@ auto matches(const SANMove &san_move, const chesscore::Move &move) -> bool {
     return true;
 }
 
-} // namespace
-
 auto match_san_move([[maybe_unused]] const SANMove &san_move, [[maybe_unused]] const chesscore::MoveList &moves) -> chesscore::MoveList {
-    return moves | std::views::filter([&san_move](const chesscore::Move &move) { return matches(san_move, move); }) | std::ranges::to<std::vector>();
+    return moves | std::views::filter([&san_move](const chesscore::Move &move) { return san_move_matches(san_move, move); }) | std::ranges::to<std::vector>();
 }
 
 } // namespace chessgame

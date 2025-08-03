@@ -14,6 +14,16 @@
 namespace chessgame {
 
 /**
+ * \brief Check, if a SAN move matches a move.
+ *
+ * Checks if the given move can be described by the SAN move.
+ * \param san_move The SAN move.
+ * \param move The move.
+ * \return If the move can be described by the SAN move.
+ */
+auto san_move_matches(const SANMove &san_move, const chesscore::Move &move) -> bool;
+
+/**
  * \brief Match a move list against a SAN move.
  *
  * Finds all moves in the move list that can be described by the SAN move.
