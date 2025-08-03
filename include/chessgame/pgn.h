@@ -65,8 +65,7 @@ public:
         Dot,          ///< Dot
         OpenParen,    ///< Opening parenthesis (
         CloseParen,   ///< Closing parenthesis )
-        OpenBrace,    ///< Opening brace {
-        CloseBrace,   ///< Closing brace }
+        Comment,      ///< Comment
         GameResult,   ///< Game result (1-0, 0-1, 1/2-1/2, ...)
         EndOfInput,   ///< End of input
         Invalid,      ///< Invalid token
@@ -114,6 +113,7 @@ private:
     auto read_string() -> std::expected<Token, PGNError>;
     auto read_token_starting_with_number(char first_c) -> std::expected<Token, PGNError>;
     auto read_name(char first_c) -> std::expected<Token, PGNError>;
+    auto read_comment() -> std::expected<Token, PGNError>;
 };
 
 } // namespace chessgame
