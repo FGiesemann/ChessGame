@@ -152,4 +152,74 @@ TEST_CASE("Move Matcher.List.Promotion", "[san][move_matcher]") {
     CHECK(moves7.size() == 1);
     CHECK(move_list_contains(moves7, Move{.from = Square::C7, .to = Square::C8, .piece = Piece::WhitePawn, .promoted = Piece::WhiteQueen}));
 }
+
+auto check_single_move(const std::string &san_str, Color side_to_move, const MoveList &moves, const Move &expected_move) -> void {
+    const auto expected_san_move = parse_san(san_str, side_to_move);
+    CAPTURE(san_str);
+    REQUIRE(expected_san_move.has_value());
+    const auto matched_moves = match_san_move(*expected_san_move, moves);
+    CHECK(matched_moves.size() == 1);
+    CHECK(move_list_contains(matched_moves, expected_move));
+}
+
+TEST_CASE("Move Matcher.Position.1", "[san][move_matcher]") {
+    const chessgame::Position position_w{FenString{"3r4/ppP4k/1q2Np1r/b4Np1/1RP1B1nP/3n3P/P4B2/1KR5 w - - 0 1"}};
+
+    const auto white_moves = position_w.all_legal_moves();
+    CHECK(white_moves.size() == 55);
+    check_single_move("a3", Color::White, white_moves, Move{.from = Square::A2, .to = Square::A3, .piece = Piece::WhitePawn});
+    check_single_move("a4", Color::White, white_moves, Move{.from = Square::A2, .to = Square::A4, .piece = Piece::WhitePawn});
+    check_single_move("Rxb6", Color::White, white_moves, Move{.from = Square::B4, .to = Square::B6, .piece = Piece::WhiteRook, .captured = Piece::BlackQueen});
+    check_single_move("Rb5", Color::White, white_moves, Move{.from = Square::B4, .to = Square::B5, .piece = Piece::WhiteRook});
+    check_single_move("Rb3", Color::White, white_moves, Move{.from = Square::B4, .to = Square::B3, .piece = Piece::WhiteRook});
+    check_single_move("Rb2", Color::White, white_moves, Move{.from = Square::B4, .to = Square::B2, .piece = Piece::WhiteRook});
+    check_single_move("Ka1", Color::White, white_moves, Move{.from = Square::B1, .to = Square::A1, .piece = Piece::WhiteKing});
+    check_single_move("Kc2", Color::White, white_moves, Move{.from = Square::B1, .to = Square::C2, .piece = Piece::WhiteKing});
+    check_single_move("c8=Q", Color::White, white_moves, Move{.from = Square::C7, .to = Square::C8, .piece = Piece::WhitePawn, .promoted = Piece::WhiteQueen});
+    check_single_move(
+        "cxd8=B", Color::White, white_moves, Move{.from = Square::C7, .to = Square::D8, .piece = Piece::WhitePawn, .captured = Piece::BlackRook, .promoted = Piece::WhiteBishop}
+    );
+    check_single_move("c5", Color::White, white_moves, Move{.from = Square::C4, .to = Square::C5, .piece = Piece::WhitePawn});
+    check_single_move("Rd1", Color::White, white_moves, Move{.from = Square::C1, .to = Square::D1, .piece = Piece::WhiteRook});
+    check_single_move("Re1", Color::White, white_moves, Move{.from = Square::C1, .to = Square::E1, .piece = Piece::WhiteRook});
+    check_single_move("Rf1", Color::White, white_moves, Move{.from = Square::C1, .to = Square::F1, .piece = Piece::WhiteRook});
+    check_single_move("Rg1", Color::White, white_moves, Move{.from = Square::C1, .to = Square::G1, .piece = Piece::WhiteRook});
+    check_single_move("Rh1", Color::White, white_moves, Move{.from = Square::C1, .to = Square::H1, .piece = Piece::WhiteRook});
+    check_single_move("Rc2", Color::White, white_moves, Move{.from = Square::C1, .to = Square::C2, .piece = Piece::WhiteRook});
+    check_single_move("Rc3", Color::White, white_moves, Move{.from = Square::C1, .to = Square::C3, .piece = Piece::WhiteRook});
+    check_single_move("Nxd8", Color::White, white_moves, Move{.from = Square::E6, .to = Square::D8, .piece = Piece::WhiteKnight, .captured = Piece::BlackRook});
+    check_single_move("Nc5", Color::White, white_moves, Move{.from = Square::E6, .to = Square::C5, .piece = Piece::WhiteKnight});
+    check_single_move("Ned4", Color::White, white_moves, Move{.from = Square::E6, .to = Square::D4, .piece = Piece::WhiteKnight});
+    check_single_move("Nf4", Color::White, white_moves, Move{.from = Square::E6, .to = Square::F4, .piece = Piece::WhiteKnight});
+    check_single_move("Nxg5+", Color::White, white_moves, Move{.from = Square::E6, .to = Square::G5, .piece = Piece::WhiteKnight, .captured = Piece::BlackPawn});
+    check_single_move("Neg7", Color::White, white_moves, Move{.from = Square::E6, .to = Square::G7, .piece = Piece::WhiteKnight});
+    check_single_move("Nf8+", Color::White, white_moves, Move{.from = Square::E6, .to = Square::F8, .piece = Piece::WhiteKnight});
+    check_single_move("Bxb7", Color::White, white_moves, Move{.from = Square::E4, .to = Square::B7, .piece = Piece::WhiteBishop, .captured = Piece::BlackPawn});
+    check_single_move("Bc6", Color::White, white_moves, Move{.from = Square::E4, .to = Square::C6, .piece = Piece::WhiteBishop});
+    check_single_move("Bd5", Color::White, white_moves, Move{.from = Square::E4, .to = Square::D5, .piece = Piece::WhiteBishop});
+    check_single_move("Bf3", Color::White, white_moves, Move{.from = Square::E4, .to = Square::F3, .piece = Piece::WhiteBishop});
+    check_single_move("Bg2", Color::White, white_moves, Move{.from = Square::E4, .to = Square::G2, .piece = Piece::WhiteBishop});
+    check_single_move("Bh1", Color::White, white_moves, Move{.from = Square::E4, .to = Square::H1, .piece = Piece::WhiteBishop});
+    check_single_move("Bxd3", Color::White, white_moves, Move{.from = Square::E4, .to = Square::D3, .piece = Piece::WhiteBishop, .captured = Piece::BlackKnight});
+    check_single_move("Ne7", Color::White, white_moves, Move{.from = Square::F5, .to = Square::E7, .piece = Piece::WhiteKnight});
+    check_single_move("Nd6", Color::White, white_moves, Move{.from = Square::F5, .to = Square::D6, .piece = Piece::WhiteKnight});
+    check_single_move("Nfd4", Color::White, white_moves, Move{.from = Square::F5, .to = Square::D4, .piece = Piece::WhiteKnight});
+    check_single_move("Ne3", Color::White, white_moves, Move{.from = Square::F5, .to = Square::E3, .piece = Piece::WhiteKnight});
+    check_single_move("Ng3", Color::White, white_moves, Move{.from = Square::F5, .to = Square::G3, .piece = Piece::WhiteKnight});
+    check_single_move("Nxh6", Color::White, white_moves, Move{.from = Square::F5, .to = Square::H6, .piece = Piece::WhiteKnight, .captured = Piece::BlackRook});
+    check_single_move("Nfg7", Color::White, white_moves, Move{.from = Square::F5, .to = Square::G7, .piece = Piece::WhiteKnight});
+    check_single_move("Bxb6", Color::White, white_moves, Move{.from = Square::F2, .to = Square::B6, .piece = Piece::WhiteBishop, .captured = Piece::BlackQueen});
+    check_single_move("Bc5", Color::White, white_moves, Move{.from = Square::F2, .to = Square::C5, .piece = Piece::WhiteBishop});
+    check_single_move("Bd4", Color::White, white_moves, Move{.from = Square::F2, .to = Square::D4, .piece = Piece::WhiteBishop});
+    check_single_move("Be3", Color::White, white_moves, Move{.from = Square::F2, .to = Square::E3, .piece = Piece::WhiteBishop});
+    check_single_move("Bg1", Color::White, white_moves, Move{.from = Square::F2, .to = Square::G1, .piece = Piece::WhiteBishop});
+    check_single_move("Be1", Color::White, white_moves, Move{.from = Square::F2, .to = Square::E1, .piece = Piece::WhiteBishop});
+    check_single_move("Bg3", Color::White, white_moves, Move{.from = Square::F2, .to = Square::G3, .piece = Piece::WhiteBishop});
+    check_single_move("hxg5", Color::White, white_moves, Move{.from = Square::H4, .to = Square::G5, .piece = Piece::WhitePawn, .captured = Piece::BlackPawn});
+    check_single_move("h5", Color::White, white_moves, Move{.from = Square::H4, .to = Square::H5, .piece = Piece::WhitePawn});
+    check_single_move("hxg4", Color::White, white_moves, Move{.from = Square::H3, .to = Square::G4, .piece = Piece::WhitePawn, .captured = Piece::BlackKnight});
+
+    const chessgame::Position position_b{FenString{"3r4/ppP4k/1q2Np1r/b4Np1/1RP1B1nP/3n3P/P4B2/1KR5 b - - 0 1"}};
+    const auto black_moves = position_b.all_legal_moves();
+    CHECK(black_moves.size() == 43);
 }
