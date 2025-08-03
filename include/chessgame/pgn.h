@@ -56,7 +56,19 @@ public:
      * \brief Type of a PGN token.
      */
     enum class TokenType {
-
+        OpenBracket,  ///< Opening bracket [
+        CloseBracket, ///< Closing bracket ]
+        Name,         ///< Name, e.g. of a tag
+        String,       ///< String
+        Number,       ///< Number (integer)
+        Dot,          ///< Dot
+        OpenParen,    ///< Opening parenthesis (
+        CloseParen,   ///< Closing parenthesis )
+        OpenBrace,    ///< Opening brace {
+        CloseBrace,   ///< Closing brace }
+        Move,         ///< Move
+        GameResult,   ///< Game result (1-0, 0-1, 1/2-1/2, ...)
+        Invalid,      ///< Invalid token
     };
 
     /**
