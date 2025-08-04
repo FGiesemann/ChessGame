@@ -16,12 +16,11 @@ auto check_token(PGNLexer &lexer, PGNLexer::TokenType expected_type, int line = 
     CAPTURE(expected_type);
     CAPTURE(line);
     CAPTURE(expected_value);
-    REQUIRE(token.has_value());
-    CHECK(token->type == expected_type);
+    CHECK(token.type == expected_type);
     if (line != -1) {
-        CHECK(token->line == line);
+        CHECK(token.line == line);
     }
-    CHECK(token->value == expected_value);
+    CHECK(token.value == expected_value);
 }
 
 auto check_tag(PGNLexer &lexer, const std::string &expected_name, const std::string &expected_value, int line) -> void {

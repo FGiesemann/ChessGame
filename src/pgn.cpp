@@ -10,7 +10,7 @@
 
 namespace chessgame {
 
-auto PGNLexer::next_token() -> std::expected<Token, PGNError> {
+auto PGNLexer::next_token() -> Token {
     int c = m_in_stream.get();
     if (is_whitespace(static_cast<char>(c))) {
         skip_whitespace(c);
@@ -47,9 +47,9 @@ auto PGNLexer::next_token() -> std::expected<Token, PGNError> {
         if (m_in_stream.eof()) {
             return Token{.type = TokenType::EndOfInput, .line = m_line_number};
         }
-        return std::unexpected(PGNError{.type = PGNErrorType::InputError, .line = m_line_number});
+        throw PGNError{PGNErrorType::InputError, m_line_number};
     }
-    return std::unexpected(PGNError{.type = PGNErrorType::UnexpectedChar, .line = m_line_number, .message = std::string{static_cast<char>(c)}});
+    throw PGNError{PGNErrorType::UnexpectedChar, m_line_number, std::string{static_cast<char>(c)}};
 }
 
 auto PGNLexer::is_whitespace(char c) -> bool {
@@ -66,7 +66,7 @@ auto PGNLexer::skip_whitespace(int c) -> void {
     m_in_stream.unget();
 }
 
-auto PGNLexer::read_string() -> std::expected<Token, PGNError> {
+auto PGNLexer::read_string() -> Token {
     std::string result{};
     int c = m_in_stream.get();
     while (m_in_stream && c != '"') {
@@ -74,12 +74,12 @@ auto PGNLexer::read_string() -> std::expected<Token, PGNError> {
         c = m_in_stream.get();
     }
     if (!m_in_stream) {
-        return std::unexpected(PGNError{.type = PGNErrorType::InputError, .line = m_line_number});
+        throw PGNError{PGNErrorType::InputError, m_line_number};
     }
     return Token{.type = TokenType::String, .line = m_line_number, .value = result};
 }
 
-auto PGNLexer::read_token_starting_with_number(char first_c) -> std::expected<Token, PGNError> {
+auto PGNLexer::read_token_starting_with_number(char first_c) -> Token {
     std::string result{first_c};
     int c = m_in_stream.get();
     bool only_numbers = true;
@@ -92,7 +92,7 @@ auto PGNLexer::read_token_starting_with_number(char first_c) -> std::expected<To
             if (m_in_stream.eof()) {
                 break;
             }
-            return std::unexpected(PGNError{.type = PGNErrorType::InputError, .line = m_line_number});
+            throw PGNError{PGNErrorType::InputError, m_line_number};
         }
         if (c == '/' || c == '-') {
             only_numbers = false;
@@ -106,7 +106,7 @@ auto PGNLexer::read_token_starting_with_number(char first_c) -> std::expected<To
     return Token{.type = only_numbers ? TokenType::Number : TokenType::GameResult, .line = m_line_number, .value = result};
 }
 
-auto PGNLexer::read_name(char first_c) -> std::expected<Token, PGNError> {
+auto PGNLexer::read_name(char first_c) -> Token {
     std::string result{first_c};
     int c = m_in_stream.get();
     while (m_in_stream && !is_whitespace(static_cast<char>(c))) {
@@ -114,13 +114,13 @@ auto PGNLexer::read_name(char first_c) -> std::expected<Token, PGNError> {
         c = m_in_stream.get();
     }
     if (!m_in_stream) {
-        return std::unexpected(PGNError{.type = PGNErrorType::InputError, .line = m_line_number});
+        throw PGNError{PGNErrorType::InputError, m_line_number};
     }
     m_in_stream.unget();
     return Token{.type = TokenType::Name, .line = m_line_number, .value = result};
 }
 
-auto PGNLexer::read_comment() -> std::expected<Token, PGNError> {
+auto PGNLexer::read_comment() -> Token {
     std::string result{};
     int c = m_in_stream.get();
     while (m_in_stream && c != '}') {
@@ -128,12 +128,12 @@ auto PGNLexer::read_comment() -> std::expected<Token, PGNError> {
         c = m_in_stream.get();
     }
     if (!m_in_stream) {
-        return std::unexpected(PGNError{.type = PGNErrorType::InputError, .line = m_line_number});
+        throw PGNError{PGNErrorType::InputError, m_line_number};
     }
     return Token{.type = TokenType::Comment, .line = m_line_number, .value = result};
 }
 
-auto PGNLexer::read_nag() -> std::expected<Token, PGNError> {
+auto PGNLexer::read_nag() -> Token {
     std::string result{};
     int c = m_in_stream.get();
     while (m_in_stream && (std::isdigit(c) != 0)) {
@@ -141,10 +141,20 @@ auto PGNLexer::read_nag() -> std::expected<Token, PGNError> {
         c = m_in_stream.get();
     }
     if (!m_in_stream) {
-        return std::unexpected(PGNError{.type = PGNErrorType::InputError, .line = m_line_number});
+        throw PGNError{PGNErrorType::InputError, m_line_number};
     }
     m_in_stream.unget();
     return Token{.type = TokenType::NAG, .line = m_line_number, .value = result};
+}
+
+auto PGNParser::read_game() -> std::optional<Game> {
+    return m_game;
+}
+
+auto PGNParser::read_tag() -> void {}
+
+auto PGNParser::next_token() -> void {
+    m_token = m_lexer.next_token();
 }
 
 } // namespace chessgame
