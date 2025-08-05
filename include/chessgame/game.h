@@ -7,6 +7,7 @@
 #ifndef CHESSGAME_GAME_H
 #define CHESSGAME_GAME_H
 
+#include "chessgame/cursor.h"
 #include "chessgame/metadata.h"
 #include "chessgame/tree.h"
 
@@ -54,6 +55,16 @@ public:
     auto metadata() -> GameMetadata & { return m_metadata; }
 
     /**
+     * \brief Set a metadata tag.
+     *
+     * Sets a metadata tag. If the name can be interpreted, the metadata struct
+     * is adapted accordingly. Otherwise, the data is stored in a custom  tag.
+     * \param tag_name Name of the tag.
+     * \param tag_value Value of the tag.
+     */
+    auto set_tag(const std::string &tag_name, const std::string &tag_value) -> void;
+
+    /**
      * \brief Add a new node to the game tree.
      *
      * The node is appended as a new child to the given parent node.
@@ -62,6 +73,8 @@ public:
      * \return The new node.
      */
     auto add_node(GameNode *parent, const chesscore::Move &move) -> GameNode *;
+
+    auto edit() -> Cursor { return {this, std::shared_ptr<GameNode>(&m_root)}; }
 private:
     GameMetadata m_metadata{};   ///< Meta data for the game.
     GameNode m_root{NodeId{1U}}; ///< Root node of the game tree.
