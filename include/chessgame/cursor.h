@@ -10,7 +10,6 @@
 #include <cstddef>
 #include <optional>
 
-#include "chessgame/game.h"
 #include "chessgame/tree.h"
 
 namespace chessgame {

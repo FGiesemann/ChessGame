@@ -19,4 +19,8 @@ auto Game::add_node(GameNode *parent, const chesscore::Move &move) -> GameNode *
     return child.get();
 }
 
+auto Game::set_tag([[maybe_unused]] const std::string &tag_name, [[maybe_unused]] const std::string &tag_value) -> void {
+    // TODO
+}
+
 } // namespace chessgame

@@ -9,9 +9,12 @@
 
 #include <iosfwd>
 #include <optional>
+#include <stack>
 #include <string>
 
+#include "chessgame/cursor.h"
 #include "chessgame/game.h"
+#include "chessgame/san.h"
 #include "chessgame/types.h"
 
 namespace chessgame {
@@ -22,9 +25,13 @@ namespace chessgame {
  * These errors can appear when parsing PGN data.
  */
 enum class PGNErrorType {
-    InputError,     ///< Error reading the input.
-    UnexpectedChar, ///< Unexpected character in input.
-    EndOfInput      ///< End of input.
+    InputError,      ///< Error reading the input.
+    UnexpectedChar,  ///< Unexpected character in input.
+    UnexpectedToken, ///< Unexpected token in input.
+    InvalidMove,     ///< Invalid move in input.
+    IllegalMove,     ///< Move is illegal in the current position.
+    AmbiguousMove,   ///< Move is ambiguous in the current position.
+    EndOfInput       ///< End of input.
 };
 
 /**
@@ -130,8 +137,22 @@ private:
     PGNLexer::Token m_token;
     Game m_game;
 
+    std::stack<Cursor> m_cursors;
+    auto reset() -> void;
+    auto clear_cursor_stack() -> void;
+    auto current_game_line() -> Cursor & { return m_cursors.top(); }
+
     auto next_token() -> void;
+    auto read_metadata() -> void;
+    auto read_movetext() -> void;
+    auto read_move() -> void;
     auto read_tag() -> void;
+
+    auto process_move(const std::string &san_str, chesscore::Color side_to_move, std::optional<int> number) -> void;
+
+    auto check_token_type(PGNLexer::TokenType expected_type, const std::string &error_message) const -> void;
+    auto expect_token(PGNLexer::TokenType expected_type, const std::string &error_message) -> void;
+    auto skip_tokens(PGNLexer::TokenType type) -> void;
 };
 
 } // namespace chessgame

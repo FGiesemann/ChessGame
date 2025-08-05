@@ -4,6 +4,7 @@
  * ************************************************************************** */
 
 #include "chessgame/cursor.h"
+#include "chessgame/game.h"
 
 namespace chessgame {
 
