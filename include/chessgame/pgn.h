@@ -151,6 +151,7 @@ private:
     auto process_game_result() -> void;
     auto process_move_comment() -> void;
     auto start_rav() -> void;
+    auto finish_rav() -> void;
     auto read_move_number_indication() -> void;
 
     auto process_move() -> void;

@@ -10,6 +10,8 @@
 #include <cctype>
 #include <istream>
 
+#include <iostream> // DELME
+
 namespace chessgame {
 
 auto PGNLexer::next_token() -> Token {
@@ -181,10 +183,12 @@ auto PGNParser::read_movetext() -> void {
         case PGNLexer::TokenType::OpenParen:
             start_rav();
             break;
+        case PGNLexer::TokenType::CloseParen:
+            finish_rav();
+            break;
         default:
             throw PGNError(PGNErrorType::UnexpectedToken, m_token.line, "Unexpected token in movetext");
         }
-        next_token();
     }
     process_game_result();
 }
@@ -200,6 +204,9 @@ auto PGNParser::read_metadata() -> void {
         next_token();
     }
     if (m_token.type == PGNLexer::TokenType::Comment) {
+
+        std::cout << "Game comment \"" << m_token.value << "\"\n";
+
         m_game.metadata().overall_comment = m_token.value;
         next_token();
     }
@@ -211,31 +218,56 @@ auto PGNParser::read_tag() -> void {
     expect_token(PGNLexer::TokenType::String, "String expected");
     const auto tag_value = m_token.value;
     m_game.set_tag(tag_name, tag_value);
+
+    std::cout << "Found tag [" << tag_name << " \"" << tag_value << "\"]\n";
+
     expect_token(PGNLexer::TokenType::CloseBracket, "Close bracket expected");
 }
 
 auto PGNParser::annotate_move() -> void {
     // TODO
+    std::cout << "Found NAG: " << m_token.value << "\n";
+    next_token();
 }
 
 auto PGNParser::process_game_result() -> void {
     // TODO
+    std::cout << "Found game result: " << m_token.value << "\n";
+    next_token();
 }
 
 auto PGNParser::process_move_comment() -> void {
     // TODO
+    std::cout << "Found move comment: \"" << m_token.value << "\"\n";
+    next_token();
 }
 
 auto PGNParser::start_rav() -> void {
     // TODO
+    std::cout << "Starting RAV\n";
+    next_token();
+}
+
+auto PGNParser::finish_rav() -> void {
+    // TODO
+    std::cout << "RAV ended\n";
+    next_token();
 }
 
 auto PGNParser::read_move_number_indication() -> void {
     // TODO
+    std::cout << "Found move number indication: " << m_token.value << "\n";
+    next_token();
+    while (m_token.type == PGNLexer::TokenType::Dot) {
+        std::cout << "Skipped dot\n";
+        next_token();
+    }
 }
 
 auto PGNParser::process_move() -> void {
     // TODO
+    std::cout << "Found move: \"" << m_token.value << "\"\n";
+    next_token();
 }
 
 auto PGNParser::next_token() -> void {

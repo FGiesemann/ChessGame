@@ -100,3 +100,6 @@ if (NOT BUILD_TESTING STREQUAL OFF)
     find_package(Catch2 3 REQUIRED)
     add_subdirectory(test)
 endif()
+
+# PGN Parser Test Program (DELME)
+add_subdirectory(pgn_parser)
