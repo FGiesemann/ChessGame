@@ -63,7 +63,7 @@ public:
     enum class TokenType {
         OpenBracket,  ///< Opening bracket [
         CloseBracket, ///< Closing bracket ]
-        Name,         ///< Name, e.g. of a tag
+        Symbol,       ///< Name, e.g. of a tag; move
         String,       ///< String
         Number,       ///< Number (integer)
         NAG,          ///< Numeric Annotation Glyph
@@ -147,8 +147,13 @@ private:
     auto read_movetext() -> void;
     auto read_move() -> void;
     auto read_tag() -> void;
+    auto annotate_move() -> void;
+    auto process_game_result() -> void;
+    auto process_move_comment() -> void;
+    auto start_rav() -> void;
+    auto read_move_number_indication() -> void;
 
-    auto process_move(const std::string &san_str, chesscore::Color side_to_move, std::optional<int> number) -> void;
+    auto process_move() -> void;
 
     auto check_token_type(PGNLexer::TokenType expected_type, const std::string &error_message) const -> void;
     auto expect_token(PGNLexer::TokenType expected_type, const std::string &error_message) -> void;

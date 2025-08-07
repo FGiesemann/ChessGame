@@ -119,7 +119,7 @@ auto PGNLexer::read_name(char first_c) -> Token {
         throw PGNError{PGNErrorType::InputError, m_line_number};
     }
     m_in_stream.unget();
-    return Token{.type = TokenType::Name, .line = m_line_number, .value = result};
+    return Token{.type = TokenType::Symbol, .line = m_line_number, .value = result};
 }
 
 auto PGNLexer::read_comment() -> Token {
@@ -164,27 +164,34 @@ auto PGNParser::read_game() -> std::optional<Game> {
 }
 
 auto PGNParser::read_movetext() -> void {
-    switch (m_token.type) {
-    case PGNLexer::TokenType::Number:
-    case PGNLexer::TokenType::Name:
-        read_move();
-        break;
-    default:
-        throw PGNError(PGNErrorType::UnexpectedToken, m_token.line, "Move expected");
+    while (m_token.type != PGNLexer::TokenType::GameResult) {
+        switch (m_token.type) {
+        case PGNLexer::TokenType::Number:
+            read_move_number_indication();
+            break;
+        case PGNLexer::TokenType::Symbol:
+            read_move();
+            break;
+        case PGNLexer::TokenType::NAG:
+            annotate_move();
+            break;
+        case PGNLexer::TokenType::Comment:
+            process_move_comment();
+            break;
+        case PGNLexer::TokenType::OpenParen:
+            start_rav();
+            break;
+        default:
+            throw PGNError(PGNErrorType::UnexpectedToken, m_token.line, "Unexpected token in movetext");
+        }
+        next_token();
     }
+    process_game_result();
 }
 
 auto PGNParser::read_move() -> void {
-    std::optional<int> number;
-    if (m_token.type == PGNLexer::TokenType::Number) {
-        number = std::stoi(m_token.value);
-        // TODO: check for "continuation", e.g. 1...e5 -> black move
-        skip_tokens(PGNLexer::TokenType::Dot);
-    }
-    check_token_type(PGNLexer::TokenType::Name, "Move expected");
-    process_move(m_token.value, chesscore::Color::White, number);
-
-    // TODO check black half-move
+    check_token_type(PGNLexer::TokenType::Symbol, "Move expected");
+    process_move();
 }
 
 auto PGNParser::read_metadata() -> void {
@@ -199,7 +206,7 @@ auto PGNParser::read_metadata() -> void {
 }
 
 auto PGNParser::read_tag() -> void {
-    expect_token(PGNLexer::TokenType::Name, "Name expected");
+    expect_token(PGNLexer::TokenType::Symbol, "Name expected");
     const auto tag_name = m_token.value;
     expect_token(PGNLexer::TokenType::String, "String expected");
     const auto tag_value = m_token.value;
@@ -207,23 +214,28 @@ auto PGNParser::read_tag() -> void {
     expect_token(PGNLexer::TokenType::CloseBracket, "Close bracket expected");
 }
 
-auto PGNParser::process_move(const std::string &san_str, chesscore::Color side_to_move, [[maybe_unused]] std::optional<int> number) -> void {
-    // TODO: check move number, if provided
-    const auto exp_san = parse_san(san_str, side_to_move);
-    if (!exp_san.has_value()) {
-        throw PGNError(PGNErrorType::InvalidMove, m_token.line, exp_san.error().san);
-    }
-    const auto &san_move = exp_san.value();
-    const auto legal_moves = current_game_line().position().all_legal_moves();
-    const auto matched_moves = match_san_move(san_move, legal_moves);
-    if (matched_moves.size() == 0) {
-        throw PGNError(PGNErrorType::IllegalMove, m_token.line, san_str);
-    }
-    if (matched_moves.size() > 1) {
-        throw PGNError(PGNErrorType::AmbiguousMove, m_token.line, san_str);
-    }
-    const auto move = matched_moves.front();
-    current_game_line() = current_game_line().play_move(move);
+auto PGNParser::annotate_move() -> void {
+    // TODO
+}
+
+auto PGNParser::process_game_result() -> void {
+    // TODO
+}
+
+auto PGNParser::process_move_comment() -> void {
+    // TODO
+}
+
+auto PGNParser::start_rav() -> void {
+    // TODO
+}
+
+auto PGNParser::read_move_number_indication() -> void {
+    // TODO
+}
+
+auto PGNParser::process_move() -> void {
+    // TODO
 }
 
 auto PGNParser::next_token() -> void {

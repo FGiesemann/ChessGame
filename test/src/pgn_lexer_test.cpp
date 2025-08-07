@@ -27,7 +27,7 @@ auto check_tag(PGNLexer &lexer, const std::string &expected_name, const std::str
     CAPTURE(expected_name);
     CAPTURE(expected_value);
     check_token(lexer, PGNLexer::TokenType::OpenBracket, line);
-    check_token(lexer, PGNLexer::TokenType::Name, line, expected_name);
+    check_token(lexer, PGNLexer::TokenType::Symbol, line, expected_name);
     check_token(lexer, PGNLexer::TokenType::String, line, expected_value);
     check_token(lexer, PGNLexer::TokenType::CloseBracket, line);
 }
@@ -38,8 +38,8 @@ auto check_full_move(PGNLexer &lexer, int number, const std::string &white_move,
     CAPTURE(black_move);
     check_token(lexer, PGNLexer::TokenType::Number, -1, std::to_string(number));
     check_token(lexer, PGNLexer::TokenType::Dot);
-    check_token(lexer, PGNLexer::TokenType::Name, -1, white_move);
-    check_token(lexer, PGNLexer::TokenType::Name, -1, black_move);
+    check_token(lexer, PGNLexer::TokenType::Symbol, -1, white_move);
+    check_token(lexer, PGNLexer::TokenType::Symbol, -1, black_move);
 }
 
 TEST_CASE("PGN.Lexer.Single linear game", "[pgn]") {
@@ -65,16 +65,16 @@ TEST_CASE("PGN.Lexer.Single linear game", "[pgn]") {
 
     check_token(lexer, PGNLexer::TokenType::Number, 9, "1");
     check_token(lexer, PGNLexer::TokenType::Dot, 9);
-    check_token(lexer, PGNLexer::TokenType::Name, 9, "e4");
-    check_token(lexer, PGNLexer::TokenType::Name, 9, "e5");
-    check_token(lexer, PGNLexer::TokenType::Name, 9, "Nf3");
+    check_token(lexer, PGNLexer::TokenType::Symbol, 9, "e4");
+    check_token(lexer, PGNLexer::TokenType::Symbol, 9, "e5");
+    check_token(lexer, PGNLexer::TokenType::Symbol, 9, "Nf3");
     check_token(lexer, PGNLexer::TokenType::Number, 9, "2");
     check_token(lexer, PGNLexer::TokenType::Dot, 9);
     check_token(lexer, PGNLexer::TokenType::Dot, 9);
     check_token(lexer, PGNLexer::TokenType::Dot, 9);
-    check_token(lexer, PGNLexer::TokenType::Name, 9, "Nc6");
+    check_token(lexer, PGNLexer::TokenType::Symbol, 9, "Nc6");
     check_token(lexer, PGNLexer::TokenType::Number, 9, "3");
-    check_token(lexer, PGNLexer::TokenType::Name, 9, "Bb5+");
+    check_token(lexer, PGNLexer::TokenType::Symbol, 9, "Bb5+");
     check_token(lexer, PGNLexer::TokenType::GameResult, 9, "1-0");
 }
 
@@ -129,7 +129,7 @@ TEST_CASE("PGN.Lexer.Commented game", "[pgn]") {
     check_full_move(lexer, 18, "Rxe7", "Bxe7");
     check_token(lexer, PGNLexer::TokenType::Number, 13, "19");
     check_token(lexer, PGNLexer::TokenType::Dot, 13);
-    check_token(lexer, PGNLexer::TokenType::Name, 13, "c4");
+    check_token(lexer, PGNLexer::TokenType::Symbol, 13, "c4");
     check_token(lexer, PGNLexer::TokenType::GameResult, 13, "1-0");
 }
 
@@ -186,23 +186,23 @@ TEST_CASE("PGN.Lexer.Game with variations", "[pgn]") {
     check_token(lexer, PGNLexer::TokenType::Dot, 13);
     check_token(lexer, PGNLexer::TokenType::Dot, 13);
     check_token(lexer, PGNLexer::TokenType::Dot, 13);
-    check_token(lexer, PGNLexer::TokenType::Name, 13, "f6");
+    check_token(lexer, PGNLexer::TokenType::Symbol, 13, "f6");
     check_full_move(lexer, 12, "exf6", "gxf6");
     check_token(lexer, PGNLexer::TokenType::Number, 13, "13");
     check_token(lexer, PGNLexer::TokenType::Dot, 13);
-    check_token(lexer, PGNLexer::TokenType::Name, 13, "Re1");
+    check_token(lexer, PGNLexer::TokenType::Symbol, 13, "Re1");
     check_token(lexer, PGNLexer::TokenType::NAG, 13, "1");
     check_token(lexer, PGNLexer::TokenType::NAG, 13, "14");
     check_token(lexer, PGNLexer::TokenType::CloseParen, 13);
     check_token(lexer, PGNLexer::TokenType::Number, 14, "24");
     check_token(lexer, PGNLexer::TokenType::Dot, 14);
-    check_token(lexer, PGNLexer::TokenType::Name, 14, "Rfe1");
+    check_token(lexer, PGNLexer::TokenType::Symbol, 14, "Rfe1");
     //({Better is} 24. f3 $1 Re2
     check_token(lexer, PGNLexer::TokenType::OpenParen, 15);
     check_token(lexer, PGNLexer::TokenType::Comment, 15, "Better is");
     check_token(lexer, PGNLexer::TokenType::Number, 15, "24");
     check_token(lexer, PGNLexer::TokenType::Dot, 15);
-    check_token(lexer, PGNLexer::TokenType::Name, 15, "f3");
+    check_token(lexer, PGNLexer::TokenType::Symbol, 15, "f3");
     check_token(lexer, PGNLexer::TokenType::NAG, 15, "1");
-    check_token(lexer, PGNLexer::TokenType::Name, 15, "Re2");
+    check_token(lexer, PGNLexer::TokenType::Symbol, 15, "Re2");
 }
