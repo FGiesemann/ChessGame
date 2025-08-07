@@ -69,10 +69,10 @@ auto PGNLexer::next_token() -> Token {
             break;
         }
     } else {
-        if (m_in_stream->eof()) {
-            return Token{.type = TokenType::EndOfInput, .line = m_line_number};
-        }
         throw PGNError{PGNErrorType::InputError, m_line_number};
+    }
+    if (m_in_stream->eof()) {
+        return Token{.type = TokenType::EndOfInput, .line = m_line_number};
     }
     throw PGNError{PGNErrorType::UnexpectedChar, m_line_number, std::string{static_cast<char>(c)}};
 }
