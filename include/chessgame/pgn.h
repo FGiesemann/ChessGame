@@ -34,6 +34,8 @@ enum class PGNErrorType {
     EndOfInput       ///< End of input.
 };
 
+auto to_string(PGNErrorType type) -> std::string;
+
 /**
  * \brief Error when parsing PGN data.
  *
@@ -92,7 +94,7 @@ public:
      *
      * \param in_stream The PGN input.
      */
-    explicit PGNLexer(std::istream &in_stream) : m_in_stream{in_stream} {}
+    explicit PGNLexer(std::istream *in_stream) : m_in_stream{in_stream} {}
 
     /**
      * \brief Retrieve the next token from the input stream.
@@ -110,7 +112,7 @@ public:
      */
     [[nodiscard]] auto line_number() const -> int { return m_line_number; }
 private:
-    std::istream &m_in_stream; ///< The input stream
+    std::istream *m_in_stream; ///< The input stream
     int m_line_number{1};      ///< Current line number
 
     [[nodiscard]] static auto is_whitespace(char c) -> bool;
@@ -129,7 +131,7 @@ private:
  */
 class PGNParser {
 public:
-    explicit PGNParser(std::istream &in_stream) : m_lexer{in_stream} {}
+    explicit PGNParser(std::istream &in_stream) : m_lexer{&in_stream} {}
 
     auto read_game() -> std::optional<Game>;
 private:
