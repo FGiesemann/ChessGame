@@ -74,11 +74,11 @@ public:
      */
     auto add_node(GameNode *parent, const chesscore::Move &move) -> GameNode *;
 
-    auto edit() -> Cursor { return {this, std::shared_ptr<GameNode>(&m_root)}; }
+    auto edit() -> Cursor { return {this, m_root}; }
 private:
-    GameMetadata m_metadata{};   ///< Meta data for the game.
-    GameNode m_root{NodeId{1U}}; ///< Root node of the game tree.
-    NodeId m_next_id{2U};        ///< Next available node id.
+    GameMetadata m_metadata{};        ///< Meta data for the game.
+    std::shared_ptr<GameNode> m_root; ///< Root node of the game tree.
+    NodeId m_next_id{2U};             ///< Next available node id.
 };
 
 } // namespace chessgame

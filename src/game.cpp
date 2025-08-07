@@ -8,7 +8,8 @@
 namespace chessgame {
 
 Game::Game(const chesscore::FenString &fen) {
-    m_root.set_position(Position{fen});
+    m_root = std::make_shared<GameNode>(NodeId{1});
+    m_root->set_position(Position{fen});
 }
 
 Game::Game() : Game{chesscore::FenString::starting_position()} {}
