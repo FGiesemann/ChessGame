@@ -119,7 +119,7 @@ private:
     auto skip_whitespace(int c) -> void;
     auto read_string() -> Token;
     auto read_token_starting_with_number(char first_c) -> Token;
-    auto read_name(char first_c) -> Token;
+    auto read_symbol(char first_c) -> Token;
     auto read_comment() -> Token;
     auto read_nag() -> Token;
 };

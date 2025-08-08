@@ -49,7 +49,7 @@ auto PGNLexer::next_token() -> Token {
             return read_token_starting_with_number(static_cast<char>(c));
         }
         if (std::isalpha(c) != 0) {
-            return read_name(static_cast<char>(c));
+            return read_symbol(static_cast<char>(c));
         }
         switch (c) {
         case '[':
@@ -135,7 +135,7 @@ auto PGNLexer::read_token_starting_with_number(char first_c) -> Token {
     return Token{.type = only_numbers ? TokenType::Number : TokenType::GameResult, .line = m_line_number, .value = result};
 }
 
-auto PGNLexer::read_name(char first_c) -> Token {
+auto PGNLexer::read_symbol(char first_c) -> Token {
     std::string result{first_c};
     int c = m_in_stream->get();
     while (!m_in_stream->bad() && !is_whitespace(static_cast<char>(c))) {
