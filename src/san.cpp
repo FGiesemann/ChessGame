@@ -173,6 +173,12 @@ auto parse_disambiguation_chars(SANMove &move, std::string_view &san_str, SANTok
             move.disambiguation_file = chesscore::File{token.value[0]};
             san_str = san_str.substr(1);
             token = get_token(san_str);
+        } else {
+            move.target_file = chesscore::File{token.value[0]};
+            move.target_rank = extract_rank(next_token.value);
+            move.possible_disambiguation = true;
+            san_str = san_str.substr(2);
+            token = get_token(san_str);
         }
     } else if (token.type == TokenType::Rank) {
         move.disambiguation_rank = extract_rank(token.value);
@@ -186,6 +192,11 @@ auto parse_capture(SANMove &move, std::string_view &san_str, SANToken &token) ->
         move.capturing = true;
         san_str = san_str.substr(1);
         token = get_token(san_str);
+        if (move.possible_disambiguation) {
+            move.disambiguation_file = move.target_file;
+            move.disambiguation_rank = move.target_rank;
+            move.possible_disambiguation = false;
+        }
     }
 }
 
@@ -201,7 +212,12 @@ auto parse_target_square(const std::string &san, SANMove &move, std::string_view
             return SANParserError{.error_type = SANParserErrorType::MissingRank, .san = san};
         }
     } else {
-        return SANParserError{.error_type = SANParserErrorType::MissingFile, .san = san};
+        if (move.possible_disambiguation) {
+            move.target_square = chesscore::Square{move.target_file, move.target_rank};
+            move.possible_disambiguation = false;
+        } else {
+            return SANParserError{.error_type = SANParserErrorType::MissingFile, .san = san};
+        }
     }
     return std::nullopt;
 }
