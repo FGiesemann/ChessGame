@@ -41,6 +41,14 @@ auto check_move(
     return check_move(parse_res, piece, target_square, capturing, promotion, check_state, suffix_annotation) && parse_res.value().disambiguation_rank == from_rank;
 }
 
+auto check_move(
+    const ParseRes &parse_res, Piece piece, Square target_square, bool capturing, std::optional<chesscore::Piece> promotion, CheckState check_state, File from_file, Rank from_rank,
+    std::optional<SuffixAnnotation> suffix_annotation
+) -> bool {
+    return check_move(parse_res, piece, target_square, capturing, promotion, check_state, suffix_annotation) && parse_res.value().disambiguation_file == from_file &&
+           parse_res.value().disambiguation_rank == from_rank;
+}
+
 auto check_error(const ParseRes &parse_res, SANParserErrorType expected_error) {
     return !parse_res.has_value() && parse_res.error().error_type == expected_error;
 }
@@ -76,6 +84,7 @@ TEST_CASE("SAN Parser.Disambiguation", "[san]") {
     CHECK(check_move(parse_san("dxe5", Color::White), Piece::WhitePawn, Square::E5, true, std::nullopt, CheckState::None, File{'d'}, std::nullopt));
     CHECK(check_move(parse_san("bxa6", Color::Black), Piece::BlackPawn, Square::A6, true, std::nullopt, CheckState::None, File{'b'}, std::nullopt));
     CHECK(check_move(parse_san("R5xe2", Color::Black), Piece::BlackRook, Square::E2, true, std::nullopt, CheckState::None, Rank{5}, std::nullopt));
+    CHECK(check_move(parse_san("Qa6xb7#", Color::White), Piece::WhiteQueen, Square::B7, true, std::nullopt, CheckState::Checkmate, File{'a'}, Rank{6}, std::nullopt));
 }
 
 TEST_CASE("SAN Parser.Check", "[san]") {
@@ -110,7 +119,7 @@ TEST_CASE("SAN Parser.Mixed Examples", "[san]") {
 TEST_CASE("SAN Parser.Invalid SAN", "[san]") {
     CHECK(check_error(parse_san("axf9", Color::White), SANParserErrorType::MissingRank));
     CHECK(check_error(parse_san("Lc4", Color::Black), SANParserErrorType::UnexpectedToken));
-    CHECK(check_error(parse_san("Kg1a", Color::White), SANParserErrorType::UnexpectedCharsAtEnd));
+    CHECK(check_error(parse_san("Kg1a", Color::White), SANParserErrorType::MissingRank));
     CHECK(check_error(parse_san("O-O+#", Color::White), SANParserErrorType::CheckAndCheckmate));
     CHECK(check_error(parse_san("Qxd4#+", Color::Black), SANParserErrorType::CheckAndCheckmate));
 }

@@ -58,6 +58,10 @@ struct SANMove {
     std::optional<chesscore::Rank> disambiguation_rank{std::nullopt}; ///< Disambiguation rank information.
     std::optional<SuffixAnnotation> suffix_annotation{std::nullopt};  ///< Suffix annotation of the move.
 
+    chesscore::File target_file{'a'};
+    chesscore::Rank target_rank{1};
+    bool possible_disambiguation{false};
+
     /**
      * \brief Equality comparison of two SANMoves.
      *
