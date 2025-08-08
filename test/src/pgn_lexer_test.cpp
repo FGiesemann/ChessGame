@@ -132,8 +132,8 @@ TEST_CASE("PGN.Lexer.Commented game", "[pgn]") {
     check_token(lexer, PGNLexer::TokenType::Dot, 13);
     check_token(lexer, PGNLexer::TokenType::Symbol, 13, "c4");
     check_token(lexer, PGNLexer::TokenType::GameResult, 13, "1-0");
-    check_token(lexer, PGNLexer::TokenType::EndOfInput, 13);
-    check_token(lexer, PGNLexer::TokenType::EndOfInput, 13);
+    check_token(lexer, PGNLexer::TokenType::EndOfInput, 14);
+    check_token(lexer, PGNLexer::TokenType::EndOfInput, 14);
 }
 
 TEST_CASE("PGN.Lexer.Game with variations", "[pgn]") {
