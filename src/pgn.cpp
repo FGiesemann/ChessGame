@@ -289,9 +289,33 @@ auto PGNParser::read_move_number_indication() -> void {
     }
 }
 
+auto PGNParser::parse_san_move(const std::string &san_str) const -> SANMove {
+    const auto san_exp = parse_san(san_str, current_game_line().position().side_to_move());
+    if (san_exp.has_value()) {
+        return san_exp.value();
+    }
+    throw PGNError{PGNErrorType::InvalidMove, m_token.line, san_exp.error().san};
+}
+
+auto PGNParser::find_legal_move(const SANMove &san_move) const -> chesscore::Move {
+    const auto legal_moves = current_game_line().position().all_legal_moves();
+    const auto matched_moves = match_san_move(san_move, legal_moves);
+    if (matched_moves.size() == 1) {
+        return matched_moves[0];
+    }
+    if (matched_moves.size() > 1) {
+        throw PGNError{PGNErrorType::AmbiguousMove, m_token.line, san_move.san_string};
+    }
+    throw PGNError{PGNErrorType::IllegalMove, m_token.line, san_move.san_string};
+}
+
 auto PGNParser::process_move() -> void {
-    // TODO
-    std::cout << "Found move: \"" << m_token.value << "\"\n";
+    std::cout << "Found move: \"" << m_token.value << "\"\n"; // DELME
+    const auto san_move = parse_san_move(m_token.value);
+    const auto move = find_legal_move(san_move);
+    Cursor &cursor = current_game_line();
+    const auto new_cursor = cursor.play_move(move);
+    current_game_line() = new_cursor;
     next_token();
 }
 

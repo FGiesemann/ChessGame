@@ -143,6 +143,7 @@ private:
     auto reset() -> void;
     auto clear_cursor_stack() -> void;
     auto current_game_line() -> Cursor & { return m_cursors.top(); }
+    [[nodiscard]] auto current_game_line() const -> const Cursor & { return m_cursors.top(); }
 
     auto next_token() -> void;
     auto read_metadata() -> void;
@@ -157,6 +158,8 @@ private:
     auto read_move_number_indication() -> void;
 
     auto process_move() -> void;
+    [[nodiscard]] auto parse_san_move(const std::string &san_str) const -> SANMove;
+    [[nodiscard]] auto find_legal_move(const SANMove &san_move) const -> chesscore::Move;
 
     auto check_token_type(PGNLexer::TokenType expected_type, const std::string &error_message) const -> void;
     auto expect_token(PGNLexer::TokenType expected_type, const std::string &error_message) -> void;
