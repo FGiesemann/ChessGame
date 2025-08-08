@@ -52,7 +52,7 @@ TEST_CASE("PGN.Lexer.Single linear game", "[pgn]") {
                                "[Result \"1-0\"]\n\n"
                                "1. e4 e5 Nf3 2. .. Nc6 3 Bb5+ 1-0"};
     auto pgn_stream = std::istringstream{pgn_data};
-    auto lexer = PGNLexer{pgn_stream};
+    auto lexer = PGNLexer{&pgn_stream};
     CHECK(lexer.line_number() == 1);
 
     check_tag(lexer, "Event", "Test Event", 1);
@@ -96,7 +96,7 @@ TEST_CASE("PGN.Lexer.Commented game", "[pgn]") {
     };
 
     auto pgn_stream = std::istringstream{pgn_data};
-    auto lexer = PGNLexer{pgn_stream};
+    auto lexer = PGNLexer{&pgn_stream};
 
     check_tag(lexer, "Event", "IBM Kasparov vs. Deep Blue Rematch", 1);
     check_tag(lexer, "Site", "New York, NY USA", 2);
@@ -159,7 +159,7 @@ TEST_CASE("PGN.Lexer.Game with variations", "[pgn]") {
         "1/2-1/2 \n"
     };
     auto pgn_stream = std::istringstream{pgn_data};
-    auto lexer = PGNLexer{pgn_stream};
+    auto lexer = PGNLexer{&pgn_stream};
 
     check_tag(lexer, "Event", "Yugoslavian Club Championship", 1);
     check_tag(lexer, "Site", "Vrnjacka-Banja", 2);
