@@ -86,7 +86,7 @@ public:
     struct Token {
         TokenType type{TokenType::Invalid}; ///< The type of the token.
         int line{0};                        ///< The line number of the token.
-        std::string value{};                ///< The value of the token.
+        std::string value;                  ///< The value of the token.
     };
 
     /**
@@ -115,8 +115,8 @@ private:
     std::istream *m_in_stream; ///< The input stream
     int m_line_number{1};      ///< Current line number
 
-    [[nodiscard]] static auto is_whitespace(char c) -> bool;
-    auto skip_whitespace(int c) -> void;
+    [[nodiscard]] static auto is_whitespace(char character) -> bool;
+    auto skip_whitespace(int character) -> void;
     auto read_string() -> Token;
     auto read_token_starting_with_number(char first_c) -> Token;
     auto read_symbol(char first_c) -> Token;

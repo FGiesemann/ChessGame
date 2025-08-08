@@ -77,14 +77,14 @@ public:
      * \param move The move that led to this node.
      * \param parent The parent node.
      */
-    explicit GameNode(NodeId id, chesscore::Move move = {}, const std::shared_ptr<GameNode> &parent = nullptr) : m_id(id), m_move(move), m_parent(parent) {}
+    explicit GameNode(NodeId node_id, chesscore::Move move = {}, const std::shared_ptr<GameNode> &parent = nullptr) : m_id(node_id), m_move(move), m_parent(parent) {}
 
     /**
      * \brief Get the id of the node.
      *
      * \return Id of the node.
      */
-    auto id() const -> const NodeId & { return m_id; }
+    [[nodiscard]] auto id() const -> const NodeId & { return m_id; }
 
     /**
      * \brief Get the move.
@@ -92,7 +92,7 @@ public:
      * Returns the move that lead to this game node.
      * \return The move.
      */
-    auto move() const -> const chesscore::Move & { return m_move; }
+    [[nodiscard]] auto move() const -> const chesscore::Move & { return m_move; }
 
     /**
      * \brief Get the parent node.
@@ -100,7 +100,7 @@ public:
      * If the parent no longer exists, nullptr is returned.
      * \return The parent node.
      */
-    auto parent() const -> std::shared_ptr<GameNode> { return m_parent.lock(); }
+    [[nodiscard]] auto parent() const -> std::shared_ptr<GameNode> { return m_parent.lock(); }
 
     /**
      * \brief The number of children.
@@ -110,7 +110,7 @@ public:
      * line of the game.
      * \return Number of child nodes.
      */
-    auto child_count() const -> size_t { return m_children.size(); }
+    [[nodiscard]] auto child_count() const -> size_t { return m_children.size(); }
 
     /**
      * \brief Get the child node.
@@ -136,7 +136,7 @@ public:
      * This is a comment of the game position or the move that lead to it.
      * \return The comment.
      */
-    auto comment() const -> const std::string & { return m_comment; }
+    [[nodiscard]] auto comment() const -> const std::string & { return m_comment; }
 
     /**
      * \brief Set the comment of the game node.
@@ -151,7 +151,7 @@ public:
      *
      * \return The position.
      */
-    auto position() const -> const std::optional<Position> & { return m_position; }
+    [[nodiscard]] auto position() const -> const std::optional<Position> & { return m_position; }
 
     /**
      * \brief Set the position of the game node.
@@ -168,7 +168,7 @@ public:
      * computed position is not stored in the node. Use setPosition to do that.
      * \return The position represented by this node.
      */
-    auto calculate_position() const -> Position;
+    [[nodiscard]] auto calculate_position() const -> Position;
 private:
     NodeId m_id;                                       ///< The id of this node.
     chesscore::Move m_move;                            ///< The move that led to this node (from the parent node).

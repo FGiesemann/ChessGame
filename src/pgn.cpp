@@ -36,36 +36,36 @@ auto to_string(PGNErrorType type) -> std::string {
 }
 
 auto PGNLexer::next_token() -> Token {
-    int c = m_in_stream->get();
-    if (is_whitespace(static_cast<char>(c))) {
-        skip_whitespace(c);
-        c = m_in_stream->get();
+    int character = m_in_stream->get();
+    if (is_whitespace(static_cast<char>(character))) {
+        skip_whitespace(character);
+        character = m_in_stream->get();
     }
     if (!m_in_stream->bad()) {
-        if (c == std::istream::traits_type::eof()) {
-            return Token{.type = TokenType::EndOfInput, .line = m_line_number};
+        if (character == std::istream::traits_type::eof()) {
+            return Token{.type = TokenType::EndOfInput, .line = m_line_number, .value = ""};
         }
-        if (std::isdigit(c) != 0) {
-            return read_token_starting_with_number(static_cast<char>(c));
+        if (std::isdigit(character) != 0) {
+            return read_token_starting_with_number(static_cast<char>(character));
         }
-        if (std::isalpha(c) != 0) {
-            return read_symbol(static_cast<char>(c));
+        if (std::isalpha(character) != 0) {
+            return read_symbol(static_cast<char>(character));
         }
-        switch (c) {
+        switch (character) {
         case '[':
-            return Token{.type = TokenType::OpenBracket, .line = m_line_number};
+            return Token{.type = TokenType::OpenBracket, .line = m_line_number, .value = ""};
         case ']':
-            return Token{.type = TokenType::CloseBracket, .line = m_line_number};
+            return Token{.type = TokenType::CloseBracket, .line = m_line_number, .value = ""};
         case '$':
             return read_nag();
         case '.':
-            return Token{.type = TokenType::Dot, .line = m_line_number};
+            return Token{.type = TokenType::Dot, .line = m_line_number, .value = ""};
         case '"':
             return read_string();
         case '(':
-            return Token{.type = TokenType::OpenParen, .line = m_line_number};
+            return Token{.type = TokenType::OpenParen, .line = m_line_number, .value = ""};
         case ')':
-            return Token{.type = TokenType::CloseParen, .line = m_line_number};
+            return Token{.type = TokenType::CloseParen, .line = m_line_number, .value = ""};
         case '{':
             return read_comment();
         default:
@@ -74,19 +74,19 @@ auto PGNLexer::next_token() -> Token {
     } else {
         throw PGNError{PGNErrorType::InputError, m_line_number};
     }
-    throw PGNError{PGNErrorType::UnexpectedChar, m_line_number, std::string{static_cast<char>(c)}};
+    throw PGNError{PGNErrorType::UnexpectedChar, m_line_number, std::string{static_cast<char>(character)}};
 }
 
-auto PGNLexer::is_whitespace(char c) -> bool {
-    return c == ' ' || c == '\t' || c == '\n' || c == '\r';
+auto PGNLexer::is_whitespace(char character) -> bool {
+    return character == ' ' || character == '\t' || character == '\n' || character == '\r';
 }
 
-auto PGNLexer::skip_whitespace(int c) -> void {
-    while (!m_in_stream->bad() && (c == ' ' || c == '\t' || c == '\n' || c == '\r')) {
-        if (c == '\n') {
+auto PGNLexer::skip_whitespace(int character) -> void {
+    while (!m_in_stream->bad() && (character == ' ' || character == '\t' || character == '\n' || character == '\r')) {
+        if (character == '\n') {
             m_line_number++;
         }
-        c = m_in_stream->get();
+        character = m_in_stream->get();
     }
     if (!m_in_stream->bad()) {
         m_in_stream->unget();
@@ -97,10 +97,10 @@ auto PGNLexer::skip_whitespace(int c) -> void {
 
 auto PGNLexer::read_string() -> Token {
     std::string result{};
-    int c = m_in_stream->get();
-    while (!m_in_stream->bad() && c != '"') {
-        result += static_cast<char>(c);
-        c = m_in_stream->get();
+    int character = m_in_stream->get();
+    while (!m_in_stream->bad() && character != '"') {
+        result += static_cast<char>(character);
+        character = m_in_stream->get();
     }
     if (m_in_stream->bad()) {
         throw PGNError{PGNErrorType::InputError, m_line_number};
@@ -110,12 +110,12 @@ auto PGNLexer::read_string() -> Token {
 
 auto PGNLexer::read_token_starting_with_number(char first_c) -> Token {
     std::string result{first_c};
-    int c = m_in_stream->get();
+    int character = m_in_stream->get();
     bool only_numbers = true;
     while (!m_in_stream->bad()) {
-        while (!m_in_stream->bad() && (std::isdigit(c) != 0)) {
-            result += static_cast<char>(c);
-            c = m_in_stream->get();
+        while (!m_in_stream->bad() && (std::isdigit(character) != 0)) {
+            result += static_cast<char>(character);
+            character = m_in_stream->get();
         }
         if (m_in_stream->bad()) {
             if (m_in_stream->eof()) {
@@ -123,10 +123,10 @@ auto PGNLexer::read_token_starting_with_number(char first_c) -> Token {
             }
             throw PGNError{PGNErrorType::InputError, m_line_number};
         }
-        if (c == '/' || c == '-') {
+        if (character == '/' || character == '-') {
             only_numbers = false;
-            result += static_cast<char>(c);
-            c = m_in_stream->get();
+            result += static_cast<char>(character);
+            character = m_in_stream->get();
         } else {
             break;
         }
@@ -137,10 +137,10 @@ auto PGNLexer::read_token_starting_with_number(char first_c) -> Token {
 
 auto PGNLexer::read_symbol(char first_c) -> Token {
     std::string result{first_c};
-    int c = m_in_stream->get();
-    while (!m_in_stream->bad() && !is_whitespace(static_cast<char>(c))) {
-        result += static_cast<char>(c);
-        c = m_in_stream->get();
+    int character = m_in_stream->get();
+    while (!m_in_stream->bad() && !is_whitespace(static_cast<char>(character))) {
+        result += static_cast<char>(character);
+        character = m_in_stream->get();
     }
     if (m_in_stream->bad()) {
         throw PGNError{PGNErrorType::InputError, m_line_number};
@@ -151,10 +151,10 @@ auto PGNLexer::read_symbol(char first_c) -> Token {
 
 auto PGNLexer::read_comment() -> Token {
     std::string result{};
-    int c = m_in_stream->get();
-    while (!m_in_stream->bad() && c != '}') {
-        result += static_cast<char>(c);
-        c = m_in_stream->get();
+    int character = m_in_stream->get();
+    while (!m_in_stream->bad() && character != '}') {
+        result += static_cast<char>(character);
+        character = m_in_stream->get();
     }
     if (m_in_stream->bad()) {
         throw PGNError{PGNErrorType::InputError, m_line_number};
@@ -164,10 +164,10 @@ auto PGNLexer::read_comment() -> Token {
 
 auto PGNLexer::read_nag() -> Token {
     std::string result{};
-    int c = m_in_stream->get();
-    while (!m_in_stream->bad() && (std::isdigit(c) != 0)) {
-        result += static_cast<char>(c);
-        c = m_in_stream->get();
+    int character = m_in_stream->get();
+    while (!m_in_stream->bad() && (std::isdigit(character) != 0)) {
+        result += static_cast<char>(character);
+        character = m_in_stream->get();
     }
     if (m_in_stream->bad()) {
         throw PGNError{PGNErrorType::InputError, m_line_number};
