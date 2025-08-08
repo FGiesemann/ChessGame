@@ -42,6 +42,9 @@ auto PGNLexer::next_token() -> Token {
         c = m_in_stream->get();
     }
     if (!m_in_stream->bad()) {
+        if (c == std::istream::traits_type::eof()) {
+            return Token{.type = TokenType::EndOfInput, .line = m_line_number};
+        }
         if (std::isdigit(c) != 0) {
             return read_token_starting_with_number(static_cast<char>(c));
         }
@@ -70,9 +73,6 @@ auto PGNLexer::next_token() -> Token {
         }
     } else {
         throw PGNError{PGNErrorType::InputError, m_line_number};
-    }
-    if (m_in_stream->eof()) {
-        return Token{.type = TokenType::EndOfInput, .line = m_line_number};
     }
     throw PGNError{PGNErrorType::UnexpectedChar, m_line_number, std::string{static_cast<char>(c)}};
 }
