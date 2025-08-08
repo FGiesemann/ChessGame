@@ -14,10 +14,10 @@ Game::Game(const chesscore::FenString &fen) {
 
 Game::Game() : Game{chesscore::FenString::starting_position()} {}
 
-auto Game::add_node(GameNode *parent, const chesscore::Move &move) -> GameNode * {
-    auto child = std::make_shared<GameNode>(m_next_id++, move, std::shared_ptr<GameNode>(parent));
+auto Game::add_node(std::shared_ptr<GameNode> parent, const chesscore::Move &move) -> std::shared_ptr<GameNode> {
+    auto child = std::make_shared<GameNode>(m_next_id++, move, parent);
     parent->append_child(child);
-    return child.get();
+    return child;
 }
 
 auto Game::set_tag([[maybe_unused]] const std::string &tag_name, [[maybe_unused]] const std::string &tag_value) -> void {

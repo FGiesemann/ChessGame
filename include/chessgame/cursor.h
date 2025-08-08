@@ -32,7 +32,7 @@ public:
      * \param node The node.
      */
     Cursor(Game *game, const std::shared_ptr<GameNode> &node) : m_game(game), m_node{node} {
-        if ((m_game == nullptr) || !m_node) {
+        if ((m_game == nullptr) || !node) {
             throw ChessGameError("Invalid game or node provided to Cursor constructor.");
         }
     }
@@ -91,7 +91,7 @@ public:
     auto position() const -> Position;
 private:
     Game *m_game{};
-    std::shared_ptr<GameNode> m_node;
+    std::weak_ptr<GameNode> m_node;
 };
 
 } // namespace chessgame

@@ -72,7 +72,7 @@ public:
      * \param move The move that leads from the parent to the new node.
      * \return The new node.
      */
-    auto add_node(GameNode *parent, const chesscore::Move &move) -> GameNode *;
+    auto add_node(std::shared_ptr<GameNode> parent, const chesscore::Move &move) -> std::shared_ptr<GameNode>;
 
     auto edit() -> Cursor { return {this, m_root}; }
 private:
