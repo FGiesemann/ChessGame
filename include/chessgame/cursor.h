@@ -44,7 +44,7 @@ public:
      * \param move The move to apply.
      * \return A cursor pointing to the new position.
      */
-    auto play_move(const chesscore::Move &move) const -> Cursor;
+    [[nodiscard]] auto play_move(const chesscore::Move &move) const -> Cursor;
 
     /**
      * \brief Adds a variation of the position.
@@ -55,7 +55,7 @@ public:
      * \param move The move that starts the variation.
      * \return A cursor pointing to the new line.
      */
-    auto add_variation(const chesscore::Move &move) const -> std::optional<Cursor>;
+    [[nodiscard]] auto add_variation(const chesscore::Move &move) const -> std::optional<Cursor>;
 
     /**
      * \brief Sets the comment for the current node.
@@ -69,7 +69,7 @@ public:
      *
      * \return Cursor to the parent node, if it exists.
      */
-    auto parent() const -> std::optional<Cursor>;
+    [[nodiscard]] auto parent() const -> std::optional<Cursor>;
 
     /**
      * \brief Get a child node of the current node.
@@ -77,7 +77,7 @@ public:
      * \param index Index of the child node.
      * \return Cursor to the child node, if it exists.
      */
-    auto child(size_t index) const -> std::optional<Cursor>;
+    [[nodiscard]] auto child(size_t index) const -> std::optional<Cursor>;
 
     /**
      * \brief Get the position object represented by this game node.
@@ -88,7 +88,7 @@ public:
      * ancestor that stores a position.
      * \return The position of this game node.
      */
-    auto position() const -> Position;
+    [[nodiscard]] auto position() const -> Position;
 private:
     Game *m_game{};
     std::weak_ptr<GameNode> m_node;

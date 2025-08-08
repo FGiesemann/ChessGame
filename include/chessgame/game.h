@@ -45,7 +45,7 @@ public:
      *
      * \return The game meta data.
      */
-    auto metadata() const -> const GameMetadata & { return m_metadata; }
+    [[nodiscard]] auto metadata() const -> const GameMetadata & { return m_metadata; }
 
     /**
      * \brief Access to the meta data of the game.
