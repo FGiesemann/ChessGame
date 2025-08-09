@@ -31,14 +31,16 @@ auto check_move(
     const ParseRes &parse_res, Piece piece, Square target_square, bool capturing, std::optional<chesscore::Piece> promotion, CheckState check_state, File from_file,
     std::optional<SuffixAnnotation> suffix_annotation
 ) -> bool {
-    return check_move(parse_res, piece, target_square, capturing, promotion, check_state, suffix_annotation) && parse_res.value().disambiguation_file == from_file;
+    return check_move(parse_res, piece, target_square, capturing, promotion, check_state, suffix_annotation) && parse_res.value().disambiguation_file == from_file &&
+           parse_res.value().disambiguation_rank == std::nullopt;
 }
 
 auto check_move(
     const ParseRes &parse_res, Piece piece, Square target_square, bool capturing, std::optional<chesscore::Piece> promotion, CheckState check_state, Rank from_rank,
     std::optional<SuffixAnnotation> suffix_annotation
 ) -> bool {
-    return check_move(parse_res, piece, target_square, capturing, promotion, check_state, suffix_annotation) && parse_res.value().disambiguation_rank == from_rank;
+    return check_move(parse_res, piece, target_square, capturing, promotion, check_state, suffix_annotation) && parse_res.value().disambiguation_rank == from_rank &&
+           parse_res.value().disambiguation_file == std::nullopt;
 }
 
 auto check_move(
