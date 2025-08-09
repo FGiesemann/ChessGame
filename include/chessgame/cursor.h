@@ -66,10 +66,6 @@ public:
      * \return Cursor to the child node, if it exists.
      */
     [[nodiscard]] auto child(size_t index) const -> std::optional<BaseCursor> {
-        const auto node = m_node.lock();
-        if (index >= node->child_count()) {
-            return {};
-        }
         const auto child_node = m_node.lock()->get_child(index);
         if (child_node) {
             return BaseCursor{m_game, child_node};
