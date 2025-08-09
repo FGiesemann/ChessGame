@@ -7,6 +7,7 @@
 
 #include "chessgame/pgn.h"
 
+#include <catch2/catch_test_macros.hpp>
 #include <string>
 
 using namespace chessgame;
@@ -208,4 +209,38 @@ TEST_CASE("PGN.Lexer.Game with variations", "[pgn]") {
     check_token(lexer, PGNLexer::TokenType::Symbol, 15, "f3");
     check_token(lexer, PGNLexer::TokenType::NAG, 15, "1");
     check_token(lexer, PGNLexer::TokenType::Symbol, 15, "Re2");
+}
+
+TEST_CASE("PGN.Lexer.Empty Input", "[pgn]") {
+    auto pgn_stream = std::istringstream{};
+    auto lexer = PGNLexer{&pgn_stream};
+    check_token(lexer, PGNLexer::TokenType::EndOfInput);
+}
+
+TEST_CASE("PGN.Lexer.Unexpected End", "[pgn]") {
+    const std::string pgn_data{"[Event \"Test Event\"]\n\n"
+                               "1. e4 e5 2. Nf3 Nc6 3."};
+    auto pgn_stream = std::istringstream{pgn_data};
+    auto lexer = PGNLexer{&pgn_stream};
+    check_tag(lexer, "Event", "Test Event", 1);
+    check_full_move(lexer, 1, "e4", "e5");
+    check_full_move(lexer, 2, "Nf3", "Nc6");
+    check_token(lexer, PGNLexer::TokenType::Number, 3, "3");
+    check_token(lexer, PGNLexer::TokenType::Dot, 3);
+    check_token(lexer, PGNLexer::TokenType::EndOfInput, 3);
+}
+
+TEST_CASE("PGN.Lexer.Invalid Result", "[pgn]") {
+    const std::string pgn_data{"[Event \"Test Event\"]\n\n"
+                               "1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 1/0"};
+    auto pgn_stream = std::istringstream{pgn_data};
+    auto lexer = PGNLexer{&pgn_stream};
+    check_tag(lexer, "Event", "Test Event", 1);
+    check_full_move(lexer, 1, "e4", "e5");
+    check_full_move(lexer, 2, "Nf3", "Nc6");
+    check_full_move(lexer, 3, "Bb5", "a6");
+    check_token(lexer, PGNLexer::TokenType::Number, 3, "4");
+    check_token(lexer, PGNLexer::TokenType::Dot, 3);
+    check_token(lexer, PGNLexer::TokenType::Symbol, 3, "Ba4");
+    CHECK_THROWS_AS(lexer.next_token(), PGNError);
 }

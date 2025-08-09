@@ -25,13 +25,14 @@ namespace chessgame {
  * These errors can appear when parsing PGN data.
  */
 enum class PGNErrorType {
-    InputError,      ///< Error reading the input.
-    UnexpectedChar,  ///< Unexpected character in input.
-    UnexpectedToken, ///< Unexpected token in input.
-    InvalidMove,     ///< Invalid move in input.
-    IllegalMove,     ///< Move is illegal in the current position.
-    AmbiguousMove,   ///< Move is ambiguous in the current position.
-    EndOfInput       ///< End of input.
+    InputError,        ///< Error reading the input.
+    UnexpectedChar,    ///< Unexpected character in input.
+    UnexpectedToken,   ///< Unexpected token in input.
+    InvalidMove,       ///< Invalid move in input.
+    IllegalMove,       ///< Move is illegal in the current position.
+    AmbiguousMove,     ///< Move is ambiguous in the current position.
+    InvalidGameResult, ///< Invalid game result.
+    EndOfInput         ///< End of input.
 };
 
 auto to_string(PGNErrorType type) -> std::string;
