@@ -116,7 +116,7 @@ public:
      * \brief Get the child node.
      *
      * Returns the child node at the given index. Index 0 represents the main
-     * line. No range checking is performed!
+     * line. If the index is too big, nullptr is returned.
      * \param index Index of the child.
      * \return The child with the given index.
      */
@@ -126,7 +126,7 @@ public:
      * \brief Get the child node.
      *
      * Returns the child node at the given index. Index 0 represents the main
-     * line. No range checking is performed!
+     * line. If the index is too big, nullptr is returned.
      * \param index Index of the child.
      * \return The child with the given index.
      */
