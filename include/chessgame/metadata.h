@@ -89,6 +89,7 @@ struct GameMetadata {
     Event event;                                          ///< Event of the game.
     Opening opening;                                      ///< Opening of the game.
     GameResult result;                                    ///< Result of the game.
+    std::optional<std::string> termination;               ///< Mode of termination of the game, if available
     std::string overall_comment;                          ///< Comment for the whole game.
     std::optional<std::string> date;                      ///< Date of the game, if different from event date.
     std::optional<chesscore::FenString> initial_position; ///< Initial position of the game, if different from the starting position.
