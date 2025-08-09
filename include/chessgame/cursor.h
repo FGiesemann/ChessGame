@@ -22,7 +22,8 @@ class Game;
  * The cursor represents a specific point on the main line or a variation of the
  * chess game. It allows applying moves or adding new variations to the game.
  */
-class Cursor {
+template<typename GameType, typename NodeType>
+class BaseCursor {
 public:
     /**
      * \brief Create a cursor for a game and a specific node.
@@ -31,45 +32,32 @@ public:
      * \param game The game.
      * \param node The node.
      */
-    Cursor(Game *game, const std::shared_ptr<GameNode> &node) : m_game(game), m_node{node} {
+    BaseCursor(GameType *game, const std::shared_ptr<NodeType> &node) : m_game(game), m_node{node} {
         if ((m_game == nullptr) || !node) {
             throw ChessGameError("Invalid game or node provided to Cursor constructor.");
         }
     }
 
     /**
-     * \brief Play a move at the current cursor position.
+     * \brief Implicit conversion operator.
      *
-     * Appends the given move to the current position of the game.
-     * \param move The move to apply.
-     * \return A cursor pointing to the new position.
+     * Allows implicit conversion from Cursor to ConstCursor.
+     * \return A ConstCursor.
      */
-    [[nodiscard]] auto play_move(const chesscore::Move &move) const -> Cursor;
-
-    /**
-     * \brief Adds a variation of the position.
-     *
-     * Adds a new variation to the position of the game to which this cursor is
-     * pointing. This is done by adding a new child node to the parent of this
-     * cursor's node.
-     * \param move The move that starts the variation.
-     * \return A cursor pointing to the new line.
-     */
-    [[nodiscard]] auto add_variation(const chesscore::Move &move) const -> std::optional<Cursor>;
-
-    /**
-     * \brief Sets the comment for the current node.
-     *
-     * \param comment The comment.
-     */
-    auto set_comment(const std::string &comment) const -> void;
+    operator BaseCursor<const Game, const GameNode>() const { return BaseCursor<const Game, const GameNode>{m_game, m_node}; }
 
     /**
      * \brief Get the parent of the current node.
      *
      * \return Cursor to the parent node, if it exists.
      */
-    [[nodiscard]] auto parent() const -> std::optional<Cursor>;
+    [[nodiscard]] auto parent() const -> std::optional<BaseCursor> {
+        const auto parent_node = m_node.lock()->parent();
+        if (parent_node) {
+            return BaseCursor{m_game, parent_node};
+        }
+        return {};
+    }
 
     /**
      * \brief Get a child node of the current node.
@@ -77,7 +65,13 @@ public:
      * \param index Index of the child node.
      * \return Cursor to the child node, if it exists.
      */
-    [[nodiscard]] auto child(size_t index) const -> std::optional<Cursor>;
+    [[nodiscard]] auto child(size_t index) const -> std::optional<BaseCursor> {
+        const auto child_node = m_node.lock()->get_child(index);
+        if (child_node) {
+            return BaseCursor{m_game, child_node};
+        }
+        return {};
+    }
 
     /**
      * \brief Get the position object represented by this game node.
@@ -88,11 +82,60 @@ public:
      * ancestor that stores a position.
      * \return The position of this game node.
      */
-    [[nodiscard]] auto position() const -> Position;
+    [[nodiscard]] auto position() const -> Position { return m_node.lock()->calculate_position(); }
+
+    /**
+     * \brief Play a move at the current cursor position.
+     *
+     * Appends the given move to the current position of the game.
+     * \param move The move to apply.
+     * \return A cursor pointing to the new position.
+     */
+    [[nodiscard]] auto play_move(const chesscore::Move &move) -> BaseCursor
+    requires(!std::is_const_v<GameType>)
+    {
+        const auto node_ptr = m_game->add_node(m_node.lock(), move);
+        return {m_game, node_ptr};
+    }
+
+    /**
+     * \brief Adds a variation of the position.
+     *
+     * Adds a new variation to the position of the game to which this cursor is
+     * pointing. This is done by adding a new child node to the parent of this
+     * cursor's node.
+     * \param move The move that starts the variation.
+     * \return A cursor pointing to the new line.
+     */
+    [[nodiscard]] auto add_variation(const chesscore::Move &move) -> std::optional<BaseCursor>
+    requires(!std::is_const_v<GameType>)
+    {
+        const auto parent_cursor = parent();
+        if (parent_cursor) {
+            const auto parent_node = parent_cursor->m_node;
+            const auto node_ptr = m_game->add_node(parent_node.lock(), move);
+            return BaseCursor{m_game, node_ptr};
+        }
+        return {};
+    }
+
+    /**
+     * \brief Sets the comment for the current node.
+     *
+     * \param comment The comment.
+     */
+    auto set_comment(const std::string &comment) -> void
+    requires(!std::is_const_v<GameType>)
+    {
+        m_node.lock()->set_comment(comment);
+    }
 private:
-    Game *m_game{};
-    std::weak_ptr<GameNode> m_node;
+    GameType *m_game{};
+    std::weak_ptr<NodeType> m_node;
 };
+
+using Cursor = BaseCursor<Game, GameNode>;
+using ConstCursor = BaseCursor<const Game, const GameNode>;
 
 } // namespace chessgame
 

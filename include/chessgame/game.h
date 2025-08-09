@@ -75,6 +75,9 @@ public:
     auto add_node(std::shared_ptr<GameNode> parent, const chesscore::Move &move) -> std::shared_ptr<GameNode>;
 
     auto edit() -> Cursor { return {this, m_root}; }
+    auto cursor() -> Cursor { return edit(); }
+    [[nodiscard]] auto cursor() const -> ConstCursor { return {this, m_root}; }
+    [[nodiscard]] auto const_cursor() const -> ConstCursor { return {this, m_root}; }
 private:
     GameMetadata m_metadata{};        ///< Meta data for the game.
     std::shared_ptr<GameNode> m_root; ///< Root node of the game tree.
