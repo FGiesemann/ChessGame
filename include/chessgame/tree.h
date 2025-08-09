@@ -120,8 +120,17 @@ public:
      * \param index Index of the child.
      * \return The child with the given index.
      */
-    auto get_child(size_t index) -> std::shared_ptr<GameNode> { return m_children[index]; }
-    [[nodiscard]] auto get_child(size_t index) const -> std::shared_ptr<const GameNode> { return m_children[index]; }
+    auto get_child(size_t index) -> std::shared_ptr<GameNode> { return index >= m_children.size() ? nullptr : m_children[index]; }
+
+    /**
+     * \brief Get the child node.
+     *
+     * Returns the child node at the given index. Index 0 represents the main
+     * line. No range checking is performed!
+     * \param index Index of the child.
+     * \return The child with the given index.
+     */
+    [[nodiscard]] auto get_child(size_t index) const -> std::shared_ptr<const GameNode> { return index >= m_children.size() ? nullptr : m_children[index]; }
 
     /**
      * \brief Append a new child node.
