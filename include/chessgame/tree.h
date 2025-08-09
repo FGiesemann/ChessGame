@@ -121,6 +121,7 @@ public:
      * \return The child with the given index.
      */
     auto get_child(size_t index) -> std::shared_ptr<GameNode> { return m_children[index]; }
+    [[nodiscard]] auto get_child(size_t index) const -> std::shared_ptr<const GameNode> { return m_children[index]; }
 
     /**
      * \brief Append a new child node.
