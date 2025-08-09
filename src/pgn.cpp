@@ -132,7 +132,13 @@ auto PGNLexer::read_token_starting_with_number(char first_c) -> Token {
         }
     }
     m_in_stream->unget();
-    return Token{.type = only_numbers ? TokenType::Number : TokenType::GameResult, .line = m_line_number, .value = result};
+    if (only_numbers) {
+        return Token{.type = TokenType::Number, .line = m_line_number, .value = result};
+    }
+    if (result == "1-0" || result == "0-1" || result == "1/2-1/2") {
+        return Token{.type = TokenType::GameResult, .line = m_line_number, .value = result};
+    }
+    throw PGNError(PGNErrorType::InvalidGameResult, m_line_number, result);
 }
 
 auto PGNLexer::read_symbol(char first_c) -> Token {
