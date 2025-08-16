@@ -129,6 +129,8 @@ public:
     {
         m_node.lock()->set_comment(comment);
     }
+
+    auto node() -> std::shared_ptr<NodeType> { return m_node.lock(); }
 private:
     GameType *m_game{};
     std::weak_ptr<NodeType> m_node;
