@@ -148,3 +148,28 @@ is in his favour (as he can immediately occupy it) - Alekhine} 1-0
     // TODO: check NAGs for previous half-move
     check_move(game, mainline(11), Move{.from = Square::D1, .to = Square::E2, .piece = Piece::WhiteQueen});
 }
+
+TEST_CASE("PGN.Parser.Alternative Start", "[pgn]") {
+    const std::string game_data = R"([Event "Test Event"]
+[Site "Test Site"]
+[White "Player W"]
+[Black "Player B"]
+[SetUp "1"]
+[FEN "r4rk1/pp3ppp/2n1q3/8/8/P7/1P3PPP/R1BQ1RK1 w - - 0 1"]
+[Result "1-0"]
+
+1. Re1 Rfd8 2. Bd2 Qf5 3. Rc1 Ne5 $1 4. Qc2 Nd3 5. Rf1 1-0)";
+
+    std::istringstream pgn_data{game_data};
+    auto parser = chessgame::PGNParser{pgn_data};
+    auto opt_game = parser.read_game();
+    REQUIRE(opt_game.has_value());
+    const auto &game = opt_game.value();
+
+    CHECK(count_ply_on_mainline(game) == 9);
+    check_move(game, mainline(1), Move{.from = Square::F1, .to = Square::E1, .piece = Piece::WhiteRook});
+    check_move(game, mainline(2), Move{.from = Square::F8, .to = Square::D8, .piece = Piece::BlackRook});
+    check_move(game, mainline(7), Move{.from = Square::D1, .to = Square::C2, .piece = Piece::WhiteQueen});
+    check_move(game, mainline(8), Move{.from = Square::E5, .to = Square::D3, .piece = Piece::BlackKnight});
+    check_move(game, mainline(9), Move{.from = Square::E1, .to = Square::F1, .piece = Piece::WhiteRook});
+}

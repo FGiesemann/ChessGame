@@ -138,10 +138,12 @@ public:
 private:
     PGNLexer m_lexer;
     PGNLexer::Token m_token;
+    GameMetadata m_metadata;
     Game m_game;
 
     std::stack<Cursor> m_cursors;
     auto reset() -> void;
+    auto setup_game() -> void;
     auto clear_cursor_stack() -> void;
     auto current_game_line() -> Cursor & { return m_cursors.top(); }
     [[nodiscard]] auto current_game_line() const -> const Cursor & { return m_cursors.top(); }

@@ -32,13 +32,7 @@ public:
      */
     Game();
 
-    /**
-     * \brief Create a new game with a given starting position.
-     *
-     * The new game starts with the starting position given by the FEN string.
-     * \param fen The FEN string describing the starting posiiton.
-     */
-    Game(const chesscore::FenString &fen);
+    Game(const GameMetadata &metadata);
 
     /**
      * \brief Read-only access to the meta data of the game.
@@ -53,16 +47,6 @@ public:
      * \return The game meta data.
      */
     auto metadata() -> GameMetadata & { return m_metadata; }
-
-    /**
-     * \brief Set a metadata tag.
-     *
-     * Sets a metadata tag. If the name can be interpreted, the metadata struct
-     * is adapted accordingly. Otherwise, the data is stored in a custom  tag.
-     * \param tag_name Name of the tag.
-     * \param tag_value Value of the tag.
-     */
-    auto set_tag(const std::string &tag_name, const std::string &tag_value) -> void;
 
     /**
      * \brief Add a new node to the game tree.

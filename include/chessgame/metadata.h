@@ -97,6 +97,16 @@ struct GameMetadata {
     std::string source;                                   ///< Source of the information.
     std::optional<Player> annotator;                      ///< A single annotator of the game, if available.
     std::vector<CustomTag> custom_tags;                   ///< Additional custom tags.
+
+    /**
+     * \brief Set a metadata tag.
+     *
+     * Sets a metadata tag. If the name can be interpreted, the metadata struct
+     * is adapted accordingly. Otherwise, the data is stored in a custom tag.
+     * \param tag_name Name of the tag.
+     * \param tag_value Value of the tag.
+     */
+    auto set_tag(const std::string &name, const std::string &value) -> void;
 };
 
 } // namespace chessgame
