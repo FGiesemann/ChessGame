@@ -183,7 +183,11 @@ auto PGNLexer::read_nag() -> Token {
 }
 
 auto PGNParser::reset() -> void {
-    m_game = Game{};
+    m_metadata = GameMetadata{};
+}
+
+auto PGNParser::setup_game() -> void {
+    m_game = Game{m_metadata};
     clear_cursor_stack();
     m_cursors.push(m_game.edit());
 }
@@ -192,6 +196,7 @@ auto PGNParser::read_game() -> std::optional<Game> {
     reset();
     expect_token(PGNLexer::TokenType::OpenBracket, "Metadata tags expected");
     read_metadata();
+    setup_game();
     read_movetext();
     return m_game;
 }
@@ -248,7 +253,7 @@ auto PGNParser::read_tag() -> void {
     const auto tag_name = m_token.value;
     expect_token(PGNLexer::TokenType::String, "String expected");
     const auto tag_value = m_token.value;
-    m_game.set_tag(tag_name, tag_value);
+    m_metadata.set_tag(tag_name, tag_value);
 
     std::cout << "Found tag [" << tag_name << " \"" << tag_value << "\"]\n";
 
