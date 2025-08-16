@@ -26,12 +26,41 @@ auto count_ply_on_mainline(const chessgame::Game &game) -> int {
     return child_count;
 }
 
-using GamePath = std::vector<int>;
+class GamePath {
+public:
+    GamePath(std::initializer_list<int> list) : m_path{list} {};
+    explicit GamePath(std::vector<int> &&path) : m_path{std::move(path)} {};
+
+    operator std::vector<int>() const { return m_path; }
+
+    auto begin() -> std::vector<int>::iterator { return m_path.begin(); }
+    auto end() -> std::vector<int>::iterator { return m_path.end(); }
+    auto begin() const -> std::vector<int>::const_iterator { return m_path.begin(); }
+    auto end() const -> std::vector<int>::const_iterator { return m_path.end(); }
+    auto size() const -> size_t { return m_path.size(); }
+
+    auto operator[](size_t index) const -> int { return m_path[index]; }
+
+    auto operator+=(const GamePath &other) -> GamePath & {
+        m_path.insert(m_path.end(), other.m_path.begin(), other.m_path.end());
+        return *this;
+    }
+private:
+    std::vector<int> m_path;
+};
+
+auto operator+(const GamePath &lhs, const GamePath &rhs) -> GamePath {
+    return GamePath{lhs} += rhs;
+}
 
 auto mainline(size_t depth) -> GamePath {
-    GamePath path(depth);
-    std::fill(path.begin(), path.end(), 0);
-    return path;
+    std::vector<int> path(depth);
+    std::ranges::fill(path, 0);
+    return GamePath{std::move(path)};
+}
+
+auto var(int index) -> GamePath {
+    return GamePath{{index}};
 }
 
 auto get_node(const chessgame::Game &game, const GamePath &path) -> std::shared_ptr<const chessgame::GameNode> {
@@ -203,4 +232,34 @@ TEST_CASE("PGN.Parser.Game with RAV", "[pgn]") {
     const auto &game = opt_game.value();
 
     CHECK(count_ply_on_mainline(game) == 38);
+    check_move(game, mainline(1), Move{.from = Square::D2, .to = Square::D4, .piece = Piece::WhitePawn});
+    check_move(game, mainline(17), Move{.from = Square::C1, .to = Square::D2, .piece = Piece::WhiteBishop});
+    check_move(game, mainline(18), Move{.from = Square::B8, .to = Square::C6, .piece = Piece::BlackKnight});
+    check_move(game, mainline(19), Move{.from = Square::F1, .to = Square::D3, .piece = Piece::WhiteBishop});
+    check_move(game, mainline(23), Move{.from = Square::D4, .to = Square::E5, .piece = Piece::WhitePawn, .captured = Piece::BlackPawn});
+    check_move(game, mainline(24), Move{.from = Square::C6, .to = Square::E5, .piece = Piece::BlackKnight, .captured = Piece::WhitePawn});
+    check_move(game, mainline(27), Move{.from = Square::D1, .to = Square::C1, .piece = Piece::WhiteQueen});
+    check_move(game, mainline(37), Move{.from = Square::D3, .to = Square::E4, .piece = Piece::WhiteBishop});
+
+    check_move(game, mainline(16) + var(1), Move{.from = Square::C3, .to = Square::C4, .piece = Piece::WhitePawn});
+    check_move(game, mainline(16) + var(1) + mainline(1), Move{.from = Square::D5, .to = Square::E7, .piece = Piece::BlackKnight});
+    check_move(game, mainline(16) + var(1) + mainline(7), Move{.from = Square::D8, .to = Square::A5, .piece = Piece::BlackQueen});
+    CHECK(has_no_following_move(game, mainline(16) + var(1) + mainline(7)));
+
+    check_move(game, mainline(22) + var(1), Move{.from = Square::E3, .to = Square::E4, .piece = Piece::WhitePawn});
+    check_move(game, mainline(22) + var(1) + mainline(7), Move{.from = Square::C6, .to = Square::E5, .piece = Piece::BlackKnight});
+    CHECK(has_no_following_move(game, mainline(22) + var(1) + mainline(7)));
+
+    check_move(game, mainline(22) + var(2), Move{.from = Square::G1, .to = Square::E2, .piece = Piece::WhiteKnight});
+    check_move(game, mainline(22) + var(2) + mainline(7), Move{.from = Square::H4, .to = Square::D4, .piece = Piece::BlackQueen, .captured = Piece::WhiteKnight});
+    CHECK(has_no_following_move(game, mainline(22) + var(2) + mainline(7)));
+
+    check_move(game, mainline(25) + var(1), Move{.from = Square::D5, .to = Square::F6, .piece = Piece::BlackKnight});
+    check_move(game, mainline(25) + var(1) + mainline(1), Move{.from = Square::D2, .to = Square::B4, .piece = Piece::WhiteBishop});
+    check_move(game, mainline(25) + var(1) + var(1), Move{.from = Square::D2, .to = Square::C3, .piece = Piece::WhiteBishop});
+    check_move(game, mainline(25) + var(1) + var(1) + mainline(5), Move{.from = Square::F7, .to = Square::F6, .piece = Piece::BlackPawn});
+    CHECK(has_no_following_move(game, mainline(25) + var(1) + var(1) + mainline(5)));
+    check_move(game, mainline(25) + var(1) + var(2), Move{.from = Square::E4, .to = Square::C2, .piece = Piece::WhiteBishop});
+    check_move(game, mainline(25) + var(1) + var(2) + mainline(1), Move{.from = Square::E5, .to = Square::D3, .piece = Piece::BlackKnight});
+    CHECK(has_no_following_move(game, mainline(25) + var(1) + var(2) + mainline(1)));
 }
