@@ -6,7 +6,12 @@ add_executable(chessgame_tests
 )
 add_compiler_warnings(chessgame_tests)
 
-target_link_libraries(chessgame_tests PRIVATE ChessGame Catch2::Catch2WithMain)
+target_link_libraries(chessgame_tests
+  PRIVATE 
+  ChessGame 
+  chesscore::chesscore_io
+  Catch2::Catch2WithMain
+)
 
 include(Catch)
 catch_discover_tests(chessgame_tests)
