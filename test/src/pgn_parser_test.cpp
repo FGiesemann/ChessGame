@@ -173,3 +173,34 @@ TEST_CASE("PGN.Parser.Alternative Start", "[pgn]") {
     check_move(game, mainline(8), Move{.from = Square::E5, .to = Square::D3, .piece = Piece::BlackKnight});
     check_move(game, mainline(9), Move{.from = Square::E1, .to = Square::F1, .piece = Piece::WhiteRook});
 }
+
+TEST_CASE("PGN.Parser.Game with RAV", "[pgn]") {
+    const std::string game_data = R"([Event "Test Event"]
+[Site "Test Site"]
+[White "Player W"]
+[Black "Player B"]
+[Result "1/2-1/2"]
+
+1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. a3 Bxc3+ 5. bxc3 c5 6. f3 d5 7. e3 O-O
+8. cxd5 Nxd5
+9. Bd2 (9. c4 Ne7 10. Bd3 cxd4 11. exd4 Nf5 12. Bxf5 12... Qa5+)
+9... Nc6 10. Bd3 cxd4 11. cxd4 e5
+12. dxe5 (12. e4 Nf4 13. Bxf4 exf4 14. d5 Qh4+ 15. Kf1 15... Ne5 $36)
+         (12. Ne2 12... exd4 13. exd4 Nxd4 14. Nxd4 Qh4+ 15. g3 Qxd4)
+12... Nxe5
+13. Be4 Nc4 $2 (13... Nf6 $1
+    14. Bb4 (14. Bc3 Qc7 15. Qd4 Nxe4 16. fxe4 f6)
+            (14. Bc2 Nd3+)
+    14... Nxe4 15. Bxf8 Nd3+ 16. Kf1 Nef2 17. Qc2 17... Nxh1 $17)
+14. Qc1 Nxd2 15. Qxd2 Nf6 16. Bd3 Re8 17. Ne2 Qb6
+18. Nd4 Nd5 (18... Qxd4 $4 19. Bxh7+ Kxh7 20. Qxd4 $18)
+19. Be4 Nxe3 1/2-1/2)";
+
+    std::istringstream pgn_data{game_data};
+    auto parser = chessgame::PGNParser{pgn_data};
+    auto opt_game = parser.read_game();
+    REQUIRE(opt_game.has_value());
+    const auto &game = opt_game.value();
+
+    CHECK(count_ply_on_mainline(game) == 38);
+}
