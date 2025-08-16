@@ -153,7 +153,7 @@ TEST_CASE("PGN.Lexer.Game with variations", "[pgn]") {
         "1. d4 d5 2. c4 dxc4 3. e4 Nf6 4. e5 Nd5 5. Bxc4 Nb6 6. Bb3 Nc6 7. Ne2 Bf5 8. a3 e6 9. Nbc3 Qd7 10. O-O O-O-O 11. Be3 h5 $1 \n"
         "(11...f6 12. exf6 gxf6 13. Re1 $1 $14)\n"
         "24. Rfe1\n"
-        "({Better is} 24. f3 $1 Re2 25. Rf2 Rde8 26. Kf1 R2e6 $15)\n"
+        "({Better is} 24. f3 $1 Re2 25. Rf2 Rde8 26. Kf1 R2e6)\n"
         "24...Re4 25. Rxe4 fxe4 26. Re1 Re8 27. g3 hxg3 28. fxg3 f5 29. Rf1 Rf8 30. Kf2 Kd7 31. Ke2 Ke6 32. Bg5 Rg8 33. h4 c6 34. Rc1 $6 Kf7 $1 35. Kf2 Kg6 36. Kg2 Kh5\n"
         "$15\n"
         "(34...a6 $6) \n"
@@ -209,6 +209,9 @@ TEST_CASE("PGN.Lexer.Game with variations", "[pgn]") {
     check_token(lexer, PGNLexer::TokenType::Symbol, 15, "f3");
     check_token(lexer, PGNLexer::TokenType::NAG, 15, "1");
     check_token(lexer, PGNLexer::TokenType::Symbol, 15, "Re2");
+    check_full_move(lexer, 25, "Rf2", "Rde8");
+    check_full_move(lexer, 26, "Kf1", "R2e6");
+    check_token(lexer, PGNLexer::TokenType::CloseParen, 15);
 }
 
 TEST_CASE("PGN.Lexer.Empty Input", "[pgn]") {
