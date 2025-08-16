@@ -144,7 +144,7 @@ auto PGNLexer::read_token_starting_with_number(char first_c) -> Token {
 auto PGNLexer::read_symbol(char first_c) -> Token {
     std::string result{first_c};
     int character = m_in_stream->get();
-    while (!m_in_stream->bad() && !is_whitespace(static_cast<char>(character))) {
+    while (!m_in_stream->bad() && !is_whitespace(static_cast<char>(character)) && (character != ')')) {
         result += static_cast<char>(character);
         character = m_in_stream->get();
     }
