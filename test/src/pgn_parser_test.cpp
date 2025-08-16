@@ -116,3 +116,35 @@ his Queen Bishop.} 8...exd5 9. Bd3 Bb7 10. O-O c5 1-0)";
     check_move(game, mainline(16), Move{.from = Square::E6, .to = Square::D5, .piece = Piece::BlackPawn, .captured = Piece::WhitePawn});
     check_move(game, mainline(20), Move{.from = Square::C7, .to = Square::C5, .piece = Piece::BlackPawn});
 }
+
+TEST_CASE("PGN.Parser.Game with NAG", "[pgn]") {
+    const std::string game_data = R"([Event "Test Event"]
+[Site "Test Site"]
+[White "Player W"]
+[Black "Player B"]
+[Result "1-0"]
+
+{The active Bishop puts White in a position to start a Kingside attack} 1. e4
+e5 2. Nf3 $1 Nc6 3. Bb5 a6 4. Ba4 Nf6 $2 5. O-O Be7 $1 $32 6. Qe2 b5 7. Bb3 O-O 8. c3 8...
+d5 9. d3 $1 {An excellent reply, avoiding the complications arising from 9.
+exd5 and ensuring White a positional advantage since the opening of the d-file
+is in his favour (as he can immediately occupy it) - Alekhine} 1-0
+)";
+
+    std::istringstream pgn_data{game_data};
+    auto parser = chessgame::PGNParser{pgn_data};
+    auto opt_game = parser.read_game();
+    REQUIRE(opt_game.has_value());
+    const auto &game = opt_game.value();
+
+    CHECK(count_ply_on_mainline(game) == 17);
+    check_move(game, mainline(3), Move{.from = Square::G1, .to = Square::F3, .piece = Piece::WhiteKnight});
+    // TODO: check NAG for previous half-move
+    check_move(game, mainline(4), Move{.from = Square::B8, .to = Square::C6, .piece = Piece::BlackKnight});
+    check_move(game, mainline(8), Move{.from = Square::G8, .to = Square::F6, .piece = Piece::BlackKnight});
+    // TODO: check NAG for previous half-move
+    check_move(game, mainline(9), Move{.from = Square::E1, .to = Square::G1, .piece = Piece::WhiteKing});
+    check_move(game, mainline(10), Move{.from = Square::F8, .to = Square::E7, .piece = Piece::BlackBishop});
+    // TODO: check NAGs for previous half-move
+    check_move(game, mainline(11), Move{.from = Square::D1, .to = Square::E2, .piece = Piece::WhiteQueen});
+}
