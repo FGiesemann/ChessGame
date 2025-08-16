@@ -32,6 +32,8 @@ enum class PGNErrorType {
     IllegalMove,       ///< Move is illegal in the current position.
     AmbiguousMove,     ///< Move is ambiguous in the current position.
     InvalidGameResult, ///< Invalid game result.
+    CannotStartRav,    ///< Cannot start a RAV in this position.
+    NoPenRav,          ///< There is currently no RAV active.
     EndOfInput         ///< End of input.
 };
 

@@ -279,15 +279,24 @@ auto PGNParser::process_move_comment() -> void {
 }
 
 auto PGNParser::start_rav() -> void {
-    // TODO
-    std::cout << "Starting RAV\n";
-    next_token();
+    std::cout << "Starting RAV\n"; // DELME
+    auto opt_parent = current_game_line().parent();
+    if (opt_parent.has_value()) {
+        m_cursors.push(opt_parent.value());
+        next_token();
+    } else {
+        throw PGNError(PGNErrorType::CannotStartRav, m_token.line, "No parent in curent position");
+    }
 }
 
 auto PGNParser::finish_rav() -> void {
-    // TODO
-    std::cout << "RAV ended\n";
-    next_token();
+    std::cout << "RAV ended\n"; // DELME
+    if (m_cursors.size() > 1) {
+        m_cursors.pop();
+        next_token();
+    } else {
+        throw PGNError(PGNErrorType::NoPenRav, m_token.line, "No RAV to close");
+    }
 }
 
 auto PGNParser::read_move_number_indication() -> void {
