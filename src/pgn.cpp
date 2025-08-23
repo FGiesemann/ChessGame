@@ -10,8 +10,6 @@
 #include <cctype>
 #include <istream>
 
-#include <iostream> // DELME
-
 namespace chessgame {
 
 auto to_string(PGNErrorType type) -> std::string {
@@ -240,9 +238,6 @@ auto PGNParser::read_metadata() -> void {
         next_token();
     }
     if (m_token.type == PGNLexer::TokenType::Comment) {
-
-        std::cout << "Game comment \"" << m_token.value << "\"\n";
-
         m_game.metadata().overall_comment = m_token.value;
         next_token();
     }
@@ -254,32 +249,22 @@ auto PGNParser::read_tag() -> void {
     expect_token(PGNLexer::TokenType::String, "String expected");
     const auto tag_value = m_token.value;
     m_metadata.set_tag(tag_name, tag_value);
-
-    std::cout << "Found tag [" << tag_name << " \"" << tag_value << "\"]\n";
-
     expect_token(PGNLexer::TokenType::CloseBracket, "Close bracket expected");
 }
 
 auto PGNParser::annotate_move() -> void {
-    // TODO
-    std::cout << "Found NAG: " << m_token.value << "\n";
     next_token();
 }
 
 auto PGNParser::process_game_result() -> void {
-    // TODO
-    std::cout << "Found game result: " << m_token.value << "\n";
     next_token();
 }
 
 auto PGNParser::process_move_comment() -> void {
-    // TODO
-    std::cout << "Found move comment: \"" << m_token.value << "\"\n";
     next_token();
 }
 
 auto PGNParser::start_rav() -> void {
-    std::cout << "Starting RAV\n"; // DELME
     auto opt_parent = current_game_line().parent();
     if (opt_parent.has_value()) {
         m_cursors.push(opt_parent.value());
@@ -290,7 +275,6 @@ auto PGNParser::start_rav() -> void {
 }
 
 auto PGNParser::finish_rav() -> void {
-    std::cout << "RAV ended\n"; // DELME
     if (m_cursors.size() > 1) {
         m_cursors.pop();
         next_token();
@@ -300,11 +284,8 @@ auto PGNParser::finish_rav() -> void {
 }
 
 auto PGNParser::read_move_number_indication() -> void {
-    // TODO
-    std::cout << "Found move number indication: " << m_token.value << "\n";
     next_token();
     while (m_token.type == PGNLexer::TokenType::Dot) {
-        std::cout << "Skipped dot\n";
         next_token();
     }
 }
@@ -330,7 +311,6 @@ auto PGNParser::find_legal_move(const SANMove &san_move) const -> chesscore::Mov
 }
 
 auto PGNParser::process_move() -> void {
-    std::cout << "Found move: \"" << m_token.value << "\"\n"; // DELME
     const auto san_move = parse_san_move(m_token.value);
     const auto move = find_legal_move(san_move);
     Cursor &cursor = current_game_line();

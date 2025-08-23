@@ -101,6 +101,3 @@ if (NOT BUILD_TESTING STREQUAL OFF)
     find_package(chesscore REQUIRED COMPONENTS chesscore chesscore_io)
     add_subdirectory(test)
 endif()
-
-# PGN Parser Test Program (DELME)
-add_subdirectory(pgn_parser)
