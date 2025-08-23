@@ -168,13 +168,10 @@ is in his favour (as he can immediately occupy it) - Alekhine} 1-0
 
     CHECK(count_ply_on_mainline(game) == 17);
     check_move(game, mainline(3), Move{.from = Square::G1, .to = Square::F3, .piece = Piece::WhiteKnight});
-    // TODO: check NAG for previous half-move
     check_move(game, mainline(4), Move{.from = Square::B8, .to = Square::C6, .piece = Piece::BlackKnight});
     check_move(game, mainline(8), Move{.from = Square::G8, .to = Square::F6, .piece = Piece::BlackKnight});
-    // TODO: check NAG for previous half-move
     check_move(game, mainline(9), Move{.from = Square::E1, .to = Square::G1, .piece = Piece::WhiteKing});
     check_move(game, mainline(10), Move{.from = Square::F8, .to = Square::E7, .piece = Piece::BlackBishop});
-    // TODO: check NAGs for previous half-move
     check_move(game, mainline(11), Move{.from = Square::D1, .to = Square::E2, .piece = Piece::WhiteQueen});
 }
 
@@ -262,4 +259,45 @@ TEST_CASE("PGN.Parser.Game with RAV", "[pgn]") {
     check_move(game, mainline(25) + var(1) + var(2), Move{.from = Square::E4, .to = Square::C2, .piece = Piece::WhiteBishop});
     check_move(game, mainline(25) + var(1) + var(2) + mainline(1), Move{.from = Square::E5, .to = Square::D3, .piece = Piece::BlackKnight});
     CHECK(has_no_following_move(game, mainline(25) + var(1) + var(2) + mainline(1)));
+}
+
+TEST_CASE("PGN.Parser.Annotations", "[pgn]") {
+    const std::string game_data = R"([Event "Test Event"]
+[Site "Test Site"]
+[White "Player W"]
+[Black "Player B"]
+[Result "1-0"]
+
+{The active Bishop puts White in a position to start a Kingside attack} 1. e4
+e5 2. Nf3 $1 Nc6 3. Bb5 a6 4. Ba4 Nf6 $2 5. O-O Be7 $1 $32 6. Qe2 b5 7. Bb3 O-O 8. c3 8...
+d5 9. d3 $1 {An excellent reply, avoiding the complications arising from 9.
+exd5 and ensuring White a positional advantage since the opening of the d-file
+is in his favour (as he can immediately occupy it) - Alekhine} 1-0
+)";
+
+    std::istringstream pgn_data{game_data};
+    auto parser = chessgame::PGNParser{pgn_data};
+    auto opt_game = parser.read_game();
+    REQUIRE(opt_game.has_value());
+    const auto &game = opt_game.value();
+
+    CHECK(count_ply_on_mainline(game) == 17);
+
+    CHECK(game.const_cursor().node()->comment() == "The active Bishop puts White in a position to start a Kingside attack");
+    const auto node1 = get_node(game, mainline(3));
+    REQUIRE(node1 != nullptr);
+    REQUIRE(node1->nags().size() == 1);
+    CHECK(node1->nags()[0] == 1);
+
+    const auto node2 = get_node(game, mainline(10));
+    REQUIRE(node2 != nullptr);
+    REQUIRE(node2->nags().size() == 2);
+    CHECK(node2->nags()[0] == 1);
+    CHECK(node2->nags()[1] == 32);
+
+    const auto node3 = get_node(game, mainline(17));
+    REQUIRE(node3 != nullptr);
+    REQUIRE(node3->nags().size() == 1);
+    CHECK(node3->nags()[0] == 1);
+    CHECK(node3->comment() != "");
 }

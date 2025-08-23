@@ -142,6 +142,7 @@ private:
     PGNLexer::Token m_token;
     GameMetadata m_metadata;
     Game m_game;
+    std::string m_overall_game_comment;
 
     std::stack<Cursor> m_cursors;
     auto reset() -> void;
