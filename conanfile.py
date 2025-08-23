@@ -1,14 +1,32 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
 
+
 class ChessGameConan(ConanFile):
-    name = "ChessGame"
-    version = "1.0.0"
+    name = "chessgame"
+    version = "1.0.0-dev"
     package_type = "library"
+
+    license = "MIT License"
+    author = "Florian Giesemann <florian.giesemann@gmail.com>"
+    url = "https://github.com/FGiesemann/ChessCore.git"
+    homepage = "https://github.com/FGiesemann/ChessCore"
 
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False], "fPIC": [True, False]}
     default_options = {"shared": False, "fPIC": True}
+
+    exports_sources = (
+        "CMakeLists.txt",
+        "cmake/*",
+        "src/*",
+        "include/*",
+        "test/*",
+        "LICENSE",
+    )
+
+    def build_requirements(self):
+        self.tool_requires("cmake/[>=3.15]")
 
     def requirements(self):
         self.requires("chesscore/1.0.0-dev")
@@ -37,4 +55,9 @@ class ChessGameConan(ConanFile):
         cmake.build()
 
     def package(self):
-        self.output.info("No packaging defined for my_chess_app (example app).")
+        cmake = CMake(self)
+        cmake.install()
+
+    def package_info(self):
+        self.cpp_info.libs = ["ChessGame"]
+        self.cpp_info.set_property("cmake_target_name", "ChessGame::ChessGame")
