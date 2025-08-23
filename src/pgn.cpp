@@ -195,7 +195,11 @@ auto PGNParser::setup_game() -> void {
 
 auto PGNParser::read_game() -> std::optional<Game> {
     reset();
-    expect_token(PGNLexer::TokenType::OpenBracket, "Metadata tags expected");
+    next_token();
+    if (m_token.type == PGNLexer::TokenType::EndOfInput) {
+        return std::nullopt;
+    }
+    check_token_type(PGNLexer::TokenType::OpenBracket, "Metadata tags expected");
     read_metadata();
     setup_game();
     read_movetext();
@@ -260,9 +264,7 @@ auto PGNParser::annotate_move() -> void {
     next_token();
 }
 
-auto PGNParser::process_game_result() -> void {
-    next_token();
-}
+auto PGNParser::process_game_result() -> void {}
 
 auto PGNParser::process_move_comment() -> void {
     current_game_line().set_comment(m_token.value);
