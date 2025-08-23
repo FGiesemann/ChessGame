@@ -9,7 +9,6 @@ add_compiler_warnings(chessgame_tests)
 target_link_libraries(chessgame_tests
   PRIVATE 
   ChessGame 
-  chesscore::chesscore_io
   Catch2::Catch2WithMain
 )
 
