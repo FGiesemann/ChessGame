@@ -179,12 +179,16 @@ public:
      * \return The position represented by this node.
      */
     [[nodiscard]] auto calculate_position() const -> Position;
+
+    auto nags() const -> const std::vector<int> & { return m_nags; }
+    auto nags() -> std::vector<int> & { return m_nags; }
 private:
     NodeId m_id;                                       ///< The id of this node.
     chesscore::Move m_move;                            ///< The move that led to this node (from the parent node).
     std::weak_ptr<GameNode> m_parent;                  ///< Pointer to the parent node.
     std::vector<std::shared_ptr<GameNode>> m_children; ///< List of child nodes. The first entry represetns the "main line".
     std::string m_comment;                             ///< A comment of the position or move.
+    std::vector<int> m_nags;                           ///< Numeric annotation glyphs describing the move or position.
     std::optional<Position> m_position;                ///< The position described by this node.
 };
 

@@ -186,6 +186,9 @@ auto PGNParser::reset() -> void {
 
 auto PGNParser::setup_game() -> void {
     m_game = Game{m_metadata};
+    if (!m_overall_game_comment.empty()) {
+        m_game.edit().set_comment(m_overall_game_comment);
+    }
     clear_cursor_stack();
     m_cursors.push(m_game.edit());
 }
@@ -238,7 +241,7 @@ auto PGNParser::read_metadata() -> void {
         next_token();
     }
     if (m_token.type == PGNLexer::TokenType::Comment) {
-        m_game.edit().set_comment(m_token.value);
+        m_overall_game_comment = m_token.value;
         next_token();
     }
 }
@@ -253,6 +256,7 @@ auto PGNParser::read_tag() -> void {
 }
 
 auto PGNParser::annotate_move() -> void {
+    current_game_line().node()->nags().emplace_back(stoi(m_token.value));
     next_token();
 }
 
@@ -261,6 +265,7 @@ auto PGNParser::process_game_result() -> void {
 }
 
 auto PGNParser::process_move_comment() -> void {
+    current_game_line().set_comment(m_token.value);
     next_token();
 }
 
