@@ -59,7 +59,8 @@ private:
  * \brief Types of (ignored) errors in PGN files.
  */
 enum class PGNWarningType {
-    UnexpectedChar, ///< Unexpected character in input.
+    UnexpectedChar,     ///< Unexpected character in input.
+    MoveMissingCapture, ///< The SAN move only matched, when adding capturing.
 };
 
 /**
@@ -174,7 +175,7 @@ private:
     Game m_game;
     std::string m_overall_game_comment;
 
-    std::vector<PGNWarning> m_warnings;
+    mutable std::vector<PGNWarning> m_warnings;
 
     std::stack<Cursor> m_cursors;
     auto reset() -> void;

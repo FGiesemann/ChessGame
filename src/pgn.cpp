@@ -141,7 +141,7 @@ auto PGNLexer::read_token_starting_with_number(char first_c) -> Token {
 auto PGNLexer::is_symbol_character(char character) -> bool {
     static std::set<char> symbol_characters = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w',
                                                'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
-                                               'U', 'V', 'W', 'X', 'Y', 'Z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-', '/', '+', '#', '='};
+                                               'U', 'V', 'W', 'X', 'Y', 'Z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-', '/', '+', '#', '=', '?', '!'};
     return symbol_characters.contains(character);
 }
 
@@ -340,6 +340,20 @@ auto PGNParser::find_legal_move(const SANMove &san_move) const -> chesscore::Mov
     if (matched_moves.size() > 1) {
         throw PGNError{PGNErrorType::AmbiguousMove, m_token.line, san_move.san_string};
     }
+    if (legal_moves.empty()) {
+        throw PGNError{PGNErrorType::IllegalMove, m_token.line, san_move.san_string};
+    }
+
+    if (!san_move.capturing) {
+        auto try_move = san_move;
+        try_move.capturing = true;
+        const auto matched_captures = match_san_move(try_move, legal_moves);
+        if (matched_captures.size() == 1) {
+            m_warnings.emplace_back(PGNWarningType::MoveMissingCapture, m_token.line, san_move.san_string);
+            return matched_captures[0];
+        }
+    }
+
     throw PGNError{PGNErrorType::IllegalMove, m_token.line, san_move.san_string};
 }
 
