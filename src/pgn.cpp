@@ -34,6 +34,17 @@ auto to_string(PGNErrorType type) -> std::string {
     }
 }
 
+auto to_string(PGNWarningType type) -> std::string {
+    switch (type) {
+    case PGNWarningType::UnexpectedChar:
+        return "unexpected character";
+    case PGNWarningType::MoveMissingCapture:
+        return "move missing capturing";
+    default:
+        return "UNKNOWN WARNING!";
+    }
+}
+
 auto PGNLexer::next_token() -> Token {
     int character = m_in_stream->get();
     if (is_whitespace(static_cast<char>(character))) {

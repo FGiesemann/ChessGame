@@ -63,6 +63,8 @@ enum class PGNWarningType {
     MoveMissingCapture, ///< The SAN move only matched, when adding capturing.
 };
 
+auto to_string(PGNWarningType type) -> std::string;
+
 /**
  * \brief Describes a problem with PGN data.
  *
