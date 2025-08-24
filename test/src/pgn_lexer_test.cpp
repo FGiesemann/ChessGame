@@ -80,6 +80,31 @@ TEST_CASE("PGN.Lexer.Single linear game", "[pgn]") {
     check_token(lexer, PGNLexer::TokenType::EndOfInput, 9);
 }
 
+TEST_CASE("PGN.Lexer.Promotions", "[pgn]") {
+    const std::string pgn_data{"[Event \"?\"]\n"
+                               "[Site \"?\"]\n"
+                               "[Date \"?\"]\n"
+                               "[White \"?\"]\n"
+                               "[Black \"?\"]\n"
+                               "[Result \"1-0\"]\n\n"
+                               "1. c8=Q 1-0"};
+
+    auto pgn_stream = std::istringstream{pgn_data};
+    auto lexer = PGNLexer{&pgn_stream};
+
+    check_tag(lexer, "Event", "?", 1);
+    check_tag(lexer, "Site", "?", 2);
+    check_tag(lexer, "Date", "?", 3);
+    check_tag(lexer, "White", "?", 4);
+    check_tag(lexer, "Black", "?", 5);
+    check_tag(lexer, "Result", "1-0", 6);
+    check_token(lexer, PGNLexer::TokenType::Number, 8, "1");
+    check_token(lexer, PGNLexer::TokenType::Dot, 8);
+    check_token(lexer, PGNLexer::TokenType::Symbol, 8, "c8=Q");
+    check_token(lexer, PGNLexer::TokenType::GameResult, 8, "1-0");
+    check_token(lexer, PGNLexer::TokenType::EndOfInput, 8);
+}
+
 TEST_CASE("PGN.Lexer.Commented game", "[pgn]") {
     const std::string pgn_data{
         "[Event \"IBM Kasparov vs. Deep Blue Rematch\"]\n"
