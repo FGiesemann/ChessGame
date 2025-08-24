@@ -11,8 +11,6 @@ option(BUILD_TESTING "Build unittests" ON)
 
 include(cmake/compiler_warnings.cmake)
 
-find_package(chesscore REQUIRED COMPONENTS chesscore)
-
 add_library(${PROJECT_NAME}
     src/cursor.cpp
     src/game.cpp
@@ -27,6 +25,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
 )
+find_package(chesscore REQUIRED COMPONENTS chesscore)
 target_link_libraries(${PROJECT_NAME} PUBLIC chesscore::chesscore)
 add_compiler_warnings(${PROJECT_NAME})
 
@@ -34,9 +33,9 @@ install(TARGETS ${PROJECT_NAME}
     EXPORT ${PROJECT_NAME}Targets
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_BINDIR}
-    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
+    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/chessgame
 )
-install(DIRECTORY include/${PROJECT_NAME}/ DESTINATION include/${PROJECT_NAME})
+install(DIRECTORY include/${PROJECT_NAME}/ DESTINATION include/chessgame)
 install(EXPORT ${PROJECT_NAME}Targets
     FILE ${PROJECT_NAME}Targets.cmake
     NAMESPACE ${PROJECT_NAME}::
@@ -45,7 +44,7 @@ install(EXPORT ${PROJECT_NAME}Targets
 set(${PROJECT_NAME}_VERSION ${PROJECT_VERSION})
 
 include(CMakePackageConfigHelpers)
-set(chessgame_INCLUDE_DIR "${CMAKE_INSTALL_INCLUDEDIR}/ChessGame")
+set(chessgame_INCLUDE_DIR "${CMAKE_INSTALL_INCLUDEDIR}/chessgame")
 configure_package_config_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/cmake/${PROJECT_NAME}Config.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
