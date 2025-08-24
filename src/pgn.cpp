@@ -198,6 +198,7 @@ auto PGNLexer::skip_back() -> void {
 
 auto PGNParser::reset() -> void {
     m_metadata = GameMetadata{};
+    m_warnings.clear();
 }
 
 auto PGNParser::setup_game() -> void {
