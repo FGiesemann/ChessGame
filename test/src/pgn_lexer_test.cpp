@@ -245,5 +245,5 @@ TEST_CASE("PGN.Lexer.Invalid Result", "[pgn]") {
     check_token(lexer, PGNLexer::TokenType::Number, 3, "4");
     check_token(lexer, PGNLexer::TokenType::Dot, 3);
     check_token(lexer, PGNLexer::TokenType::Symbol, 3, "Ba4");
-    CHECK_THROWS_AS(lexer.next_token(), PGNError);
+    check_token(lexer, PGNLexer::TokenType::Invalid, 3, "1/0");
 }
