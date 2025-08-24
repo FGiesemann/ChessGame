@@ -68,7 +68,7 @@ auto PGNLexer::next_token() -> Token {
         case '{':
             return read_comment();
         default:
-            throw PGNError{PGNErrorType::UnexpectedChar, m_line_number, std::string{static_cast<char>(character)}};
+            return Token{.type = TokenType::Invalid, .line = m_line_number, .value = std::string{static_cast<char>(character)}};
         }
     }
     throw PGNError{PGNErrorType::InputError, m_line_number};
