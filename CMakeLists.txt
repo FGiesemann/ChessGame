@@ -2,8 +2,6 @@ cmake_minimum_required(VERSION 3.15)
 project(ChessGame VERSION 1.0.0 LANGUAGES CXX)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(BUILD_DOCUMENTATION "Build Doxygen documentation" OFF)
@@ -25,6 +23,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
 )
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_23)
 find_package(chesscore REQUIRED COMPONENTS chesscore)
 target_link_libraries(${PROJECT_NAME} PUBLIC chesscore::chesscore)
 add_compiler_warnings(${PROJECT_NAME})
