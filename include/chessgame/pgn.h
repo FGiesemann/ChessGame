@@ -124,6 +124,7 @@ private:
     auto skip_whitespace(int character) -> void;
     auto read_string() -> Token;
     auto read_token_starting_with_number(char first_c) -> Token;
+    [[nodiscard]] static auto is_symbol_character(char character) -> bool;
     auto read_symbol(char first_c) -> Token;
     auto read_comment() -> Token;
     auto read_nag() -> Token;

@@ -9,6 +9,7 @@
 
 #include <cctype>
 #include <istream>
+#include <set>
 
 namespace chessgame {
 
@@ -66,11 +67,6 @@ auto PGNLexer::next_token() -> Token {
             return Token{.type = TokenType::CloseParen, .line = m_line_number, .value = ""};
         case '{':
             return read_comment();
-        case '}':
-            // this is an error in the input, a not correctly closed comment or something...
-            // ignored for now
-            character = m_in_stream->get();
-            continue;
         default:
             throw PGNError{PGNErrorType::UnexpectedChar, m_line_number, std::string{static_cast<char>(character)}};
         }
@@ -142,15 +138,17 @@ auto PGNLexer::read_token_starting_with_number(char first_c) -> Token {
     throw PGNError(PGNErrorType::InvalidGameResult, m_line_number, result);
 }
 
+auto PGNLexer::is_symbol_character(char character) -> bool {
+    static std::set<char> symbol_characters = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
+                                               'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
+                                               'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-', '/', '+', '#'};
+    return symbol_characters.contains(character);
+}
+
 auto PGNLexer::read_symbol(char first_c) -> Token {
     std::string result{first_c};
     int character = m_in_stream->get();
-    while (!m_in_stream->bad() && !is_whitespace(static_cast<char>(character)) && (character != ')')) {
-        if (character == ',' || character == '}') {
-            // should not appear here, character itself is ignored but stops the symbol
-            m_in_stream->get();
-            break;
-        }
+    while (!m_in_stream->bad() && is_symbol_character(static_cast<char>(character))) {
         result += static_cast<char>(character);
         character = m_in_stream->get();
     }
@@ -186,10 +184,6 @@ auto PGNLexer::read_nag() -> Token {
     while (!m_in_stream->bad() && (std::isdigit(character) != 0)) {
         result += static_cast<char>(character);
         character = m_in_stream->get();
-    }
-    if (character == ',' || character == '.') {
-        // comma or dot should not appear. It is ignored here
-        m_in_stream->get();
     }
     if (m_in_stream->bad()) {
         throw PGNError{PGNErrorType::InputError, m_line_number};
