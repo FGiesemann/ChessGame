@@ -56,6 +56,29 @@ private:
 };
 
 /**
+ * \brief Types of (ignored) errors in PGN files.
+ */
+enum class PGNWarningType {
+    UnexpectedChar, ///< Unexpected character in input.
+};
+
+/**
+ * \brief Describes a problem with PGN data.
+ *
+ * This is used to describe a problem, when a PGN file does not follow the PGN
+ * specification, but the error is ignored in order to allow reading the PGN
+ * file anyways.
+ *
+ * These warnings are collected by the PGNParser and can be retrieved after the
+ * game was parsed.
+ */
+struct PGNWarning {
+    PGNWarningType type;     ///< The type of the warning.
+    int line;                ///< The line number where the warning occured.
+    std::string description; ///< A description of the warning.
+};
+
+/**
  * \brief Lexical analysis of PGN data.
  *
  * Extracts tokens from PGN data.
@@ -141,6 +164,8 @@ public:
 
     auto read_game() -> std::optional<Game>;
 
+    auto warnings() const -> const std::vector<PGNWarning> & { return m_warnings; }
+
     auto skip_to_next_game() -> void;
 private:
     PGNLexer m_lexer;
@@ -148,6 +173,8 @@ private:
     GameMetadata m_metadata;
     Game m_game;
     std::string m_overall_game_comment;
+
+    std::vector<PGNWarning> m_warnings;
 
     std::stack<Cursor> m_cursors;
     auto reset() -> void;
