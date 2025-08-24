@@ -180,6 +180,10 @@ auto PGNLexer::read_nag() -> Token {
     return Token{.type = TokenType::NAG, .line = m_line_number, .value = result};
 }
 
+auto PGNLexer::skip_back() -> void {
+    m_in_stream->unget();
+}
+
 auto PGNParser::reset() -> void {
     m_metadata = GameMetadata{};
 }
@@ -204,6 +208,15 @@ auto PGNParser::read_game() -> std::optional<Game> {
     setup_game();
     read_movetext();
     return m_game;
+}
+
+auto PGNParser::skip_to_next_game() -> void {
+    while (m_token.type != PGNLexer::TokenType::EndOfInput && m_token.type != PGNLexer::TokenType::OpenBracket) {
+        next_token();
+    }
+    if (m_token.type == PGNLexer::TokenType::OpenBracket) {
+        m_lexer.skip_back();
+    }
 }
 
 auto PGNParser::read_movetext() -> void {
