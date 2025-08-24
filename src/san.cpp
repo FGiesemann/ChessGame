@@ -205,6 +205,11 @@ auto parse_target_square(const std::string &san, SANMove &move, std::string_view
         chesscore::File to_file{token.value[0]};
         const auto rank_token = get_token(san_str.substr(1));
         if (rank_token.type == TokenType::Rank) {
+            if (move.possible_disambiguation) {
+                move.disambiguation_file = move.target_file;
+                move.disambiguation_rank = move.target_rank;
+                move.possible_disambiguation = false;
+            }
             move.target_square = chesscore::Square{to_file, extract_rank(rank_token.value)};
             san_str = san_str.substr(2);
             token = get_token(san_str);
