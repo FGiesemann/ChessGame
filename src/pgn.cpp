@@ -39,7 +39,7 @@ auto PGNLexer::next_token() -> Token {
         skip_whitespace(character);
         character = m_in_stream->get();
     }
-    if (!m_in_stream->bad()) {
+    while (!m_in_stream->bad()) {
         if (character == std::istream::traits_type::eof()) {
             return Token{.type = TokenType::EndOfInput, .line = m_line_number, .value = ""};
         }
@@ -66,13 +66,16 @@ auto PGNLexer::next_token() -> Token {
             return Token{.type = TokenType::CloseParen, .line = m_line_number, .value = ""};
         case '{':
             return read_comment();
+        case '}':
+            // this is an error in the input, a not correctly closed comment or something...
+            // ignored for now
+            character = m_in_stream->get();
+            continue;
         default:
-            break;
+            throw PGNError{PGNErrorType::UnexpectedChar, m_line_number, std::string{static_cast<char>(character)}};
         }
-    } else {
-        throw PGNError{PGNErrorType::InputError, m_line_number};
     }
-    throw PGNError{PGNErrorType::UnexpectedChar, m_line_number, std::string{static_cast<char>(character)}};
+    throw PGNError{PGNErrorType::InputError, m_line_number};
 }
 
 auto PGNLexer::is_whitespace(char character) -> bool {
@@ -143,8 +146,8 @@ auto PGNLexer::read_symbol(char first_c) -> Token {
     std::string result{first_c};
     int character = m_in_stream->get();
     while (!m_in_stream->bad() && !is_whitespace(static_cast<char>(character)) && (character != ')')) {
-        if (character == ',') {
-            // should not appear here, comma itself is ignored but stops the symbol
+        if (character == ',' || character == '}') {
+            // should not appear here, character itself is ignored but stops the symbol
             m_in_stream->get();
             break;
         }
@@ -184,8 +187,8 @@ auto PGNLexer::read_nag() -> Token {
         result += static_cast<char>(character);
         character = m_in_stream->get();
     }
-    if (character == ',') {
-        // comma should not appear. It is ignored here
+    if (character == ',' || character == '.') {
+        // comma or dot should not appear. It is ignored here
         m_in_stream->get();
     }
     if (m_in_stream->bad()) {
@@ -256,7 +259,7 @@ auto PGNParser::read_movetext() -> void {
             finish_rav();
             break;
         default:
-            throw PGNError(PGNErrorType::UnexpectedToken, m_token.line, "Unexpected token in movetext");
+            throw PGNError(PGNErrorType::UnexpectedToken, m_token.line, std::string{"Unexpected token in movetext "} + m_token.value);
         }
     }
     process_game_result();
