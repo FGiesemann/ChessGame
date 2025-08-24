@@ -114,6 +114,8 @@ public:
      * \return The current line number.
      */
     [[nodiscard]] auto line_number() const -> int { return m_line_number; }
+
+    auto skip_back() -> void;
 private:
     std::istream *m_in_stream; ///< The input stream
     int m_line_number{1};      ///< Current line number
@@ -137,6 +139,8 @@ public:
     explicit PGNParser(std::istream &in_stream) : m_lexer{&in_stream} {}
 
     auto read_game() -> std::optional<Game>;
+
+    auto skip_to_next_game() -> void;
 private:
     PGNLexer m_lexer;
     PGNLexer::Token m_token;
