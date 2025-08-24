@@ -143,6 +143,11 @@ auto PGNLexer::read_symbol(char first_c) -> Token {
     std::string result{first_c};
     int character = m_in_stream->get();
     while (!m_in_stream->bad() && !is_whitespace(static_cast<char>(character)) && (character != ')')) {
+        if (character == ',') {
+            // should not appear here, comma itself is ignored but stops the symbol
+            m_in_stream->get();
+            break;
+        }
         result += static_cast<char>(character);
         character = m_in_stream->get();
     }
@@ -178,6 +183,10 @@ auto PGNLexer::read_nag() -> Token {
     while (!m_in_stream->bad() && (std::isdigit(character) != 0)) {
         result += static_cast<char>(character);
         character = m_in_stream->get();
+    }
+    if (character == ',') {
+        // comma should not appear. It is ignored here
+        m_in_stream->get();
     }
     if (m_in_stream->bad()) {
         throw PGNError{PGNErrorType::InputError, m_line_number};
