@@ -157,6 +157,12 @@ auto PGNLexer::read_comment() -> Token {
     std::string result{};
     int character = m_in_stream->get();
     while (!m_in_stream->bad() && character != '}') {
+        if (character == '\n') {
+            m_line_number++;
+        }
+        if (is_whitespace(static_cast<char>(character))) {
+            character = ' ';
+        }
         result += static_cast<char>(character);
         character = m_in_stream->get();
     }
