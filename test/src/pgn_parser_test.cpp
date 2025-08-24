@@ -299,5 +299,8 @@ is in his favour (as he can immediately occupy it) - Alekhine} 1-0
     REQUIRE(node3 != nullptr);
     REQUIRE(node3->nags().size() == 1);
     CHECK(node3->nags()[0] == 1);
-    CHECK(node3->comment() != "");
+    CHECK(
+        node3->comment() == "An excellent reply, avoiding the complications arising from 9. exd5 and ensuring White a positional advantage since the opening of the d-file is in "
+                            "his favour (as he can immediately occupy it) - Alekhine"
+    );
 }
