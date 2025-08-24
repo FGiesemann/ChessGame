@@ -269,7 +269,7 @@ TEST_CASE("Move Matcher.Position.White", "[san][move_matcher]") {
     check_single_move("hxg4", Color::White, white_moves, Move{.from = Square::H3, .to = Square::G4, .piece = Piece::WhitePawn, .captured = Piece::BlackKnight});
 }
 
-TEST_CASE("Move Matcher.Position.Black", "[move_matcher]") {
+TEST_CASE("Move Matcher.Position.Black", "[san][move_matcher]") {
     const chessgame::Position position_b{FenString{"3r4/ppP4k/1q2Np1r/b4Np1/1RP1B1nP/3n3P/P4B2/1KR5 b - - 0 1"}};
     const auto black_moves = position_b.all_legal_moves();
     CHECK(black_moves.size() == 43);
@@ -316,4 +316,10 @@ TEST_CASE("Move Matcher.Position.Black", "[move_matcher]") {
     check_single_move("Kg6", Color::Black, black_moves, Move{.from = Square::H7, .to = Square::G6, .piece = Piece::BlackKing});
     check_single_move("Kg8", Color::Black, black_moves, Move{.from = Square::H7, .to = Square::G8, .piece = Piece::BlackKing});
     check_single_move("Kh8", Color::Black, black_moves, Move{.from = Square::H7, .to = Square::H8, .piece = Piece::BlackKing});
+}
+
+TEST_CASE("Move Matcher.Position.Disambiguation", "[san][move_matcher]") {
+    const chessgame::Position position{FenString{"3r1rk1/1p1bqp2/p1pR1p1p/8/4P3/P4B2/1PP1QPP1/3R3K w - - 0 22"}};
+    const auto white_moves = position.all_legal_moves();
+    check_single_move("Rd1d2", Color::White, white_moves, Move{.from = Square::D1, .to = Square::D2, .piece = Piece::WhiteRook});
 }

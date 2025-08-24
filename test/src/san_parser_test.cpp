@@ -87,6 +87,7 @@ TEST_CASE("SAN Parser.Disambiguation", "[san]") {
     CHECK(check_move(parse_san("bxa6", Color::Black), Piece::BlackPawn, Square::A6, true, std::nullopt, CheckState::None, File{'b'}, std::nullopt));
     CHECK(check_move(parse_san("R5xe2", Color::Black), Piece::BlackRook, Square::E2, true, std::nullopt, CheckState::None, Rank{5}, std::nullopt));
     CHECK(check_move(parse_san("Qa6xb7#", Color::White), Piece::WhiteQueen, Square::B7, true, std::nullopt, CheckState::Checkmate, File{'a'}, Rank{6}, std::nullopt));
+    CHECK(check_move(parse_san("Rd1d2", Color::White), Piece::WhiteRook, Square::D2, false, std::nullopt, CheckState::None, File{'d'}, Rank{1}, std::nullopt));
 }
 
 TEST_CASE("SAN Parser.Check", "[san]") {
