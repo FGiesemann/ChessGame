@@ -252,6 +252,27 @@ auto parse_castling_move(const std::string &san, chesscore::Color side_to_move, 
 
 } // namespace
 
+auto to_string(SANParserErrorType type) -> std::string {
+    switch (type) {
+    case SANParserErrorType::UnexpectedToken:
+        return "unexpected token";
+    case SANParserErrorType::UnexpectedCharsAtEnd:
+        return "unexpected characters at the end";
+    case SANParserErrorType::InvalidSuffixAnnotation:
+        return "invalid suffix annotation";
+    case SANParserErrorType::CheckAndCheckmate:
+        return "check or checkmate indicator error";
+    case SANParserErrorType::MissingPieceType:
+        return "missing piece type letter";
+    case SANParserErrorType::MissingRank:
+        return "missing rank specifier";
+    case SANParserErrorType::MissingFile:
+        return "missing file specifier";
+    default:
+        return "UNKNOWN ERROR TYPE";
+    }
+}
+
 auto parse_san(const std::string &san, chesscore::Color side_to_move) -> std::expected<SANMove, SANParserError> {
     SANMove move;
     move.san_string = san;

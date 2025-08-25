@@ -82,6 +82,8 @@ enum class SANParserErrorType {
     MissingFile,
 };
 
+auto to_string(SANParserErrorType type) -> std::string;
+
 struct SANParserError {
     SANParserErrorType error_type;
     std::string san;
