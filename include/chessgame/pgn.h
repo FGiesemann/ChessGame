@@ -157,6 +157,8 @@ private:
     auto read_nag() -> Token;
 };
 
+auto to_string(PGNLexer::TokenType type) -> std::string;
+
 /**
  * \brief Parser for PGN data.
  *
