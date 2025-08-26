@@ -13,6 +13,39 @@
 
 namespace chessgame {
 
+auto to_string(PGNLexer::TokenType type) -> std::string {
+    switch (type) {
+    case PGNLexer::TokenType::OpenBracket:
+        return "OpenBracket";
+    case PGNLexer::TokenType::CloseBracket:
+        return "CloseBracket";
+    case PGNLexer::TokenType::Symbol:
+        return "Symbol";
+    case PGNLexer::TokenType::String:
+        return "String";
+    case PGNLexer::TokenType::Number:
+        return "Number";
+    case PGNLexer::TokenType::NAG:
+        return "NAG";
+    case PGNLexer::TokenType::Dot:
+        return "Dot";
+    case PGNLexer::TokenType::OpenParen:
+        return "OpenParen";
+    case PGNLexer::TokenType::CloseParen:
+        return "CloseParen";
+    case PGNLexer::TokenType::Comment:
+        return "Comment";
+    case PGNLexer::TokenType::GameResult:
+        return "GameResult";
+    case PGNLexer::TokenType::EndOfInput:
+        return "EndOfInput";
+    case PGNLexer::TokenType::Invalid:
+        return "Invalid";
+    default:
+        return "UNKNOWN TOKEN TYPE";
+    }
+}
+
 auto to_string(PGNErrorType type) -> std::string {
     switch (type) {
     case PGNErrorType::InputError:
@@ -251,6 +284,10 @@ auto PGNParser::read_movetext() -> void {
         case PGNLexer::TokenType::Number:
             read_move_number_indication();
             break;
+        case PGNLexer::TokenType::Dot:
+            m_warnings.emplace_back(PGNWarningType::UnexpectedChar, m_token.line, "Unexpected char in movetext: .");
+            next_token();
+            break;
         case PGNLexer::TokenType::Symbol:
             read_move();
             break;
@@ -266,8 +303,19 @@ auto PGNParser::read_movetext() -> void {
         case PGNLexer::TokenType::CloseParen:
             finish_rav();
             break;
+        case PGNLexer::TokenType::Invalid:
+            if (m_token.value == "," || m_token.value == "}") {
+                m_warnings.emplace_back(PGNWarningType::UnexpectedChar, m_token.line, "Unexpected char in movetext: " + m_token.value);
+                next_token();
+                break;
+            } else {
+                throw PGNError(PGNErrorType::UnexpectedToken, m_token.line, std::string{"Invalid token in movetext '"} + m_token.value + std::string{"'"});
+            }
         default:
-            throw PGNError(PGNErrorType::UnexpectedToken, m_token.line, std::string{"Unexpected token in movetext "} + m_token.value);
+            throw PGNError(
+                PGNErrorType::UnexpectedToken, m_token.line,
+                std::string{"Unexpected token of type "} + to_string(m_token.type) + std::string{" in movetext '"} + m_token.value + std::string{"'"}
+            );
         }
     }
     process_game_result();
