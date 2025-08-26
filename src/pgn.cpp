@@ -40,6 +40,8 @@ auto to_string(PGNWarningType type) -> std::string {
         return "unexpected character";
     case PGNWarningType::MoveMissingCapture:
         return "move missing capturing";
+    case PGNWarningType::MoveMissingPieceType:
+        return "move missing piece type";
     default:
         return "UNKNOWN WARNING!";
     }
@@ -344,6 +346,9 @@ auto PGNParser::parse_san_move(const std::string &san_str) const -> SANMove {
 
 auto PGNParser::find_legal_move(const SANMove &san_move) const -> chesscore::Move {
     const auto legal_moves = current_game_line().position().all_legal_moves();
+    if (legal_moves.empty()) {
+        throw PGNError{PGNErrorType::IllegalMove, m_token.line, san_move.san_string};
+    }
     const auto matched_moves = match_san_move(san_move, legal_moves);
     if (matched_moves.size() == 1) {
         return matched_moves[0];
@@ -351,10 +356,14 @@ auto PGNParser::find_legal_move(const SANMove &san_move) const -> chesscore::Mov
     if (matched_moves.size() > 1) {
         throw PGNError{PGNErrorType::AmbiguousMove, m_token.line, san_move.san_string};
     }
-    if (legal_moves.empty()) {
-        throw PGNError{PGNErrorType::IllegalMove, m_token.line, san_move.san_string};
-    }
 
+    // Could not match the SAN move against the legal moves, try some modifications...
+
+    const auto matched_without_piece_type = match_san_move_wildcard_piece_type(san_move, legal_moves);
+    if (matched_without_piece_type.size() == 1) {
+        m_warnings.emplace_back(PGNWarningType::MoveMissingPieceType, m_token.line, san_move.san_string);
+        return matched_without_piece_type[0];
+    }
     if (!san_move.capturing) {
         auto try_move = san_move;
         try_move.capturing = true;

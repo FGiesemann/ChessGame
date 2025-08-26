@@ -59,8 +59,9 @@ private:
  * \brief Types of (ignored) errors in PGN files.
  */
 enum class PGNWarningType {
-    UnexpectedChar,     ///< Unexpected character in input.
-    MoveMissingCapture, ///< The SAN move only matched, when adding capturing.
+    UnexpectedChar,       ///< Unexpected character in input.
+    MoveMissingCapture,   ///< The SAN move only matched, when adding capturing.
+    MoveMissingPieceType, ///< The SAN move didn't mention any piece type.
 };
 
 auto to_string(PGNWarningType type) -> std::string;
