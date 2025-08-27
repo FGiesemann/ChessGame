@@ -180,6 +180,12 @@ private:
     Game m_game;
     std::string m_overall_game_comment;
 
+    struct rav_descriptor {
+        bool has_moves{false};
+        std::string comment;
+    };
+    std::stack<rav_descriptor> m_rav_stack;
+
     mutable std::vector<PGNWarning> m_warnings;
 
     std::stack<Cursor> m_cursors;

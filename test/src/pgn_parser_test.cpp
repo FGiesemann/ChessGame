@@ -304,3 +304,34 @@ is in his favour (as he can immediately occupy it) - Alekhine} 1-0
                             "his favour (as he can immediately occupy it) - Alekhine"
     );
 }
+
+TEST_CASE("PGN.Parser.Annotated with RAV", "[pgn]") {
+    const std::string game_data = R"([Event "Test Event"]
+[Site "Test Site"]
+[White "Player W"]
+[Black "Player B"]
+[Result "1-0"]
+
+1. d4 d5 2. c4 e6 3. Nc3 Nf6 4. Bg5 {Comment 1} 4...Be7 5. Nf3 Nbd7 6. Rc1 O-O
+7. e3 b6 {Comment 2} 8. cxd5 exd5 {Comment 3} ({Comment 4} 8...
+Nf6xd5 {Comment 5} 9. Bxe7, Qxe7 10. Nxd5, e6xd5) 9. Bd3 {Comment 6} Bb7 1-0
+)";
+
+    std::istringstream pgn_data{game_data};
+    auto parser = chessgame::PGNParser{pgn_data};
+    auto opt_game = parser.read_game();
+    REQUIRE(opt_game.has_value());
+    const auto &game = opt_game.value();
+
+    const auto node1 = get_node(game, mainline(7));
+    CHECK(node1->comment() == "Comment 1");
+    const auto node2 = get_node(game, mainline(14));
+    CHECK(node2->comment() == "Comment 2");
+    const auto node3 = get_node(game, mainline(16));
+    CHECK(node3->comment() == "Comment 3");
+    const auto node4 = get_node(game, mainline(15) + var(1));
+    CHECK(node4->premove_comment() == "Comment 4");
+    CHECK(node4->comment() == "Comment 5");
+    const auto node5 = get_node(game, mainline(17));
+    CHECK(node5->comment() == "Comment 6");
+}

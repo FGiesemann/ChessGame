@@ -354,7 +354,11 @@ auto PGNParser::annotate_move() -> void {
 auto PGNParser::process_game_result() -> void {}
 
 auto PGNParser::process_move_comment() -> void {
-    current_game_line().set_comment(m_token.value);
+    if (!m_rav_stack.empty() && !m_rav_stack.top().has_moves) {
+        m_rav_stack.top().comment = m_token.value;
+    } else {
+        current_game_line().append_comment(m_token.value);
+    }
     next_token();
 }
 
@@ -362,6 +366,7 @@ auto PGNParser::start_rav() -> void {
     auto opt_parent = current_game_line().parent();
     if (opt_parent.has_value()) {
         m_cursors.push(opt_parent.value());
+        m_rav_stack.emplace(false, std::string{});
         next_token();
     } else {
         throw PGNError(PGNErrorType::CannotStartRav, m_token.line, "No parent in curent position");
@@ -374,6 +379,9 @@ auto PGNParser::finish_rav() -> void {
         next_token();
     } else {
         throw PGNError(PGNErrorType::NoPenRav, m_token.line, "No RAV to close");
+    }
+    if (!m_rav_stack.empty()) {
+        m_rav_stack.pop();
     }
 }
 
@@ -431,6 +439,12 @@ auto PGNParser::process_move() -> void {
     Cursor &cursor = current_game_line();
     const auto new_cursor = cursor.play_move(move);
     current_game_line() = new_cursor;
+    if (!m_rav_stack.empty()) {
+        m_rav_stack.top().has_moves = true;
+        if (!m_rav_stack.top().comment.empty()) {
+            current_game_line().append_premove_comment(m_rav_stack.top().comment);
+        }
+    }
     next_token();
 }
 

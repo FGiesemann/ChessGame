@@ -149,12 +149,44 @@ public:
     [[nodiscard]] auto comment() const -> const std::string & { return m_comment; }
 
     /**
+     * \brief Return the pre-move comment of the game node.
+     *
+     * This is a comment of the game position or the move that lead to it.
+     * \return The comment.
+     */
+    [[nodiscard]] auto premove_comment() const -> const std::string & { return m_premove_comment; }
+
+    /**
      * \brief Set the comment of the game node.
      *
      * This is a comment of the game position or the move that lead to it.
      * \param comment The comment.
      */
     auto set_comment(const std::string &comment) -> void { m_comment = comment; }
+
+    /**
+     * \brief Append to the comment of the game node.
+     *
+     * This is a comment of the game position or the move that lead to it.
+     * \param comment The comment.
+     */
+    auto append_comment(const std::string &comment) -> void { m_comment += comment; }
+
+    /**
+     * \brief Set the pre-move comment of the game node.
+     *
+     * This is a comment of the game position.
+     * \param comment The comment.
+     */
+    auto set_premove_comment(const std::string &comment) -> void { m_premove_comment = comment; }
+
+    /**
+     * \brief Append to the pre-move comment of the game node.
+     *
+     * This is a comment of the game position.
+     * \param comment The comment.
+     */
+    auto append_premove_comment(const std::string &comment) -> void { m_premove_comment += comment; }
 
     /**
      * \brief Get the position of the game node.
@@ -188,6 +220,7 @@ private:
     std::weak_ptr<GameNode> m_parent;                  ///< Pointer to the parent node.
     std::vector<std::shared_ptr<GameNode>> m_children; ///< List of child nodes. The first entry represetns the "main line".
     std::string m_comment;                             ///< A comment of the position or move.
+    std::string m_premove_comment;                     ///< A comment on this game line, given before the move.
     std::vector<int> m_nags;                           ///< Numeric annotation glyphs describing the move or position.
     std::optional<Position> m_position;                ///< The position described by this node.
 };
