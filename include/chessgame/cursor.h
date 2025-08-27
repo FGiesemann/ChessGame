@@ -130,6 +130,39 @@ public:
         m_node.lock()->set_comment(comment);
     }
 
+    /**
+     * \brief Appends to the comment for the current node.
+     *
+     * \param comment The comment.
+     */
+    auto append_comment(const std::string &comment) -> void
+    requires(!std::is_const_v<GameType>)
+    {
+        m_node.lock()->append_comment(comment);
+    }
+
+    /**
+     * \brief Sets the pre-move comment for the current node.
+     *
+     * \param comment The comment.
+     */
+    auto set_premove_comment(const std::string &comment) -> void
+    requires(!std::is_const_v<GameType>)
+    {
+        m_node.lock()->set_premove_comment(comment);
+    }
+
+    /**
+     * \brief Appends to the pre-move comment for the current node.
+     *
+     * \param comment The comment.
+     */
+    auto append_premove_comment(const std::string &comment) -> void
+    requires(!std::is_const_v<GameType>)
+    {
+        m_node.lock()->append_premove_comment(comment);
+    }
+
     auto node() -> std::shared_ptr<NodeType> { return m_node.lock(); }
 private:
     GameType *m_game{};
