@@ -59,6 +59,10 @@ public:
         return {};
     }
 
+    [[nodiscard]] auto child_count() const -> size_t { return m_node.lock()->child_count(); }
+
+    [[nodiscard]] auto has_variations() const -> bool { return child_count() > 1; }
+
     /**
      * \brief Get a child node of the current node.
      *
@@ -163,7 +167,13 @@ public:
         m_node.lock()->append_premove_comment(comment);
     }
 
-    auto node() -> std::shared_ptr<NodeType> { return m_node.lock(); }
+    auto node() -> std::shared_ptr<NodeType>
+    requires(!std::is_const_v<GameType>)
+    {
+        return m_node.lock();
+    }
+
+    auto node() const -> std::shared_ptr<const NodeType> { return m_node.lock(); }
 private:
     GameType *m_game{};
     std::weak_ptr<NodeType> m_node;
