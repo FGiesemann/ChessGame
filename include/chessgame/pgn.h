@@ -216,6 +216,28 @@ private:
     auto skip_tokens(PGNLexer::TokenType type) -> void;
 };
 
+/**
+ * \brief Writer for PGN data.
+ *
+ * Provides functionality to write a chess game as PGN data to a stream.
+ */
+class PGNWriter {
+public:
+    PGNWriter(std::ostream *ostream) : m_ostream{ostream} {}
+
+    auto write_game(const Game &game) -> void;
+
+    auto write_metadata(const GameMetadata &metadata) -> void;
+    auto write_game_lines(const ConstCursor &cursor) -> void;
+
+    auto write_str_tags(const GameMetadata &metadata) -> void;
+    auto write_non_str_tags(const GameMetadata &metadata) -> void;
+    auto write_tag_pair(const std::string &name, const std::string &value) -> void;
+    auto write_tag_pair(const metadata_tag &tag) -> void;
+private:
+    std::ostream *m_ostream;
+};
+
 } // namespace chessgame
 
 #endif
