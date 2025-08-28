@@ -7,6 +7,7 @@
 #include "chessgame/move_matcher.h"
 #include "chessgame/san.h"
 
+#include <algorithm>
 #include <cctype>
 #include <istream>
 #include <set>
@@ -474,6 +475,41 @@ auto PGNParser::clear_cursor_stack() -> void {
     while (!m_cursors.empty()) {
         m_cursors.pop();
     }
+}
+
+auto PGNWriter::write_game(const Game &game) -> void {
+    write_metadata(game.metadata());
+    write_game_lines(game.const_cursor());
+}
+
+auto PGNWriter::write_game_lines([[maybe_unused]] const ConstCursor &cursor) -> void {}
+
+auto PGNWriter::write_metadata(const GameMetadata &metadata) -> void {
+    write_str_tags(metadata);
+    write_non_str_tags(metadata);
+    *m_ostream << '\n';
+}
+
+auto PGNWriter::write_str_tags(const GameMetadata &metadata) -> void {
+    for (const auto &tag_name : GameMetadata::str_tags) {
+        const auto value = metadata.get(tag_name).value_or("?");
+        write_tag_pair(tag_name, value);
+    }
+}
+
+auto PGNWriter::write_non_str_tags(const GameMetadata &metadata) -> void {
+    std::vector<metadata_tag> non_str_tags;
+    std::ranges::copy_if(metadata, std::back_inserter(non_str_tags), [](const metadata_tag &tag) { return !GameMetadata::is_str_tag(tag); });
+    std::ranges::sort(non_str_tags, [](const metadata_tag &tag1, const metadata_tag &tag2) { return tag1.name < tag2.name; });
+    std::ranges::for_each(non_str_tags, [this](const metadata_tag &tag) { write_tag_pair(tag); });
+}
+
+auto PGNWriter::write_tag_pair(const std::string &name, const std::string &value) -> void {
+    *m_ostream << '[' << name << " \"" << value << "\"]\n";
+}
+
+auto PGNWriter::write_tag_pair(const metadata_tag &tag) -> void {
+    write_tag_pair(tag.name, tag.value);
 }
 
 } // namespace chessgame
