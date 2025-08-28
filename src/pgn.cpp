@@ -482,12 +482,37 @@ auto PGNWriter::write_game(const Game &game) -> void {
     write_game_lines(game.const_cursor());
 }
 
-auto PGNWriter::write_game_lines([[maybe_unused]] const ConstCursor &cursor) -> void {}
+auto PGNWriter::write_game_lines(const ConstCursor &node) -> void {
+    ConstCursor cursor = node;
+    while (cursor.child_count() > 0) {
+        const auto mainline_child = cursor.child(0);
+        if (mainline_child) {
+            write_move(mainline_child.value().node()->move());
+        } else {
+            break;
+        }
+        for (size_t child_index = 1; child_index < cursor.child_count(); ++child_index) {
+            const auto variant_cursor = cursor.child(child_index);
+            if (variant_cursor) {
+                write_rav(variant_cursor.value());
+            }
+        }
+        cursor = mainline_child.value();
+    }
+}
+
+auto PGNWriter::write_move([[maybe_unused]] const chesscore::Move &node) -> void {}
+
+auto PGNWriter::write_rav([[maybe_unused]] const ConstCursor &node) -> void {
+    write('(');
+    write_game_lines(node);
+    write(')');
+}
 
 auto PGNWriter::write_metadata(const GameMetadata &metadata) -> void {
     write_str_tags(metadata);
     write_non_str_tags(metadata);
-    *m_ostream << '\n';
+    newline();
 }
 
 auto PGNWriter::write_str_tags(const GameMetadata &metadata) -> void {
@@ -505,11 +530,24 @@ auto PGNWriter::write_non_str_tags(const GameMetadata &metadata) -> void {
 }
 
 auto PGNWriter::write_tag_pair(const std::string &name, const std::string &value) -> void {
-    *m_ostream << '[' << name << " \"" << value << "\"]\n";
+    write('[');
+    write(name);
+    write(" \"");
+    write(value);
+    write("\"]\n");
 }
 
 auto PGNWriter::write_tag_pair(const metadata_tag &tag) -> void {
     write_tag_pair(tag.name, tag.value);
+}
+
+template<typename T>
+auto PGNWriter::write(const T &data) -> void {
+    *m_ostream << data;
+}
+
+auto PGNWriter::newline() -> void {
+    write('\n');
 }
 
 } // namespace chessgame
