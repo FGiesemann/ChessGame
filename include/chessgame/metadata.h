@@ -56,7 +56,7 @@ public:
      * \param value Value of the tag.
      */
     template<typename NameT, typename ValueT>
-    auto emplace_back(NameT &&name, ValueT &&value) -> void {
+    auto add(NameT &&name, ValueT &&value) -> void {
         m_tags.emplace_back(std::forward<NameT>(name), std::forward<ValueT>(value));
     }
 
