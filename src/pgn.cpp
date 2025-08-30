@@ -343,7 +343,7 @@ auto PGNParser::read_tag() -> void {
     const auto tag_name = m_token.value;
     expect_token(PGNLexer::TokenType::String, "String expected");
     const auto tag_value = m_token.value;
-    m_metadata.emplace_back(tag_name, tag_value);
+    m_metadata.add(tag_name, tag_value);
     expect_token(PGNLexer::TokenType::CloseBracket, "Close bracket expected");
 }
 

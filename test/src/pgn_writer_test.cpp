@@ -14,16 +14,16 @@ using namespace chessgame;
 
 TEST_CASE("PGN.Writer.Metadata", "[pgn]") {
     GameMetadata metadata{};
-    metadata.emplace_back("BlackFideId", "345377");
-    metadata.emplace_back("Event", "Test Event");
-    metadata.emplace_back("Result", "1-0");
-    metadata.emplace_back("Site", "Test Site");
-    metadata.emplace_back("Black", "Black Player");
-    metadata.emplace_back("White", "White Player");
-    metadata.emplace_back("Round", "1");
-    metadata.emplace_back("Date", "2022-01-01");
-    metadata.emplace_back("WhiteELO", "2000");
-    metadata.emplace_back("Termination", "Normal");
+    metadata.add("BlackFideId", "345377");
+    metadata.add("Event", "Test Event");
+    metadata.add("Result", "1-0");
+    metadata.add("Site", "Test Site");
+    metadata.add("Black", "Black Player");
+    metadata.add("White", "White Player");
+    metadata.add("Round", "1");
+    metadata.add("Date", "2022-01-01");
+    metadata.add("WhiteELO", "2000");
+    metadata.add("Termination", "Normal");
 
     std::ostringstream sstr;
     PGNWriter writer{&sstr};
