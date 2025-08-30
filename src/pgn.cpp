@@ -114,6 +114,8 @@ auto PGNLexer::next_token() -> Token {
             return Token{.type = TokenType::CloseParen, .line = m_line_number, .value = ""};
         case '{':
             return read_comment();
+        case '*':
+            return Token{.type = TokenType::GameResult, .line = m_line_number, .value = "*"};
         default:
             return Token{.type = TokenType::Invalid, .line = m_line_number, .value = std::string{static_cast<char>(character)}};
         }
