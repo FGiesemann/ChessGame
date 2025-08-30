@@ -503,12 +503,19 @@ auto PGNWriter::write_game_lines(const ConstCursor &node) -> void {
     }
 }
 
-auto PGNWriter::write_move([[maybe_unused]] const chesscore::Move &node) -> void {}
+auto PGNWriter::write_move([[maybe_unused]] const chesscore::Move &move) -> void {
+    write(move.from.file().name());
+    write(move.from.rank().rank);
+    write(move.to.file().name());
+    write(move.to.rank().rank);
+    write(' ');
+}
 
 auto PGNWriter::write_rav([[maybe_unused]] const ConstCursor &node) -> void {
     write('(');
+    write_move(node.node()->move());
     write_game_lines(node);
-    write(')');
+    write(") ");
 }
 
 auto PGNWriter::write_metadata(const GameMetadata &metadata) -> void {
@@ -545,6 +552,11 @@ auto PGNWriter::write_tag_pair(const metadata_tag &tag) -> void {
 
 template<typename T>
 auto PGNWriter::write(const T &data) -> void {
+    *m_ostream << data;
+}
+
+template<size_t N>
+auto PGNWriter::write(const char data[N]) -> void {
     *m_ostream << data;
 }
 

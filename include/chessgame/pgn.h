@@ -234,13 +234,15 @@ public:
     auto write_non_str_tags(const GameMetadata &metadata) -> void;
     auto write_tag_pair(const std::string &name, const std::string &value) -> void;
     auto write_tag_pair(const metadata_tag &tag) -> void;
-    auto write_move(const chesscore::Move &node) -> void;
+    auto write_move(const chesscore::Move &move) -> void;
     auto write_rav(const ConstCursor &node) -> void;
 private:
     std::ostream *m_ostream;
 
     template<typename T>
     auto write(const T &data) -> void;
+    template<size_t N>
+    auto write(const char data[N]) -> void;
     auto newline() -> void;
 };
 
