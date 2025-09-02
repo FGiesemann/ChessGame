@@ -4,7 +4,6 @@
  * ************************************************************************** */
 
 #include "chessgame/pgn.h"
-#include "chessgame/move_matcher.h"
 #include "chessgame/san.h"
 
 #include <algorithm>
