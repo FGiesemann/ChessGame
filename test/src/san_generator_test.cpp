@@ -92,7 +92,7 @@ TEST_CASE("SAN.Generator.Disambiguation", "[san]") {
     );
     check_san_move( // file disambiguation
         Move{.from = Square::D2, .to = Square::E4, .piece = Piece::BlackKnight},
-        SANMove{.san_string{"Nde4"}, .moving_piece = Piece::BlackKnight, .target_square = Square::D4, .disambiguation_file = File{'d'}}, moves
+        SANMove{.san_string{"Nde4"}, .moving_piece = Piece::BlackKnight, .target_square = Square::E4, .disambiguation_file = File{'d'}}, moves
     );
     check_san_move( // rank disambiguation
         Move{.from = Square::A3, .to = Square::C2, .piece = Piece::BlackKnight},

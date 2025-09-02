@@ -6,6 +6,7 @@
 #include "chessgame/move_matcher.h"
 
 #include <ranges>
+#include <set>
 #include <sstream>
 
 namespace chessgame {
@@ -50,26 +51,22 @@ auto find_piece_moves_to_target(chesscore::Piece piece, chesscore::Square target
 using Disambiguation = std::pair<std::optional<chesscore::File>, std::optional<chesscore::Rank>>;
 
 auto determine_disambiguation(const chesscore::Move &move, const chesscore::MoveList &moves) -> Disambiguation {
-    bool different_file{true};
-    bool different_rank{true};
+    std::set<chesscore::File> files{};
+    std::set<chesscore::Rank> ranks{};
 
     for (const auto &other_move : moves) {
-        if (move == other_move) {
-            continue;
-        }
-        if (other_move.from.file() == move.from.file()) {
-            different_file = false;
-        }
-        if (other_move.from.rank() == move.from.rank()) {
-            different_rank = false;
-        }
+        files.insert(other_move.from.file());
+        ranks.insert(other_move.from.rank());
     }
-    if (different_file) {
+    if (files.size() == moves.size()) {
+        // all files are different
         return std::make_pair(move.from.file(), std::nullopt);
     }
-    if (different_rank) {
+    if (ranks.size() == moves.size()) {
+        // all ranks are different
         return std::make_pair(std::nullopt, move.from.rank());
     }
+    // full disambiguation necessary
     return std::make_pair(move.from.file(), move.from.rank());
 }
 
