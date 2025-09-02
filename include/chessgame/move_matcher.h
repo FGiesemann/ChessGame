@@ -43,6 +43,18 @@ auto match_san_move(const SANMove &san_move, const chesscore::MoveList &moves) -
  */
 auto match_san_move_wildcard_piece_type(const SANMove &san_move, const chesscore::MoveList &moves) -> chesscore::MoveList;
 
+/**
+ * \brief Convert a move to a SAN move.
+ *
+ * This generates a SANMove that describes the given move. It determines the necessary
+ * disambiguation information in the context of the given list of moves.
+ * This does not determine the check state for the SANMove.
+ * \param move The move to be converted.
+ * \param moves A list of possible moves (where move should be included).
+ * \return A SANMove describing the move.
+ */
+auto generate_san_move(const chesscore::Move &move, const chesscore::MoveList &moves) -> std::optional<SANMove>;
+
 } // namespace chessgame
 
 #endif
