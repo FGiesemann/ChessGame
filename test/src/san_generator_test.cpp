@@ -22,7 +22,7 @@ auto check_san_move(const Move &move, const SANMove &san_move, const MoveList &m
     const auto generated_san_move = generate_san_move(move, moves);
     REQUIRE(generated_san_move.has_value());
     CAPTURE(generated_san_move.value().san_string);
-    REQUIRE(generated_san_move.value() == san_move);
+    CHECK(generated_san_move.value() == san_move);
 }
 
 TEST_CASE("SAN.Generator.Simple Pawn Moves", "[san]") {
@@ -61,4 +61,53 @@ TEST_CASE("SAN.Generator.Pawn Moves", "[san]") {
         Move{.from = Square::D4, .to = Square::E3, .piece = Piece::BlackPawn, .captured = Piece::WhiteQueen, .capturing_en_passant = true},
         SANMove{.san_string{"dxe3"}, .moving_piece = Piece::BlackPawn, .target_square = Square::E3, .capturing = true}, moves
     );
+}
+
+TEST_CASE("SAN.Generator.Simple Piece Moves", "[san]") {
+    const Position<Bitboard> position{FenString{"5k2/2b5/4rN2/1n5b/5N2/1q5r/2R2Q2/4B3 w - - 0 1"}};
+    const auto moves = position.all_legal_moves();
+
+    check_san_move(
+        Move{.from = Square::C2, .to = Square::C4, .piece = Piece::WhiteRook}, SANMove{.san_string{"Rc4"}, .moving_piece = Piece::WhiteRook, .target_square = Square::C4}, moves
+    );
+    check_san_move(
+        Move{.from = Square::F6, .to = Square::H7, .piece = Piece::WhiteKnight}, SANMove{.san_string{"Nh7"}, .moving_piece = Piece::WhiteKnight, .target_square = Square::H7}, moves
+    );
+    check_san_move(
+        Move{.from = Square::E1, .to = Square::B4, .piece = Piece::WhiteBishop}, SANMove{.san_string{"Bb4"}, .moving_piece = Piece::WhiteBishop, .target_square = Square::B4}, moves
+    );
+    check_san_move(
+        Move{.from = Square::F4, .to = Square::E6, .piece = Piece::WhiteKnight, .captured = Piece::BlackRook},
+        SANMove{.san_string{"Nxe6"}, .moving_piece = Piece::WhiteKnight, .target_square = Square::E6, .capturing = true}, moves
+    );
+}
+
+TEST_CASE("SAN.Generator.Disambiguation", "[san]") {
+    Position<Bitboard> positon{FenString{"4k3/8/2r2n2/4P2q/B7/n7/3nq2q/n4r2 b - - 0 1"}};
+    const auto moves = positon.all_legal_moves();
+
+    check_san_move( // no disambiguation necessary, rook on c6 is pinned
+        Move{.from = Square::F1, .to = Square::C1, .piece = Piece::BlackRook},
+        SANMove{.san_string{"Rc1"}, .moving_piece = Piece::BlackRook, .target_square = Square::C1}, moves
+    );
+    check_san_move( // file disambiguation
+        Move{.from = Square::D2, .to = Square::E4, .piece = Piece::BlackKnight},
+        SANMove{.san_string{"Nde4"}, .moving_piece = Piece::BlackKnight, .target_square = Square::D4, .disambiguation_file = File{'d'}}, moves
+    );
+    check_san_move( // rank disambiguation
+        Move{.from = Square::A3, .to = Square::C2, .piece = Piece::BlackKnight},
+        SANMove{.san_string{"N3c2"}, .moving_piece = Piece::BlackKnight, .target_square = Square::C2, .disambiguation_rank = Rank{3}}, moves
+    );
+    check_san_move( // square disambiguation
+        Move{.from = Square::H5, .to = Square::E5, .piece = Piece::BlackQueen, .captured = Piece::WhitePawn},
+        SANMove{.san_string{"Qh5xe5"}, .moving_piece = Piece::BlackQueen, .target_square = Square::E5, .capturing = true, .disambiguation_file = File{'h'}, .disambiguation_rank = Rank{5}}, moves
+    );
+}
+
+TEST_CASE("SAN.Generator.Castling Moves", "[san]") {
+    FAIL("Not yet implemented!");
+}
+
+TEST_CASE("SAN.Generator.Invalid Move", "[san]") {
+    FAIL("Not yet implemented!");
 }
