@@ -5,12 +5,11 @@
 
 #include <catch2/catch_all.hpp>
 
-#include <chesscore/bitboard.h>
-#include <chesscore/fen.h>
-#include <chesscore/position.h>
-#include <chesscore_io/chesscore_io.h>
+#include "chesscore/bitboard.h"
+#include "chesscore/fen.h"
+#include "chesscore/position.h"
+#include "chesscore_io/chesscore_io.h"
 
-#include "chessgame/move_matcher.h"
 #include "chessgame/san.h"
 
 using namespace chessgame;
