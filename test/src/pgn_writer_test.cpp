@@ -71,6 +71,6 @@ Qh5 Qe7 11. Bf4 g6) 4. .. c6 5. Ba4 d6 *
 
     CHECK(
         sstr.str() ==
-        R"(e2e4 e7e5 g1f3 g8f6 b1c3 (f3e5 d8e7 d2d4 d7d6 ) f8b4 f1b5 (a2a3 b4c3 d2c3 (b2c3 e8g8 d2d3 d7d5 f1e2 d5e4 f3e5 d8e7 c1f4 f6d5 d1d2 b8d7 e2g4 d5f4 ) (f1c4 c3a5 e1g1 f6e4 d1e2 d7d5 d2d3 e4f6 e2e5 c8e6 c1g5 e8g8 ) e8g8 f1c4 f6e4 f3e5 e4d6 e1g1 f8e8 e5f7 d6f7 d1h5 d8e7 c1f4 g7g6 ) c7c6 b5a4 d7d6 )"
+        R"(e4 e5 Nf3 Nf6 Nc3 (Nxe5 Qe7 d4 d6 ) Bb4 Bb5 (a3 Bxc3 dxc3 (bxc3 O-O d3 d5 Be2 dxe4 Nxe5 Qe7 Bf4 Nd5 Qd2 Nd7 Bg4 Nxf4 ) (Bc4 Ba5 O-O Nxe4 Qe2 d5 d3 Nf6 Qxe5+ Be6 Bg5 O-O ) O-O Bc4 Nxe4 Nxe5 Nd6 O-O Re8 Nxf7 Nxf7 Qh5 Qe7 Bf4 g6 ) c6 Ba4 d6 )"
     );
 }
