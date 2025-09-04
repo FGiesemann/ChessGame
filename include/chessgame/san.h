@@ -18,15 +18,6 @@
 namespace chessgame {
 
 /**
- * \brief Possible check states of a SAN move.
- */
-enum class CheckState {
-    None,     ///< No check.
-    Check,    ///< Check.
-    Checkmate ///< Checkmate.
-};
-
-/**
  * \brief The possible suffix annotations for a move.
  *
  * Suffix annotation can be appended to a SAN move to indicate the quality of
@@ -54,7 +45,7 @@ struct SANMove {
     chesscore::Square target_square;                                  ///< Target square of the move.
     bool capturing{false};                                            ///< If the move is capturing.
     std::optional<chesscore::Piece> promotion{std::nullopt};          ///< Promotion piece of the move.
-    CheckState check_state{CheckState::None};                         ///< Check state of the move.
+    chesscore::CheckState check_state{chesscore::CheckState::None};   ///< Check state of the move.
     std::optional<chesscore::File> disambiguation_file{std::nullopt}; ///< Disambiguation file information.
     std::optional<chesscore::Rank> disambiguation_rank{std::nullopt}; ///< Disambiguation rank information.
     std::optional<SuffixAnnotation> suffix_annotation{std::nullopt};  ///< Suffix annotation of the move.

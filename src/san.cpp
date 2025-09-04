@@ -114,23 +114,23 @@ auto get_suffix_annotation(std::string_view str) -> std::expected<SuffixAnnotati
 
 auto parse_suffixes(const std::string &san, SANMove &move, std::string_view &san_str, SANToken &token) -> std::optional<SANParserError> {
     if (token.type == TokenType::Check) {
-        move.check_state = CheckState::Check;
+        move.check_state = chesscore::CheckState::Check;
         san_str = san_str.substr(1);
         token = get_token(san_str);
     }
     if (token.type == TokenType::Checkmate) {
-        if (move.check_state != CheckState::None) {
+        if (move.check_state != chesscore::CheckState::None) {
             return SANParserError{.error_type = SANParserErrorType::CheckAndCheckmate, .san = san};
         }
-        move.check_state = CheckState::Checkmate;
+        move.check_state = chesscore::CheckState::Checkmate;
         san_str = san_str.substr(1);
         token = get_token(san_str);
     }
     if (token.type == TokenType::Check) {
-        if (move.check_state != CheckState::None) {
+        if (move.check_state != chesscore::CheckState::None) {
             return SANParserError{.error_type = SANParserErrorType::CheckAndCheckmate, .san = san};
         }
-        move.check_state = CheckState::Check;
+        move.check_state = chesscore::CheckState::Check;
         san_str = san_str.substr(1);
         token = get_token(san_str);
     }
