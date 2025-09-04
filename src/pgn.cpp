@@ -488,7 +488,7 @@ auto PGNWriter::write_game_lines(const ConstCursor &node) -> void {
     while (cursor.child_count() > 0) {
         const auto mainline_child = cursor.child(0);
         if (mainline_child) {
-            write_move(mainline_child.value().node()->move());
+            write_move(*(mainline_child.value().node()));
         } else {
             break;
         }
@@ -502,17 +502,32 @@ auto PGNWriter::write_game_lines(const ConstCursor &node) -> void {
     }
 }
 
-auto PGNWriter::write_move([[maybe_unused]] const chesscore::Move &move) -> void {
-    write(move.from.file().name());
-    write(move.from.rank().rank);
-    write(move.to.file().name());
-    write(move.to.rank().rank);
-    write(' ');
+auto PGNWriter::write_move(const GameNode &node) -> void {
+    const auto &move = node.move();
+    const auto &parent = node.parent();
+    if (!parent) {
+        throw PGNError{PGNErrorType::CannotStartRav, -1, to_string(move)};
+    }
+    const auto legal_moves = parent->calculate_position().all_legal_moves();
+    const auto possible_san_move = generate_san_move(move, legal_moves);
+    if (possible_san_move.has_value()) {
+        write(possible_san_move.value().san_string);
+        const auto position = node.calculate_position();
+        const auto check_state = position.check_state();
+        if (check_state == chesscore::CheckState::Check) {
+            write('+');
+        } else if (check_state == chesscore::CheckState::Checkmate) {
+            write('#');
+        }
+        write(' ');
+    } else {
+        throw PGNError{PGNErrorType::InvalidMove, -1, to_string(move)};
+    }
 }
 
-auto PGNWriter::write_rav([[maybe_unused]] const ConstCursor &node) -> void {
+auto PGNWriter::write_rav(const ConstCursor &node) -> void {
     write('(');
-    write_move(node.node()->move());
+    write_move(*(node.node()));
     write_game_lines(node);
     write(") ");
 }
