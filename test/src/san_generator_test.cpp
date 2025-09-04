@@ -57,7 +57,7 @@ TEST_CASE("SAN.Generator.Pawn Moves", "[san]") {
         SANMove{.san_string{"exf4"}, .moving_piece = Piece::BlackPawn, .target_square = Square::F4, .capturing = true}, moves
     );
     check_san_move(
-        Move{.from = Square::D4, .to = Square::E3, .piece = Piece::BlackPawn, .captured = Piece::WhiteQueen, .capturing_en_passant = true},
+        Move{.from = Square::D4, .to = Square::E3, .piece = Piece::BlackPawn, .captured = Piece::WhitePawn, .capturing_en_passant = true},
         SANMove{.san_string{"dxe3"}, .moving_piece = Piece::BlackPawn, .target_square = Square::E3, .capturing = true}, moves
     );
 }
@@ -104,9 +104,40 @@ TEST_CASE("SAN.Generator.Disambiguation", "[san]") {
 }
 
 TEST_CASE("SAN.Generator.Castling Moves", "[san]") {
-    FAIL("Not yet implemented!");
+    const Position<Bitboard> position_w{FenString{"r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1"}};
+    const auto white_moves = position_w.all_legal_moves();
+    const Position<Bitboard> position_b{FenString{"r3k2r/8/8/8/8/8/8/R3K2R b KQkq - 0 1"}};
+    const auto black_moves = position_b.all_legal_moves();
+
+    check_san_move(
+        Move{.from = Square::E1, .to = Square::C1, .piece = Piece::WhiteKing}, SANMove{.san_string{"O-O-O"}, .moving_piece = Piece::WhiteKing, .target_square = Square::C1},
+        white_moves
+    );
+    check_san_move(
+        Move{.from = Square::E8, .to = Square::C8, .piece = Piece::BlackKing}, SANMove{.san_string{"O-O-O"}, .moving_piece = Piece::BlackKing, .target_square = Square::C8},
+        black_moves
+    );
+    check_san_move(
+        Move{.from = Square::E1, .to = Square::G1, .piece = Piece::WhiteKing}, SANMove{.san_string{"O-O"}, .moving_piece = Piece::WhiteKing, .target_square = Square::G1},
+        white_moves
+    );
+    check_san_move(
+        Move{.from = Square::E8, .to = Square::G8, .piece = Piece::BlackKing}, SANMove{.san_string{"O-O"}, .moving_piece = Piece::BlackKing, .target_square = Square::G8},
+        black_moves
+    );
 }
 
 TEST_CASE("SAN.Generator.Invalid Move", "[san]") {
-    FAIL("Not yet implemented!");
+    Position<Bitboard> position{FenString{"1k3q2/pp6/2n3n1/8/1B4P1/5rN1/2N5/R1K2Q2 w - - 0 1"}};
+    const auto white_moves = position.all_legal_moves();
+    position.make_move(Move{.from = Square::A1, .to = Square::B1, .piece = Piece::WhiteRook});
+    const auto black_moves = position.all_legal_moves();
+
+    CHECK(  // no piece at start square; no bishop can move there
+        generate_san_move(Move{.from = Square::D3, .to = Square::F5, .piece = Piece::WhiteBishop}, white_moves) == std::nullopt
+    );
+    CHECK(generate_san_move(Move{.from = Square::F6, .to = Square::C3, .piece = Piece::WhiteBishop}, white_moves) == std::nullopt); // no bishop at start square
+    CHECK(generate_san_move(Move{.from = Square::B4, .to = Square::D7, .piece = Piece::WhiteBishop}, white_moves) == std::nullopt); // bishop cannot move there
+    CHECK(generate_san_move(Move{.from = Square::C2, .to = Square::E4, .piece = Piece::WhiteKnight}, white_moves) == std::nullopt); // only other knight can move there
+    CHECK(generate_san_move(Move{.from = Square::G3, .to = Square::E5, .piece = Piece::WhiteKnight}, white_moves) == std::nullopt); // no knight can move there
 }

@@ -377,6 +377,12 @@ auto determine_disambiguation(const chesscore::Move &move, const chesscore::Move
 
 auto generate_san_move(const chesscore::Move &move, const chesscore::MoveList &moves) -> std::optional<SANMove> {
     std::stringstream san_string;
+    if (!chesscore::move_list_contains(moves, move, chesscore::FullMoveCompare{})) {
+        return std::nullopt;
+    }
+    if (move.is_castling()) {
+        return SANMove{.san_string = (move.to.file() == chesscore::File{'c'}) ? "O-O-O" : "O-O", .moving_piece = move.piece, .target_square = move.to};
+    }
     const auto matching_moves = find_piece_moves_to_target(move.piece, move.to, moves);
     if (matching_moves.empty()) {
         return std::nullopt;
