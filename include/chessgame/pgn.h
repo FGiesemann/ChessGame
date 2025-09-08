@@ -236,7 +236,7 @@ public:
 private:
     std::ostream *m_ostream;
     OutToken m_last_out_token{OutToken::None};
-    const size_t m_max_line_length{80};
+    const size_t m_max_line_length{79};
     size_t m_current_line_length{};
 
     template<size_t N>
