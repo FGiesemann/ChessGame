@@ -513,10 +513,10 @@ auto PGNWriter::write_move(const GameNode &node) -> void {
     const auto possible_san_move = generate_san_move(move, legal_moves);
     if (possible_san_move.has_value()) {
         if (parent_position.side_to_move() == chesscore::Color::White) {
-            m_output.write(PGNTokenOutput::OutToken::MoveNumber, parent_position.fullmove_number(), ". ");
+            m_output.write(PGNTokenOutput::OutToken::MoveNumber, parent_position.fullmove_number(), ".");
         }
         if (parent_position.side_to_move() == chesscore::Color::Black && m_write_black_move_number) {
-            m_output.write(PGNTokenOutput::OutToken::MoveNumber, parent_position.fullmove_number(), "... ");
+            m_output.write(PGNTokenOutput::OutToken::MoveNumber, parent_position.fullmove_number(), "...");
         }
         m_write_black_move_number = false;
         const auto position = node.calculate_position();
@@ -527,7 +527,7 @@ auto PGNWriter::write_move(const GameNode &node) -> void {
         } else if (check_state == chesscore::CheckState::Checkmate) {
             check_state_indicator = "#";
         }
-        m_output.write(PGNTokenOutput::OutToken::Move, possible_san_move.value().san_string, check_state_indicator, ' ');
+        m_output.write(PGNTokenOutput::OutToken::Move, possible_san_move.value().san_string, check_state_indicator);
     } else {
         throw PGNError{PGNErrorType::InvalidMove, -1, to_string(move)};
     }
@@ -538,7 +538,7 @@ auto PGNWriter::write_rav(const ConstCursor &node) -> void {
     m_write_black_move_number = true;
     write_move(*(node.node()));
     write_game_lines(node);
-    m_output.write(PGNTokenOutput::OutToken::RavEnd, ") ");
+    m_output.write(PGNTokenOutput::OutToken::RavEnd, ')');
     m_write_black_move_number = true;
 }
 
@@ -568,6 +568,23 @@ auto PGNWriter::write_tag_pair(const std::string &name, const std::string &value
 
 auto PGNWriter::write_tag_pair(const metadata_tag &tag) -> void {
     write_tag_pair(tag.name, tag.value);
+}
+
+auto PGNTokenOutput::newline() -> void {
+    m_ostream->put('\n');
+};
+
+auto PGNTokenOutput::needs_whitespace(OutToken type) const -> bool {
+    if (m_last_out_token == OutToken::MoveNumber) {
+        return true;
+    }
+    if (m_last_out_token == OutToken::RavEnd) {
+        return true;
+    }
+    if (m_last_out_token == OutToken::Move && type != OutToken::RavEnd) {
+        return true;
+    }
+    return false;
 }
 
 } // namespace chessgame
