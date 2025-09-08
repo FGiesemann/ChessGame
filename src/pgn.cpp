@@ -481,6 +481,7 @@ auto PGNParser::clear_cursor_stack() -> void {
 auto PGNWriter::write_game(const Game &game) -> void {
     write_metadata(game.metadata());
     write_game_lines(game.const_cursor());
+    // TODO: write game termination marker
 }
 
 auto PGNWriter::write_game_lines(const ConstCursor &node) -> void {
@@ -503,24 +504,25 @@ auto PGNWriter::write_game_lines(const ConstCursor &node) -> void {
 }
 
 auto PGNWriter::write_move(const GameNode &node) -> void {
+    // TODO: Handle comments (pre-move and after move)
     const auto &move = node.move();
     const auto &parent = node.parent();
     if (!parent) {
         throw PGNError{PGNErrorType::CannotStartRav, -1, to_string(move)};
     }
-    const auto parent_position = parent->calculate_position();
-    const auto legal_moves = parent_position.all_legal_moves();
+    const auto position = parent->calculate_position();
+    const auto legal_moves = position.all_legal_moves();
     const auto possible_san_move = generate_san_move(move, legal_moves);
     if (possible_san_move.has_value()) {
-        if (parent_position.side_to_move() == chesscore::Color::White) {
-            m_output.write(PGNTokenOutput::OutToken::MoveNumber, parent_position.fullmove_number(), ".");
+        if (position.side_to_move() == chesscore::Color::White) {
+            m_output.write(PGNTokenOutput::OutToken::MoveNumber, position.fullmove_number(), ".");
         }
-        if (parent_position.side_to_move() == chesscore::Color::Black && m_write_black_move_number) {
-            m_output.write(PGNTokenOutput::OutToken::MoveNumber, parent_position.fullmove_number(), "...");
+        if (position.side_to_move() == chesscore::Color::Black && m_write_black_move_number) {
+            m_output.write(PGNTokenOutput::OutToken::MoveNumber, position.fullmove_number(), "...");
         }
         m_write_black_move_number = false;
-        const auto position = node.calculate_position();
-        const auto check_state = position.check_state();
+        const auto achieved_position = node.calculate_position();
+        const auto check_state = achieved_position.check_state();
         std::string check_state_indicator;
         if (check_state == chesscore::CheckState::Check) {
             check_state_indicator = "+";
