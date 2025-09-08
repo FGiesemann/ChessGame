@@ -238,6 +238,7 @@ public:
     auto write_rav(const ConstCursor &node) -> void;
 private:
     std::ostream *m_ostream;
+    bool m_write_black_move_number{false};
 
     template<typename T>
     auto write(const T &data) -> void;
