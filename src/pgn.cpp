@@ -513,41 +513,39 @@ auto PGNWriter::write_move(const GameNode &node) -> void {
     const auto possible_san_move = generate_san_move(move, legal_moves);
     if (possible_san_move.has_value()) {
         if (parent_position.side_to_move() == chesscore::Color::White) {
-            write(parent_position.fullmove_number());
-            write(". ");
+            m_output.write(PGNTokenOutput::OutToken::MoveNumber, parent_position.fullmove_number(), ". ");
         }
         if (parent_position.side_to_move() == chesscore::Color::Black && m_write_black_move_number) {
-            write(parent_position.fullmove_number());
-            write("... ");
+            m_output.write(PGNTokenOutput::OutToken::MoveNumber, parent_position.fullmove_number(), "... ");
         }
         m_write_black_move_number = false;
-        write(possible_san_move.value().san_string);
         const auto position = node.calculate_position();
         const auto check_state = position.check_state();
+        std::string check_state_indicator;
         if (check_state == chesscore::CheckState::Check) {
-            write('+');
+            check_state_indicator = "+";
         } else if (check_state == chesscore::CheckState::Checkmate) {
-            write('#');
+            check_state_indicator = "#";
         }
-        write(' ');
+        m_output.write(PGNTokenOutput::OutToken::Move, possible_san_move.value().san_string, check_state_indicator, ' ');
     } else {
         throw PGNError{PGNErrorType::InvalidMove, -1, to_string(move)};
     }
 }
 
 auto PGNWriter::write_rav(const ConstCursor &node) -> void {
-    write('(');
+    m_output.write(PGNTokenOutput::OutToken::RavStart, '(');
     m_write_black_move_number = true;
     write_move(*(node.node()));
     write_game_lines(node);
-    write(") ");
+    m_output.write(PGNTokenOutput::OutToken::RavEnd, ") ");
     m_write_black_move_number = true;
 }
 
 auto PGNWriter::write_metadata(const GameMetadata &metadata) -> void {
     write_str_tags(metadata);
     write_non_str_tags(metadata);
-    newline();
+    m_output.end_metadata_section();
 }
 
 auto PGNWriter::write_str_tags(const GameMetadata &metadata) -> void {
@@ -565,29 +563,11 @@ auto PGNWriter::write_non_str_tags(const GameMetadata &metadata) -> void {
 }
 
 auto PGNWriter::write_tag_pair(const std::string &name, const std::string &value) -> void {
-    write('[');
-    write(name);
-    write(" \"");
-    write(value);
-    write("\"]\n");
+    m_output.write(PGNTokenOutput::OutToken::Tag, '[', name, " \"", value, "\"]\n");
 }
 
 auto PGNWriter::write_tag_pair(const metadata_tag &tag) -> void {
     write_tag_pair(tag.name, tag.value);
-}
-
-template<typename T>
-auto PGNWriter::write(const T &data) -> void {
-    *m_ostream << data;
-}
-
-template<size_t N>
-auto PGNWriter::write(const char data[N]) -> void {
-    *m_ostream << data;
-}
-
-auto PGNWriter::newline() -> void {
-    write('\n');
 }
 
 } // namespace chessgame

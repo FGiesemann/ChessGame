@@ -26,7 +26,7 @@ TEST_CASE("PGN.Writer.Metadata", "[pgn]") {
     metadata.add("Termination", "Normal");
 
     std::ostringstream sstr;
-    PGNWriter writer{&sstr};
+    PGNWriter writer{sstr};
     writer.write_metadata(metadata);
 
     CHECK(sstr.str() == R"([Event "Test Event"]
@@ -66,7 +66,7 @@ Qh5 Qe7 11. Bf4 g6) 4. .. c6 5. Ba4 d6 *
     const auto &game = opt_game.value();
 
     std::ostringstream sstr;
-    PGNWriter writer{&sstr};
+    PGNWriter writer{sstr};
     writer.write_game_lines(game.cursor());
 
     CHECK(
