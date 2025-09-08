@@ -224,34 +224,36 @@ public:
     enum class OutToken { None, Tag, MoveNumber, Move, Comment, RavStart, RavEnd };
 
     template<typename... Args>
-    auto write(OutToken type, const Args &...args) -> void {
-        if (needs_whitespace(type)) {
-            write(' ');
-        }
-        write(args...);
-        m_last_out_token = type;
+    auto write(OutToken type, Args &&...args) -> void {
+        static_assert(sizeof...(args) > 0, "No data to write");
+        std::string token = (... + to_string(std::forward<Args>(args)));
+        write_token(type, token);
     }
+
+    auto newline() -> void;
 
     auto end_metadata_section() -> void { newline(); }
 private:
     std::ostream *m_ostream;
     OutToken m_last_out_token{OutToken::None};
+    const size_t m_max_line_length{80};
+    size_t m_current_line_length{};
 
-    template<typename T, typename... R>
-    auto write(const T &data, const R &...args) -> void {
-        write(data);
-        write(args...);
+    template<size_t N>
+    std::string to_string(const char (&val)[N]) {
+        return std::string(val);
     }
+
+    std::string to_string(const std::string &val) { return val; }
+
+    std::string to_string(char val) { return std::string(1, val); }
 
     template<typename T>
-    auto write(const T &data) -> void {
-        (*m_ostream) << data;
-    };
-    template<size_t N>
-    auto write(const char data[N]) -> void {
-        (*m_ostream) << data;
+    std::string to_string(const T &val) {
+        return std::to_string(val);
     }
-    auto newline() -> void;
+
+    auto write_token(OutToken type, const std::string &token) -> void;
 
     auto needs_whitespace(OutToken type) const -> bool;
 };

@@ -563,7 +563,8 @@ auto PGNWriter::write_non_str_tags(const GameMetadata &metadata) -> void {
 }
 
 auto PGNWriter::write_tag_pair(const std::string &name, const std::string &value) -> void {
-    m_output.write(PGNTokenOutput::OutToken::Tag, '[', name, " \"", value, "\"]\n");
+    m_output.write(PGNTokenOutput::OutToken::Tag, '[', name, " \"", value, "\"]");
+    m_output.newline();
 }
 
 auto PGNWriter::write_tag_pair(const metadata_tag &tag) -> void {
@@ -572,7 +573,29 @@ auto PGNWriter::write_tag_pair(const metadata_tag &tag) -> void {
 
 auto PGNTokenOutput::newline() -> void {
     m_ostream->put('\n');
+    m_current_line_length = 0;
+    m_last_out_token = OutToken::None;
 };
+
+auto PGNTokenOutput::write_token(OutToken type, const std::string &token) -> void {
+    auto need_ws = needs_whitespace(type);
+    const auto token_length = token.size();
+    const auto effective_token_length = token_length + (need_ws ? 1 : 0);
+
+    if (m_current_line_length + effective_token_length > m_max_line_length) {
+        newline();
+        need_ws = false;
+    }
+
+    if (need_ws) {
+        (*m_ostream) << ' ';
+        ++m_current_line_length;
+    }
+
+    (*m_ostream) << token;
+    m_current_line_length += token_length;
+    m_last_out_token = type;
+}
 
 auto PGNTokenOutput::needs_whitespace(OutToken type) const -> bool {
     if (m_last_out_token == OutToken::MoveNumber) {
