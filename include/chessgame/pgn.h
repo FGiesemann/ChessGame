@@ -225,6 +225,9 @@ public:
 
     template<typename... Args>
     auto write(OutToken type, const Args &...args) -> void {
+        if (needs_whitespace(type)) {
+            write(' ');
+        }
         write(args...);
         m_last_out_token = type;
     }
@@ -248,7 +251,9 @@ private:
     auto write(const char data[N]) -> void {
         (*m_ostream) << data;
     }
-    auto newline() -> void { m_ostream->put('\n'); };
+    auto newline() -> void;
+
+    auto needs_whitespace(OutToken type) const -> bool;
 };
 
 /**
