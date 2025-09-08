@@ -71,6 +71,10 @@ Qh5 Qe7 11. Bf4 g6) 4. .. c6 5. Ba4 d6 *
 
     CHECK(
         sstr.str() ==
-        R"(1. e4 e5 2. Nf3 Nf6 3. Nc3 (3. Nxe5 Qe7 4. d4 d6) 3... Bb4 4. Bb5 (4. a3 Bxc3 5. dxc3 (5. bxc3 O-O 6. d3 d5 7. Be2 dxe4 8. Nxe5 Qe7 9. Bf4 Nd5 10. Qd2 Nd7 11. Bg4 Nxf4) (5. Bc4 Ba5 6. O-O Nxe4 7. Qe2 d5 8. d3 Nf6 9. Qxe5+ Be6 10. Bg5 O-O) 5... O-O 6. Bc4 Nxe4 7. Nxe5 Nd6 8. O-O Re8 9. Nxf7 Nxf7 10. Qh5 Qe7 11. Bf4 g6) 4... c6 5. Ba4 d6)"
+        R"(1. e4 e5 2. Nf3 Nf6 3. Nc3 (3. Nxe5 Qe7 4. d4 d6) 3... Bb4 4. Bb5 (4. a3 Bxc3 5.
+dxc3 (5. bxc3 O-O 6. d3 d5 7. Be2 dxe4 8. Nxe5 Qe7 9. Bf4 Nd5 10. Qd2 Nd7 11.
+Bg4 Nxf4) (5. Bc4 Ba5 6. O-O Nxe4 7. Qe2 d5 8. d3 Nf6 9. Qxe5+ Be6 10. Bg5 O-O)
+5... O-O 6. Bc4 Nxe4 7. Nxe5 Nd6 8. O-O Re8 9. Nxf7 Nxf7 10. Qh5 Qe7 11. Bf4 g6)
+4... c6 5. Ba4 d6)"
     );
 }
