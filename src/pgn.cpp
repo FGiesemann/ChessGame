@@ -508,9 +508,19 @@ auto PGNWriter::write_move(const GameNode &node) -> void {
     if (!parent) {
         throw PGNError{PGNErrorType::CannotStartRav, -1, to_string(move)};
     }
-    const auto legal_moves = parent->calculate_position().all_legal_moves();
+    const auto parent_position = parent->calculate_position();
+    const auto legal_moves = parent_position.all_legal_moves();
     const auto possible_san_move = generate_san_move(move, legal_moves);
     if (possible_san_move.has_value()) {
+        if (parent_position.side_to_move() == chesscore::Color::White) {
+            write(parent_position.fullmove_number());
+            write(". ");
+        }
+        if (parent_position.side_to_move() == chesscore::Color::Black && m_write_black_move_number) {
+            write(parent_position.fullmove_number());
+            write("... ");
+        }
+        m_write_black_move_number = false;
         write(possible_san_move.value().san_string);
         const auto position = node.calculate_position();
         const auto check_state = position.check_state();
@@ -527,9 +537,11 @@ auto PGNWriter::write_move(const GameNode &node) -> void {
 
 auto PGNWriter::write_rav(const ConstCursor &node) -> void {
     write('(');
+    m_write_black_move_number = true;
     write_move(*(node.node()));
     write_game_lines(node);
     write(") ");
+    m_write_black_move_number = true;
 }
 
 auto PGNWriter::write_metadata(const GameMetadata &metadata) -> void {
