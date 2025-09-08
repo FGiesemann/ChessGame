@@ -9,6 +9,7 @@
 
 #include <iosfwd>
 #include <optional>
+#include <ostream>
 #include <stack>
 #include <string>
 
@@ -216,6 +217,40 @@ private:
     auto skip_tokens(PGNLexer::TokenType type) -> void;
 };
 
+class PGNTokenOutput {
+public:
+    explicit PGNTokenOutput(std::ostream *ostream) : m_ostream{ostream} {}
+
+    enum class OutToken { None, Tag, MoveNumber, Move, Comment, RavStart, RavEnd };
+
+    template<typename... Args>
+    auto write(OutToken type, const Args &...args) -> void {
+        write(args...);
+        m_last_out_token = type;
+    }
+
+    auto end_metadata_section() -> void { newline(); }
+private:
+    std::ostream *m_ostream;
+    OutToken m_last_out_token{OutToken::None};
+
+    template<typename T, typename... R>
+    auto write(const T &data, const R &...args) -> void {
+        write(data);
+        write(args...);
+    }
+
+    template<typename T>
+    auto write(const T &data) -> void {
+        (*m_ostream) << data;
+    };
+    template<size_t N>
+    auto write(const char data[N]) -> void {
+        (*m_ostream) << data;
+    }
+    auto newline() -> void { m_ostream->put('\n'); };
+};
+
 /**
  * \brief Writer for PGN data.
  *
@@ -223,7 +258,7 @@ private:
  */
 class PGNWriter {
 public:
-    PGNWriter(std::ostream *ostream) : m_ostream{ostream} {}
+    explicit PGNWriter(std::ostream &ostream) : m_output{&ostream} {}
 
     auto write_game(const Game &game) -> void;
 
@@ -237,14 +272,8 @@ public:
     auto write_move(const GameNode &node) -> void;
     auto write_rav(const ConstCursor &node) -> void;
 private:
-    std::ostream *m_ostream;
+    PGNTokenOutput m_output;
     bool m_write_black_move_number{false};
-
-    template<typename T>
-    auto write(const T &data) -> void;
-    template<size_t N>
-    auto write(const char data[N]) -> void;
-    auto newline() -> void;
 };
 
 } // namespace chessgame
