@@ -29,7 +29,7 @@ class ChessGameConan(ConanFile):
         self.tool_requires("cmake/[>=3.15]")
 
     def requirements(self):
-        self.requires("chesscore/1.0.0-dev")
+        self.requires("chesscore/1.0.0")
         self.test_requires("catch2/3.7.1")
 
     def config_options(self):
