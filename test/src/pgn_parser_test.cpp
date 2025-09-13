@@ -325,13 +325,20 @@ Nf6xd5 {Comment 5} 9. Bxe7, Qxe7 10. Nxd5, e6xd5) 9. Bd3 {Comment 6} Bb7 1-0
 
     const auto node1 = get_node(game, mainline(7));
     CHECK(node1->comment() == "Comment 1");
-    const auto node2 = get_node(game, mainline(14));
-    CHECK(node2->comment() == "Comment 2");
-    const auto node3 = get_node(game, mainline(16));
-    CHECK(node3->comment() == "Comment 3");
-    const auto node4 = get_node(game, mainline(15) + var(1));
-    CHECK(node4->premove_comment() == "Comment 4");
-    CHECK(node4->comment() == "Comment 5");
-    const auto node5 = get_node(game, mainline(17));
-    CHECK(node5->comment() == "Comment 6");
+    CHECK(node1->premove_comment().empty());
+    const auto node2 = get_node(game, mainline(8));
+    CHECK(node2->comment().empty());
+    CHECK(node2->premove_comment().empty());
+    const auto node3 = get_node(game, mainline(14));
+    CHECK(node3->comment() == "Comment 2");
+    const auto node4 = get_node(game, mainline(16));
+    CHECK(node4->comment() == "Comment 3");
+    const auto node5 = get_node(game, mainline(15) + var(1));
+    CHECK(node5->premove_comment() == "Comment 4");
+    CHECK(node5->comment() == "Comment 5");
+    const auto node6 = get_node(game, mainline(15) + var(1) + mainline(1));
+    CHECK(node6->premove_comment().empty());
+    CHECK(node6->comment().empty());
+    const auto node7 = get_node(game, mainline(17));
+    CHECK(node7->comment() == "Comment 6");
 }

@@ -445,6 +445,7 @@ auto PGNParser::process_move() -> void {
         m_rav_stack.top().has_moves = true;
         if (!m_rav_stack.top().comment.empty()) {
             current_game_line().append_premove_comment(m_rav_stack.top().comment);
+            m_rav_stack.top().comment.clear();
         }
     }
     next_token();
