@@ -221,7 +221,7 @@ class PGNTokenOutput {
 public:
     explicit PGNTokenOutput(std::ostream *ostream) : m_ostream{ostream} {}
 
-    enum class OutToken { None, Tag, MoveNumber, Move, Comment, RavStart, RavEnd };
+    enum class OutToken { None, Tag, MoveNumber, Move, Comment, RavStart, RavEnd, GameTermination };
 
     template<typename... Args>
     auto write(OutToken type, Args &&...args) -> void {
@@ -271,6 +271,7 @@ public:
 
     auto write_metadata(const GameMetadata &metadata) -> void;
     auto write_game_lines(const ConstCursor &node) -> void;
+    auto write_game_termination(const Game &game) -> void;
 
     auto write_str_tags(const GameMetadata &metadata) -> void;
     auto write_non_str_tags(const GameMetadata &metadata) -> void;
