@@ -255,6 +255,25 @@ auto parse_castling_move(const std::string &san, chesscore::Color side_to_move, 
 
 } // namespace
 
+auto convert_to_nag(SuffixAnnotation annotation) -> int {
+    switch (annotation) {
+    case SuffixAnnotation::GoodMove:
+        return 1;
+    case SuffixAnnotation::PoorMove:
+        return 2;
+    case SuffixAnnotation::VeryGoodMove:
+        return 3;
+    case SuffixAnnotation::VeryPoorMove:
+        return 4;
+    case SuffixAnnotation::SpeculativeMove:
+        return 5;
+    case SuffixAnnotation::QuestionableMove:
+        return 6;
+    default:
+        return 0;
+    }
+}
+
 auto to_string(SANParserErrorType type) -> std::string {
     switch (type) {
     case SANParserErrorType::UnexpectedToken:

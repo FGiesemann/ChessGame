@@ -221,7 +221,7 @@ class PGNTokenOutput {
 public:
     explicit PGNTokenOutput(std::ostream *ostream) : m_ostream{ostream} {}
 
-    enum class OutToken { None, Tag, MoveNumber, Move, Comment, RavStart, RavEnd, GameTermination };
+    enum class OutToken { None, Tag, MoveNumber, Move, Comment, Nag, RavStart, RavEnd, GameTermination };
 
     template<typename... Args>
     auto write(OutToken type, Args &&...args) -> void {
@@ -229,6 +229,8 @@ public:
         std::string token = (... + to_string(std::forward<Args>(args)));
         write_token(type, token);
     }
+
+    auto write_comment(const std::string &comment) -> void;
 
     auto newline() -> void;
 
@@ -245,6 +247,7 @@ private:
     }
 
     std::string to_string(const std::string &val) { return val; }
+    std::string to_string(const std::string_view val) { return std::string{val}; }
 
     std::string to_string(char val) { return std::string(1, val); }
 
@@ -279,6 +282,9 @@ public:
     auto write_tag_pair(const metadata_tag &tag) -> void;
     auto write_move(const GameNode &node) -> void;
     auto write_rav(const ConstCursor &node) -> void;
+
+    static auto has_overall_game_comment(const Game &game) -> bool;
+    auto write_overall_game_comment(const Game &game) -> void;
 private:
     PGNTokenOutput m_output;
     bool m_write_black_move_number{false};

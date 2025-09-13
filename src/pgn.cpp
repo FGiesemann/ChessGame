@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <cctype>
 #include <istream>
+#include <ranges>
 #include <set>
 
 namespace chessgame {
@@ -439,8 +440,11 @@ auto PGNParser::process_move() -> void {
     const auto san_move = parse_san_move(m_token.value);
     const auto move = find_legal_move(san_move);
     Cursor &cursor = current_game_line();
-    const auto new_cursor = cursor.play_move(move);
+    auto new_cursor = cursor.play_move(move);
     current_game_line() = new_cursor;
+    if (san_move.suffix_annotation.has_value()) {
+        new_cursor.node()->add_nag(convert_to_nag(san_move.suffix_annotation.value()));
+    }
     if (!m_rav_stack.empty()) {
         m_rav_stack.top().has_moves = true;
         if (!m_rav_stack.top().comment.empty()) {
@@ -481,6 +485,9 @@ auto PGNParser::clear_cursor_stack() -> void {
 
 auto PGNWriter::write_game(const Game &game) -> void {
     write_metadata(game.metadata());
+    if (has_overall_game_comment(game)) {
+        write_overall_game_comment(game);
+    }
     write_game_lines(game.const_cursor());
     write_game_termination(game);
 }
@@ -505,7 +512,6 @@ auto PGNWriter::write_game_lines(const ConstCursor &node) -> void {
 }
 
 auto PGNWriter::write_move(const GameNode &node) -> void {
-    // TODO: Handle comments (pre-move and after move)
     const auto &move = node.move();
     const auto &parent = node.parent();
     if (!parent) {
@@ -515,6 +521,10 @@ auto PGNWriter::write_move(const GameNode &node) -> void {
     const auto legal_moves = position.all_legal_moves();
     const auto possible_san_move = generate_san_move(move, legal_moves);
     if (possible_san_move.has_value()) {
+        if (!node.premove_comment().empty()) {
+            m_output.write_comment(node.premove_comment());
+        }
+
         if (position.side_to_move() == chesscore::Color::White) {
             m_output.write(PGNTokenOutput::OutToken::MoveNumber, position.fullmove_number(), ".");
         }
@@ -531,6 +541,10 @@ auto PGNWriter::write_move(const GameNode &node) -> void {
             check_state_indicator = "#";
         }
         m_output.write(PGNTokenOutput::OutToken::Move, possible_san_move.value().san_string, check_state_indicator);
+        std::ranges::for_each(node.nags(), [&](int n) { m_output.write(PGNTokenOutput::OutToken::Nag, std::string{"$"} + std::to_string(n)); });
+        if (!node.comment().empty()) {
+            m_output.write_comment(node.comment());
+        }
     } else {
         throw PGNError{PGNErrorType::InvalidMove, -1, to_string(move)};
     }
@@ -581,6 +595,47 @@ auto PGNWriter::write_tag_pair(const metadata_tag &tag) -> void {
     write_tag_pair(tag.name, tag.value);
 }
 
+auto PGNWriter::has_overall_game_comment(const Game &game) -> bool {
+    return !game.const_cursor().node()->comment().empty();
+}
+
+auto PGNWriter::write_overall_game_comment(const Game &game) -> void {
+    m_output.write_comment(game.const_cursor().node()->comment());
+    m_output.newline();
+    m_output.newline();
+}
+
+std::vector<std::string> split(std::string s, std::string delimiter) {
+    size_t pos_start = 0, pos_end, delim_len = delimiter.length();
+    std::string token;
+    std::vector<std::string> res;
+
+    while ((pos_end = s.find(delimiter, pos_start)) != std::string::npos) {
+        token = s.substr(pos_start, pos_end - pos_start);
+        pos_start = pos_end + delim_len;
+        res.push_back(token);
+    }
+
+    res.push_back(s.substr(pos_start));
+    return res;
+}
+
+auto PGNTokenOutput::write_comment(const std::string &comment) -> void {
+    const auto words = split(comment, " ");
+    auto word = std::begin(words);
+    while (word != std::end(words)) {
+        if (word == std::begin(words)) {
+            write(PGNTokenOutput::OutToken::Comment, std::string{"{"} + *word);
+        } else if (std::next(word) == std::end(words)) {
+            write(PGNTokenOutput::OutToken::Comment, *word + std::string{"}"});
+        } else {
+            write(PGNTokenOutput::OutToken::Comment, *word);
+        }
+
+        ++word;
+    }
+}
+
 auto PGNTokenOutput::newline() -> void {
     m_ostream->put('\n');
     m_current_line_length = 0;
@@ -615,6 +670,12 @@ auto PGNTokenOutput::needs_whitespace(OutToken type) const -> bool {
         return true;
     }
     if (m_last_out_token == OutToken::Move && type != OutToken::RavEnd) {
+        return true;
+    }
+    if (m_last_out_token == OutToken::Comment) {
+        return true;
+    }
+    if (m_last_out_token == OutToken::Nag) {
         return true;
     }
     return false;

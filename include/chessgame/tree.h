@@ -214,6 +214,8 @@ public:
 
     auto nags() const -> const std::vector<int> & { return m_nags; }
     auto nags() -> std::vector<int> & { return m_nags; }
+
+    auto add_nag(int num) -> void { m_nags.push_back(num); }
 private:
     NodeId m_id;                                       ///< The id of this node.
     chesscore::Move m_move;                            ///< The move that led to this node (from the parent node).
