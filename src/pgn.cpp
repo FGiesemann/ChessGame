@@ -481,7 +481,7 @@ auto PGNParser::clear_cursor_stack() -> void {
 auto PGNWriter::write_game(const Game &game) -> void {
     write_metadata(game.metadata());
     write_game_lines(game.const_cursor());
-    // TODO: write game termination marker
+    write_game_termination(game);
 }
 
 auto PGNWriter::write_game_lines(const ConstCursor &node) -> void {
@@ -533,6 +533,13 @@ auto PGNWriter::write_move(const GameNode &node) -> void {
     } else {
         throw PGNError{PGNErrorType::InvalidMove, -1, to_string(move)};
     }
+}
+
+auto PGNWriter::write_game_termination(const Game &game) -> void {
+    const auto value = game.metadata().get("Result").value_or("?");
+    m_output.write(PGNTokenOutput::OutToken::GameTermination, value);
+    m_output.newline();
+    m_output.newline();
 }
 
 auto PGNWriter::write_rav(const ConstCursor &node) -> void {
