@@ -32,6 +32,8 @@ enum class SuffixAnnotation {
     QuestionableMove ///< ?!
 };
 
+auto convert_to_nag(SuffixAnnotation annotation) -> int;
+
 /**
  * \brief Representation of a move in SAN.
  *
