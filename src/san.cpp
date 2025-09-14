@@ -253,6 +253,49 @@ auto parse_castling_move(const std::string &san, chesscore::Color side_to_move, 
     return std::nullopt;
 }
 
+auto san_move_matches_any_piece_type(const SANMove &san_move, const chesscore::Move &move) -> bool {
+    if (san_move.target_square != move.to) {
+        return false;
+    }
+    if ((san_move.disambiguation_file.has_value() && san_move.disambiguation_file.value() != move.from.file()) ||
+        (san_move.disambiguation_rank.has_value() && san_move.disambiguation_rank.value() != move.from.rank())) {
+        return false;
+    }
+    if ((san_move.capturing && move.captured == std::nullopt) || (!san_move.capturing && move.captured != std::nullopt)) {
+        return false;
+    }
+    if (move.promoted != san_move.promotion) {
+        return false;
+    }
+    return true;
+}
+
+auto find_piece_moves_to_target(chesscore::Piece piece, chesscore::Square target, const chesscore::MoveList &moves) -> chesscore::MoveList {
+    return moves | std::views::filter([&piece, &target](const chesscore::Move &move) { return move.piece == piece && move.to == target; }) | std::ranges::to<chesscore::MoveList>();
+}
+
+using Disambiguation = std::pair<std::optional<chesscore::File>, std::optional<chesscore::Rank>>;
+
+auto determine_disambiguation(const chesscore::Move &move, const chesscore::MoveList &moves) -> Disambiguation {
+    std::set<chesscore::File> files{};
+    std::set<chesscore::Rank> ranks{};
+
+    for (const auto &other_move : moves) {
+        files.insert(other_move.from.file());
+        ranks.insert(other_move.from.rank());
+    }
+    if (files.size() == moves.size()) {
+        // all files are different
+        return std::make_pair(move.from.file(), std::nullopt);
+    }
+    if (ranks.size() == moves.size()) {
+        // all ranks are different
+        return std::make_pair(std::nullopt, move.from.rank());
+    }
+    // full disambiguation necessary
+    return std::make_pair(move.from.file(), move.from.rank());
+}
+
 } // namespace
 
 auto convert_to_nag(SuffixAnnotation annotation) -> int {
@@ -269,9 +312,8 @@ auto convert_to_nag(SuffixAnnotation annotation) -> int {
         return 5;
     case SuffixAnnotation::QuestionableMove:
         return 6;
-    default:
-        return 0;
     }
+    return 0;
 }
 
 auto to_string(SANParserErrorType type) -> std::string {
@@ -290,9 +332,8 @@ auto to_string(SANParserErrorType type) -> std::string {
         return "missing rank specifier";
     case SANParserErrorType::MissingFile:
         return "missing file specifier";
-    default:
-        return "UNKNOWN ERROR TYPE";
     }
+    return "UNKNOWN ERROR TYPE";
 }
 
 auto parse_san(const std::string &san, chesscore::Color side_to_move) -> std::expected<SANMove, SANParserError> {
@@ -335,23 +376,6 @@ auto parse_san(const std::string &san, chesscore::Color side_to_move) -> std::ex
     return move;
 }
 
-auto san_move_matches_any_piece_type(const SANMove &san_move, const chesscore::Move &move) -> bool {
-    if (san_move.target_square != move.to) {
-        return false;
-    }
-    if ((san_move.disambiguation_file.has_value() && san_move.disambiguation_file.value() != move.from.file()) ||
-        (san_move.disambiguation_rank.has_value() && san_move.disambiguation_rank.value() != move.from.rank())) {
-        return false;
-    }
-    if ((san_move.capturing && move.captured == std::nullopt) || (!san_move.capturing && move.captured != std::nullopt)) {
-        return false;
-    }
-    if (move.promoted != san_move.promotion) {
-        return false;
-    }
-    return true;
-}
-
 auto san_move_matches(const SANMove &san_move, const chesscore::Move &move) -> bool {
     if (san_move.moving_piece != move.piece) {
         return false;
@@ -366,32 +390,6 @@ auto match_san_move(const SANMove &san_move, const chesscore::MoveList &moves) -
 auto match_san_move_wildcard_piece_type(const SANMove &san_move, const chesscore::MoveList &moves) -> chesscore::MoveList {
     return moves | std::views::filter([&san_move](const chesscore::Move &move) { return san_move_matches_any_piece_type(san_move, move); }) |
            std::ranges::to<chesscore::MoveList>();
-}
-
-auto find_piece_moves_to_target(chesscore::Piece piece, chesscore::Square target, const chesscore::MoveList &moves) -> chesscore::MoveList {
-    return moves | std::views::filter([&piece, &target](const chesscore::Move &move) { return move.piece == piece && move.to == target; }) | std::ranges::to<chesscore::MoveList>();
-}
-
-using Disambiguation = std::pair<std::optional<chesscore::File>, std::optional<chesscore::Rank>>;
-
-auto determine_disambiguation(const chesscore::Move &move, const chesscore::MoveList &moves) -> Disambiguation {
-    std::set<chesscore::File> files{};
-    std::set<chesscore::Rank> ranks{};
-
-    for (const auto &other_move : moves) {
-        files.insert(other_move.from.file());
-        ranks.insert(other_move.from.rank());
-    }
-    if (files.size() == moves.size()) {
-        // all files are different
-        return std::make_pair(move.from.file(), std::nullopt);
-    }
-    if (ranks.size() == moves.size()) {
-        // all ranks are different
-        return std::make_pair(std::nullopt, move.from.rank());
-    }
-    // full disambiguation necessary
-    return std::make_pair(move.from.file(), move.from.rank());
 }
 
 auto generate_san_move(const chesscore::Move &move, const chesscore::MoveList &moves) -> std::optional<SANMove> {

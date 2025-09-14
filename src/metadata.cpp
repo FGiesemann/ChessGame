@@ -18,7 +18,7 @@ auto GameMetadata::is_str_tag(const metadata_tag &tag) -> bool {
 }
 
 auto GameMetadata::get(const std::string &name) const -> std::optional<std::string> {
-    const auto tag = std::ranges::find_if(*this, [&name](const metadata_tag &tag) { return tag.name == name; });
+    const auto tag = std::ranges::find_if(*this, [&name](const metadata_tag &search_tag) { return search_tag.name == name; });
     if (tag == end()) {
         return std::nullopt;
     }

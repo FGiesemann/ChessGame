@@ -15,6 +15,8 @@
 using namespace chessgame;
 using namespace chesscore;
 
+namespace {
+
 auto count_ply_on_mainline(const chessgame::Game &game) -> int {
     const auto cursor = game.cursor();
     int child_count{0};
@@ -28,44 +30,40 @@ auto count_ply_on_mainline(const chessgame::Game &game) -> int {
 
 class GamePath {
 public:
-    GamePath(std::initializer_list<int> list) : m_path{list} {};
-    explicit GamePath(std::vector<int> &&path) : m_path{std::move(path)} {};
+    GamePath(std::initializer_list<std::size_t> list) : m_path{list} {}
+    explicit GamePath(std::vector<std::size_t> &&path) : m_path{std::move(path)} {}
 
-    operator std::vector<int>() const { return m_path; }
+    auto begin() const -> std::vector<std::size_t>::const_iterator { return m_path.begin(); }
+    auto end() const -> std::vector<std::size_t>::const_iterator { return m_path.end(); }
+    auto size() const -> std::size_t { return m_path.size(); }
 
-    auto begin() -> std::vector<int>::iterator { return m_path.begin(); }
-    auto end() -> std::vector<int>::iterator { return m_path.end(); }
-    auto begin() const -> std::vector<int>::const_iterator { return m_path.begin(); }
-    auto end() const -> std::vector<int>::const_iterator { return m_path.end(); }
-    auto size() const -> size_t { return m_path.size(); }
-
-    auto operator[](size_t index) const -> int { return m_path[index]; }
+    auto operator[](std::size_t index) const -> std::size_t { return m_path[index]; }
 
     auto operator+=(const GamePath &other) -> GamePath & {
         m_path.insert(m_path.end(), other.m_path.begin(), other.m_path.end());
         return *this;
     }
 private:
-    std::vector<int> m_path;
+    std::vector<std::size_t> m_path;
 };
 
 auto operator+(const GamePath &lhs, const GamePath &rhs) -> GamePath {
     return GamePath{lhs} += rhs;
 }
 
-auto mainline(size_t depth) -> GamePath {
-    std::vector<int> path(depth);
+auto mainline(std::size_t depth) -> GamePath {
+    std::vector<std::size_t> path(depth);
     std::ranges::fill(path, 0);
     return GamePath{std::move(path)};
 }
 
-auto var(int index) -> GamePath {
+auto var(std::size_t index) -> GamePath {
     return GamePath{{index}};
 }
 
 auto get_node(const chessgame::Game &game, const GamePath &path) -> std::shared_ptr<const chessgame::GameNode> {
     auto cursor = game.cursor();
-    for (size_t index = 0U; index < path.size(); ++index) {
+    for (std::size_t index = 0U; index < path.size(); ++index) {
         const auto child_cursor = cursor.child(path[index]);
         CAPTURE(index);
         REQUIRE(child_cursor.has_value());
@@ -90,6 +88,8 @@ auto has_no_following_move(const chessgame::Game &game, const GamePath &path) ->
     const auto &node = get_node(game, path);
     return node->child_count() == 0;
 }
+
+} // namespace
 
 TEST_CASE("PGN.Parser.Simple Linear Game", "[pgn]") {
     const std::string game_data = R"([Event "Test Event"]

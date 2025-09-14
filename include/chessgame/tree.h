@@ -29,7 +29,7 @@ struct NodeId {
      *
      * \param val The id value.
      */
-    explicit NodeId(uint32_t val = 0) : value(val) {}
+    explicit constexpr NodeId(uint32_t val = 0) : value(val) {}
 
     /**
      * \brief Equality comparison for node ids.
@@ -73,7 +73,7 @@ public:
      * If a prent node is given, the move should also be valid. It is
      * interpreted as the move that lead from the parent node to this node.
      *
-     * \param id The id of the game node.
+     * \param node_id The id of the game node.
      * \param move The move that led to this node.
      * \param parent The parent node.
      */

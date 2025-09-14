@@ -12,6 +12,8 @@
 
 using namespace chessgame;
 
+namespace {
+
 auto check_token(PGNLexer &lexer, PGNLexer::TokenType expected_type, int line = -1, std::string expected_value = "") -> void {
     auto token = lexer.next_token();
     CAPTURE(expected_type);
@@ -42,6 +44,8 @@ auto check_full_move(PGNLexer &lexer, int number, const std::string &white_move,
     check_token(lexer, PGNLexer::TokenType::Symbol, -1, white_move);
     check_token(lexer, PGNLexer::TokenType::Symbol, -1, black_move);
 }
+
+} // namespace
 
 TEST_CASE("PGN.Lexer.Single linear game", "[pgn]") {
     const std::string pgn_data{"[Event \"Test Event\"]\n"
