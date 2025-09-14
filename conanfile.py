@@ -4,7 +4,7 @@ from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
 
 class ChessGameConan(ConanFile):
     name = "chessgame"
-    version = "1.0.0-dev"
+    version = "1.0.0"
     package_type = "library"
 
     license = "MIT License"
