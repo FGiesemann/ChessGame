@@ -15,6 +15,8 @@ using namespace chesscore;
 
 using ParseRes = std::expected<SANMove, SANParserError>;
 
+namespace {
+
 auto check_move(
     const ParseRes &parse_res, Piece piece, Square target_square, bool capturing, std::optional<chesscore::Piece> promotion, CheckState check_state,
     std::optional<SuffixAnnotation> suffix_annotation
@@ -54,6 +56,8 @@ auto check_move(
 auto check_error(const ParseRes &parse_res, SANParserErrorType expected_error) {
     return !parse_res.has_value() && parse_res.error().error_type == expected_error;
 }
+
+} // namespace
 
 TEST_CASE("SAN.Parser.Castling", "[san]") {
     CHECK(check_move(parse_san("O-O", Color::White), Piece::WhiteKing, Square::G1, false, std::nullopt, CheckState::None, std::nullopt));

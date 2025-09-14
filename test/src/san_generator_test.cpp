@@ -15,6 +15,8 @@
 using namespace chessgame;
 using namespace chesscore;
 
+namespace {
+
 auto check_san_move(const Move &move, const SANMove &san_move, const MoveList &moves) -> void {
     CAPTURE(move);
     CAPTURE(san_move.san_string);
@@ -23,6 +25,8 @@ auto check_san_move(const Move &move, const SANMove &san_move, const MoveList &m
     CAPTURE(generated_san_move.value().san_string);
     CHECK(generated_san_move.value() == san_move);
 }
+
+} // namespace
 
 TEST_CASE("SAN.Generator.Simple Pawn Moves", "[san]") {
     const Position<Bitboard> position{FenString{"r1q1krn1/1p4b1/2pn1p2/pP2p1p1/1N1pPP2/2Q2N2/1pP2PPP/5RK1 w - - 0 1"}};

@@ -13,6 +13,19 @@
 using namespace chessgame;
 using namespace chesscore;
 
+namespace {
+
+auto check_single_move(const std::string &san_str, Color side_to_move, const MoveList &moves, const Move &expected_move) -> void {
+    const auto expected_san_move = parse_san(san_str, side_to_move);
+    CAPTURE(san_str);
+    REQUIRE(expected_san_move.has_value());
+    const auto matched_moves = match_san_move(*expected_san_move, moves);
+    CHECK(matched_moves.size() == 1);
+    CHECK(move_list_contains(matched_moves, expected_move));
+}
+
+} // namespace
+
 TEST_CASE("SAN.Move Matcher.Move.Simple", "[san][move_matcher]") {
     CHECK(san_move_matches(
         SANMove{.san_string = "e4", .moving_piece = Piece::WhitePawn, .target_square = Square::E4}, Move{.from = Square::E2, .to = Square::E4, .piece = Piece::WhitePawn}
@@ -199,15 +212,6 @@ TEST_CASE("SAN.Move Matcher.List.Promotion", "[san][move_matcher]") {
     const auto moves7 = match_san_move(SANMove{.san_string = "c8=Q", .moving_piece = Piece::WhitePawn, .target_square = Square::C8, .promotion = Piece::WhiteQueen}, moves);
     CHECK(moves7.size() == 1);
     CHECK(move_list_contains(moves7, Move{.from = Square::C7, .to = Square::C8, .piece = Piece::WhitePawn, .promoted = Piece::WhiteQueen}));
-}
-
-auto check_single_move(const std::string &san_str, Color side_to_move, const MoveList &moves, const Move &expected_move) -> void {
-    const auto expected_san_move = parse_san(san_str, side_to_move);
-    CAPTURE(san_str);
-    REQUIRE(expected_san_move.has_value());
-    const auto matched_moves = match_san_move(*expected_san_move, moves);
-    CHECK(matched_moves.size() == 1);
-    CHECK(move_list_contains(matched_moves, expected_move));
 }
 
 TEST_CASE("SAN.Move Matcher.Position.White", "[san][move_matcher]") {

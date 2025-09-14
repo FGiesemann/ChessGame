@@ -14,6 +14,27 @@
 
 namespace chessgame {
 
+namespace {
+
+auto split_into_words(std::string string, std::string delimiter) -> std::vector<std::string> {
+    std::size_t pos_start{0};
+    std::size_t pos_end{};
+    std::size_t delim_len{delimiter.length()};
+    std::string word;
+    std::vector<std::string> words;
+
+    while ((pos_end = string.find(delimiter, pos_start)) != std::string::npos) {
+        word = string.substr(pos_start, pos_end - pos_start);
+        pos_start = pos_end + delim_len;
+        words.push_back(word);
+    }
+
+    words.push_back(string.substr(pos_start));
+    return words;
+}
+
+} // namespace
+
 auto to_string(PGNLexer::TokenType type) -> std::string {
     switch (type) {
     case PGNLexer::TokenType::OpenBracket:
@@ -42,9 +63,8 @@ auto to_string(PGNLexer::TokenType type) -> std::string {
         return "EndOfInput";
     case PGNLexer::TokenType::Invalid:
         return "Invalid";
-    default:
-        return "UNKNOWN TOKEN TYPE";
     }
+    return "UNKNOWN TOKEN TYPE";
 }
 
 auto to_string(PGNErrorType type) -> std::string {
@@ -63,9 +83,14 @@ auto to_string(PGNErrorType type) -> std::string {
         return "ambiguous move";
     case PGNErrorType::EndOfInput:
         return "end of input";
-    default:
-        return "UNKNOWN ERROR!";
+    case PGNErrorType::InvalidGameResult:
+        return "invalid game result";
+    case PGNErrorType::CannotStartRav:
+        return "cannot start RAV";
+    case PGNErrorType::NoPenRav:
+        return "no pending RAV";
     }
+    return "UNKNOWN ERROR!";
 }
 
 auto to_string(PGNWarningType type) -> std::string {
@@ -76,9 +101,8 @@ auto to_string(PGNWarningType type) -> std::string {
         return "move missing capturing";
     case PGNWarningType::MoveMissingPieceType:
         return "move missing piece type";
-    default:
-        return "UNKNOWN WARNING!";
     }
+    return "UNKNOWN WARNING!";
 }
 
 auto PGNLexer::next_token() -> Token {
@@ -311,9 +335,8 @@ auto PGNParser::read_movetext() -> void {
                 m_warnings.emplace_back(PGNWarningType::UnexpectedChar, m_token.line, "Unexpected char in movetext: " + m_token.value);
                 next_token();
                 break;
-            } else {
-                throw PGNError(PGNErrorType::UnexpectedToken, m_token.line, std::string{"Invalid token in movetext '"} + m_token.value + std::string{"'"});
             }
+            throw PGNError(PGNErrorType::UnexpectedToken, m_token.line, std::string{"Invalid token in movetext '"} + m_token.value + std::string{"'"});
         default:
             throw PGNError(
                 PGNErrorType::UnexpectedToken, m_token.line,
@@ -605,23 +628,8 @@ auto PGNWriter::write_overall_game_comment(const Game &game) -> void {
     m_output.newline();
 }
 
-std::vector<std::string> split(std::string s, std::string delimiter) {
-    size_t pos_start = 0, pos_end, delim_len = delimiter.length();
-    std::string token;
-    std::vector<std::string> res;
-
-    while ((pos_end = s.find(delimiter, pos_start)) != std::string::npos) {
-        token = s.substr(pos_start, pos_end - pos_start);
-        pos_start = pos_end + delim_len;
-        res.push_back(token);
-    }
-
-    res.push_back(s.substr(pos_start));
-    return res;
-}
-
 auto PGNTokenOutput::write_comment(const std::string &comment) -> void {
-    const auto words = split(comment, " ");
+    const auto words = split_into_words(comment, " ");
     auto word = std::begin(words);
     while (word != std::end(words)) {
         if (word == std::begin(words)) {
