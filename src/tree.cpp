@@ -10,7 +10,7 @@ namespace chessgame {
 
 const NodeId NodeId::Invalid{0};
 
-auto GameNode::calculate_position() const -> Position {
+auto GameNode::calculate_position() const -> chesscore::Position {
     if (m_position.has_value()) {
         return *m_position;
     }

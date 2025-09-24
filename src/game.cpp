@@ -11,7 +11,7 @@ Game::Game(const GameMetadata &metadata) : m_metadata{metadata} {
     m_root = std::make_shared<GameNode>(NodeId{1});
     const auto fen_tag = std::ranges::find_if(metadata, [](const auto &tag) { return tag.name == "FEN"; });
     const auto initial_fen = fen_tag == metadata.end() ? chesscore::FenString::starting_position() : chesscore::FenString{fen_tag->value};
-    m_root->set_position(Position{initial_fen});
+    m_root->set_position(chesscore::Position{initial_fen});
 }
 
 Game::Game() : Game{GameMetadata{}} {}

@@ -193,14 +193,14 @@ public:
      *
      * \return The position.
      */
-    [[nodiscard]] auto position() const -> const std::optional<Position> & { return m_position; }
+    [[nodiscard]] auto position() const -> const std::optional<chesscore::Position> & { return m_position; }
 
     /**
      * \brief Set the position of the game node.
      *
      * \param position The position.
      */
-    auto set_position(const Position &position) -> void { m_position = position; }
+    auto set_position(const chesscore::Position &position) -> void { m_position = position; }
 
     /**
      * \brief Calculate the position of this game node.
@@ -210,7 +210,7 @@ public:
      * computed position is not stored in the node. Use setPosition to do that.
      * \return The position represented by this node.
      */
-    [[nodiscard]] auto calculate_position() const -> Position;
+    [[nodiscard]] auto calculate_position() const -> chesscore::Position;
 
     auto nags() const -> const std::vector<int> & { return m_nags; }
     auto nags() -> std::vector<int> & { return m_nags; }
@@ -224,7 +224,7 @@ private:
     std::string m_comment;                             ///< A comment of the position or move.
     std::string m_premove_comment;                     ///< A comment on this game line, given before the move.
     std::vector<int> m_nags;                           ///< Numeric annotation glyphs describing the move or position.
-    std::optional<Position> m_position;                ///< The position described by this node.
+    std::optional<chesscore::Position> m_position;     ///< The position described by this node.
 };
 
 } // namespace chessgame

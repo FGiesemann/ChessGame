@@ -215,7 +215,7 @@ TEST_CASE("SAN.Move Matcher.List.Promotion", "[san][move_matcher]") {
 }
 
 TEST_CASE("SAN.Move Matcher.Position.White", "[san][move_matcher]") {
-    const chessgame::Position position_w{FenString{"3r4/ppP4k/1q2Np1r/b4Np1/1RP1B1nP/3n3P/P4B2/1KR5 w - - 0 1"}};
+    const Position position_w{FenString{"3r4/ppP4k/1q2Np1r/b4Np1/1RP1B1nP/3n3P/P4B2/1KR5 w - - 0 1"}};
 
     const auto white_moves = position_w.all_legal_moves();
     CHECK(white_moves.size() == 55);
@@ -273,7 +273,7 @@ TEST_CASE("SAN.Move Matcher.Position.White", "[san][move_matcher]") {
 }
 
 TEST_CASE("SAN.Move Matcher.Position.Black", "[san][move_matcher]") {
-    const chessgame::Position position_b{FenString{"3r4/ppP4k/1q2Np1r/b4Np1/1RP1B1nP/3n3P/P4B2/1KR5 b - - 0 1"}};
+    const Position position_b{FenString{"3r4/ppP4k/1q2Np1r/b4Np1/1RP1B1nP/3n3P/P4B2/1KR5 b - - 0 1"}};
     const auto black_moves = position_b.all_legal_moves();
     CHECK(black_moves.size() == 43);
     check_single_move("Bxb4", Color::Black, black_moves, Move{.from = Square::A5, .to = Square::B4, .piece = Piece::BlackBishop, .captured = Piece::WhiteRook});
@@ -322,7 +322,7 @@ TEST_CASE("SAN.Move Matcher.Position.Black", "[san][move_matcher]") {
 }
 
 TEST_CASE("SAN.Move Matcher.Position.Disambiguation", "[san][move_matcher]") {
-    const chessgame::Position position{FenString{"3r1rk1/1p1bqp2/p1pR1p1p/8/4P3/P4B2/1PP1QPP1/3R3K w - - 0 22"}};
+    const Position position{FenString{"3r1rk1/1p1bqp2/p1pR1p1p/8/4P3/P4B2/1PP1QPP1/3R3K w - - 0 22"}};
     const auto white_moves = position.all_legal_moves();
     check_single_move("Rd1d2", Color::White, white_moves, Move{.from = Square::D1, .to = Square::D2, .piece = Piece::WhiteRook});
 }

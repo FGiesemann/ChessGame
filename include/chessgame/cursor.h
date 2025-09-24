@@ -86,7 +86,7 @@ public:
      * ancestor that stores a position.
      * \return The position of this game node.
      */
-    [[nodiscard]] auto position() const -> Position { return m_node.lock()->calculate_position(); }
+    [[nodiscard]] auto position() const -> chesscore::Position { return m_node.lock()->calculate_position(); }
 
     /**
      * \brief Play a move at the current cursor position.

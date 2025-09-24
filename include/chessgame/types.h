@@ -15,11 +15,6 @@
 namespace chessgame {
 
 /**
- * \brief Type for representing a chess position.
- */
-using Position = chesscore::Position<chesscore::Bitboard>;
-
-/**
  * \brief A general exception type for errors relating to chess game.
  */
 class ChessGameError : public std::exception {
