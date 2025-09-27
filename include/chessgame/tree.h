@@ -113,6 +113,14 @@ public:
     [[nodiscard]] auto child_count() const -> size_t { return m_children.size(); }
 
     /**
+     * \brief Check if the node has children.
+     *
+     * Returns true if the node has children, false otherwhise.
+     * \return If the node has children.
+     */
+    [[nodiscard]] auto has_children() const -> bool { return child_count() > 0; }
+
+    /**
      * \brief Get the child node.
      *
      * Returns the child node at the given index. Index 0 represents the main
