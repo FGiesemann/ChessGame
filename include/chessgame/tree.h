@@ -143,10 +143,14 @@ public:
     /**
      * \brief Append a new child node.
      *
-     * The given node is appended to the list of child nodes.
+     * The given node is appended to the list of child nodes. Checks, if a
+     * child with the same move is already present. In that case, the child is
+     * not added, but the existing child is returned.
      * \param child The child node.
+     * \returns The given child node, if it was added, or the previously added
+     *   child node with the same move.
      */
-    auto append_child(const std::shared_ptr<GameNode> &child) -> void { m_children.push_back(child); }
+    auto append_child(const std::shared_ptr<GameNode> &child) -> std::shared_ptr<GameNode>;
 
     /**
      * \brief Return the comment of the game node.

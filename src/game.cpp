@@ -16,10 +16,13 @@ Game::Game(const GameMetadata &metadata) : m_metadata{metadata} {
 
 Game::Game() : Game{GameMetadata{}} {}
 
-auto Game::add_node(std::shared_ptr<GameNode> parent, const chesscore::Move &move) -> std::shared_ptr<GameNode> {
+auto Game::add_node(const std::shared_ptr<GameNode> &parent, const chesscore::Move &move) -> std::shared_ptr<GameNode> {
     auto child = std::make_shared<GameNode>(m_next_id++, move, parent);
-    parent->append_child(child);
-    return child;
+    auto added_child = parent->append_child(child);
+    if (added_child != child) {
+        ++m_next_id;
+    }
+    return added_child;
 }
 
 } // namespace chessgame
