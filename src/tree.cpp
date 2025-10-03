@@ -10,6 +10,15 @@ namespace chessgame {
 
 const NodeId NodeId::Invalid{0};
 
+auto GameNode::append_child(const std::shared_ptr<GameNode> &child) -> std::shared_ptr<GameNode> {
+    const auto iterator = std::ranges::find_if(m_children, [&](const auto &node) { return node->move() == child->move(); });
+    if (iterator == m_children.end()) {
+        m_children.push_back(child);
+        return child;
+    }
+    return *iterator;
+}
+
 auto GameNode::calculate_position() const -> chesscore::Position {
     if (m_position.has_value()) {
         return *m_position;

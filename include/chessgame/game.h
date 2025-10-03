@@ -51,12 +51,14 @@ public:
     /**
      * \brief Add a new node to the game tree.
      *
-     * The node is appended as a new child to the given parent node.
+     * The node is appended as a new child to the given parent node. If the
+     * parent node already conatins a child with the given move, no new node is
+     * added and that child is returned.
      * \param parent The parent node of the new node.
      * \param move The move that leads from the parent to the new node.
      * \return The new node.
      */
-    auto add_node(std::shared_ptr<GameNode> parent, const chesscore::Move &move) -> std::shared_ptr<GameNode>;
+    auto add_node(const std::shared_ptr<GameNode> &parent, const chesscore::Move &move) -> std::shared_ptr<GameNode>;
 
     auto edit() -> Cursor { return {this, m_root}; }
     auto cursor() -> Cursor { return edit(); }
