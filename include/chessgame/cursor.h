@@ -78,6 +78,13 @@ public:
     }
 
     /**
+     * \brief Return the id of the referenced node.
+     *
+     * \return Id of the referenced node.
+     */
+    [[nodiscard]] auto node_id() const -> NodeId { return m_node.lock()->id(); }
+
+    /**
      * \brief Get the position object represented by this game node.
      *
      * Gets or calculates the position for the game node. The position might be
@@ -122,6 +129,20 @@ public:
         }
         return {};
     }
+
+    /**
+     * \brief Get the comment for the current node.
+     *
+     * \return The comment.
+     */
+    auto comment() const -> std::string { return m_node.lock()->comment(); }
+
+    /**
+     * \brief Get the pre-move comment for the current node.
+     *
+     * \return The pre-move comment.
+     */
+    auto premove_comment() const -> std::string { return m_node.lock()->premove_comment(); }
 
     /**
      * \brief Sets the comment for the current node.
@@ -173,7 +194,17 @@ public:
         return m_node.lock();
     }
 
+    auto nags() const -> const std::vector<int> & { return m_node.lock()->nags(); }
+
+    auto nags() -> std::vector<int> &
+    requires(!std::is_const_v<GameType>)
+    {
+        return m_node.lock()->nags();
+    }
+
     auto node() const -> std::shared_ptr<const NodeType> { return m_node.lock(); }
+
+    auto move() const -> const chesscore::Move & { return m_node.lock()->move(); }
 private:
     GameType *m_game{};
     std::weak_ptr<NodeType> m_node;
