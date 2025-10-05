@@ -205,6 +205,8 @@ public:
     auto node() const -> std::shared_ptr<const NodeType> { return m_node.lock(); }
 
     auto move() const -> const chesscore::Move & { return m_node.lock()->move(); }
+
+    auto operator==(const BaseCursor &other) const -> bool { return m_game == other.m_game && m_node.lock() == other.m_node.lock(); }
 private:
     GameType *m_game{};
     std::weak_ptr<NodeType> m_node;
