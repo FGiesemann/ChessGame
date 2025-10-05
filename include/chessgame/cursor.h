@@ -59,8 +59,21 @@ public:
         return {};
     }
 
+    /**
+     * \brief Number of child positions of this position.
+     *
+     * Returns the number of positions that originate at this position. The
+     * first child is the main line of the game while further children are
+     * variations.
+     * \return Number of children.
+     */
     [[nodiscard]] auto child_count() const -> size_t { return m_node.lock()->child_count(); }
 
+    /**
+     * \brief Check if the current node has variations.
+     *
+     * \return If the current node has variations.
+     */
     [[nodiscard]] auto has_variations() const -> bool { return child_count() > 1; }
 
     /**
@@ -188,13 +201,38 @@ public:
         m_node.lock()->append_premove_comment(comment);
     }
 
+    /**
+     * \brief Access the GameNode references by this cursor.
+     *
+     * Get access to the GameNode referenced by this cursor.
+     */
     auto node() -> std::shared_ptr<NodeType>
     requires(!std::is_const_v<GameType>)
     {
         return m_node.lock();
     }
 
+    /**
+     * \brief Access the GameNode references by this cursor.
+     *
+     * Get access to the GameNode referenced by this cursor.
+     */
+    auto node() const -> std::shared_ptr<const NodeType> { return m_node.lock(); }
+
+    /**
+     * \brief Returns the lit of NAGs for this node.
+     *
+     * The list of Numeric Annotation Glyphs (NAG) for this node are returned.
+     * \return List of NAGs.
+     */
     auto nags() const -> const std::vector<int> & { return m_node.lock()->nags(); }
+
+    /**
+     * \brief Returns the lit of NAGs for this node.
+     *
+     * The list of Numeric Annotation Glyphs (NAG) for this node are returned.
+     * \return List of NAGs.
+     */
 
     auto nags() -> std::vector<int> &
     requires(!std::is_const_v<GameType>)
@@ -202,17 +240,59 @@ public:
         return m_node.lock()->nags();
     }
 
-    auto node() const -> std::shared_ptr<const NodeType> { return m_node.lock(); }
-
+    /**
+     * \brief Returns the move that lead to this position.
+     *
+     * The GameNode referenced by this cursor represents a position in the game.
+     * The move that lead to this position is returned.
+     * \return Move that lead to this position.
+     */
     auto move() const -> const chesscore::Move & { return m_node.lock()->move(); }
 
+    /**
+     * \brief The player that is to move in this position.
+     *
+     * Returns the color of the player to move next from the position referenced
+     * by this cursor.
+     * \return Color of the player to move next.
+     */
+    auto side_to_move() const -> chesscore::Color { return other_color(move().piece.color); }
+
+    /**
+     * \brief The player that created this position.
+     *
+     * Returns the color of the player whose move lead to the position
+     * referenced by this cursor.
+     * \return Color of the player that created this position.
+     */
+    auto player_color() const -> chesscore::Color { return move().piece.color; }
+
+    /**
+     * \brief Equality comparison of cursors.
+     *
+     * Two cursors are considered equal, if they reference the same node from
+     * the same game.
+     * \param other The other cursor.
+     * \return If the cursors are equal or not.
+     */
     auto operator==(const BaseCursor &other) const -> bool { return m_game == other.m_game && m_node.lock() == other.m_node.lock(); }
 private:
     GameType *m_game{};
     std::weak_ptr<NodeType> m_node;
 };
 
+/**
+ * \brief A cursor that references a position in a chess game.
+ *
+ * The cursor can be used to edit the game, e.g., add moves and comments.
+ */
 using Cursor = BaseCursor<Game, GameNode>;
+
+/**
+ * \brief A const cursor that references a position in a chess game.
+ *
+ * This cursor provides read-only access to the game.
+ */
 using ConstCursor = BaseCursor<const Game, const GameNode>;
 
 } // namespace chessgame
