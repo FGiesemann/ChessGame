@@ -77,6 +77,30 @@ public:
     [[nodiscard]] auto has_variations() const -> bool { return child_count() > 1; }
 
     /**
+     * \brief Check if the current node is the start of a variation.
+     *
+     * It is a start of a variation, when it is a child other than the first of
+     * its parent.
+     * \return If the current node is the start of a variation.
+     */
+    [[nodiscard]] auto starts_variation() const -> bool {
+        const auto parent_node = m_node.lock()->parent();
+        return parent_node && (m_node.lock() != parent_node->get_child(0));
+    }
+
+    /**
+     * \brief Returns the index of the variation that this node starts.
+     *
+     * The index is 0 for main line positions. An index i of 1 or greater means,
+     * that this node starts the i-th variation in its parent.
+     * \return The number of the variation.
+     */
+    [[nodiscard]] auto variation_number() const -> int {
+        const auto parent_node = m_node.lock()->parent();
+        return parent_node ? parent_node->get_child_number(m_node.lock()) : 0;
+    }
+
+    /**
      * \brief Get a child node of the current node.
      *
      * \param index Index of the child node.

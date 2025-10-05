@@ -141,6 +141,17 @@ public:
     [[nodiscard]] auto get_child(size_t index) const -> std::shared_ptr<const GameNode> { return index >= m_children.size() ? nullptr : m_children[index]; }
 
     /**
+     * \brief Get the position of the fiven child node.
+     *
+     * Returns the position, i.e., the index, of the given child node in this
+     * node's list of children. A result of -1 is returned, when the fiven node
+     * is not a child of this node.
+     * \param child The child node.
+     * \return Index of the child node in this node's list of children or -1.
+     */
+    [[nodiscard]] auto get_child_number(const std::shared_ptr<GameNode> &child) const -> int;
+
+    /**
      * \brief Append a new child node.
      *
      * The given node is appended to the list of child nodes. Checks, if a

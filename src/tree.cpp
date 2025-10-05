@@ -32,4 +32,12 @@ auto GameNode::calculate_position() const -> chesscore::Position {
     throw ChessGameError{"No ancestor with position information found"};
 }
 
+auto GameNode::get_child_number(const std::shared_ptr<GameNode> &child) const -> int {
+    const auto iterator = std::ranges::find(m_children, child);
+    if (iterator != m_children.end()) {
+        return static_cast<int>(std::distance(m_children.begin(), iterator));
+    }
+    return -1;
+}
+
 } // namespace chessgame
