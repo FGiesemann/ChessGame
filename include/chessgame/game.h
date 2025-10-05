@@ -60,14 +60,65 @@ public:
      */
     auto add_node(const std::shared_ptr<GameNode> &parent, const chesscore::Move &move) -> std::shared_ptr<GameNode>;
 
+    /**
+     * \brief Get a cursor to the beginning of the game.
+     *
+     * \return Cursor to the beginning of the game.
+     */
     auto edit() -> Cursor { return {this, m_root}; }
+
+    /**
+     * \brief Get a const cursor to the beginning of the game.
+     *
+     * This is an alias for Game::edit().
+     * \return Cursor to the beginning of the game.
+     */
     auto cursor() -> Cursor { return edit(); }
+
+    /**
+     * \brief Get a read-only cursor to the beginning of the game.
+     *
+     * \return Read-only cursor to the beginning of the game.
+     */
     [[nodiscard]] auto cursor() const -> ConstCursor { return {this, m_root}; }
+
+    /**
+     * \brief Get a read-only cursor to the beginning of the game.
+     *
+     * \return Read-only cursor to the beginning of the game.
+     */
+
     [[nodiscard]] auto const_cursor() const -> ConstCursor { return {this, m_root}; }
+
+    /**
+     * \brief Get a cursor to the current position on the main line.
+     *
+     * Return a cursor to the last position on the main line of the game.
+     * \return Cursor to the current position on the main line.
+     */
+    auto current_mainline() -> Cursor { return follow_mainline<Cursor>(edit()); }
+
+    /**
+     * \brief Get a cursor to the current position on the main line.
+     *
+     * Return a cursor to the last position on the main line of the game.
+     * \return Cursor to the current position on the main line.
+     */
+    auto current_mainline() const -> ConstCursor { return follow_mainline<ConstCursor>(const_cursor()); }
 private:
     GameMetadata m_metadata{};        ///< Meta data for the game.
     std::shared_ptr<GameNode> m_root; ///< Root node of the game tree.
     NodeId m_next_id{2U};             ///< Next available node id.
+
+    template<typename T>
+    static auto follow_mainline(T cursor) -> T {
+        auto child_cursor = cursor.child(0);
+        while (child_cursor.has_value()) {
+            cursor = child_cursor.value();
+            child_cursor = cursor.child(0);
+        }
+        return cursor;
+    }
 };
 
 } // namespace chessgame
