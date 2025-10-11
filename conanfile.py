@@ -9,8 +9,8 @@ class ChessGameConan(ConanFile):
 
     license = "MIT License"
     author = "Florian Giesemann <florian.giesemann@gmail.com>"
-    url = "https://github.com/FGiesemann/ChessCore.git"
-    homepage = "https://github.com/FGiesemann/ChessCore"
+    url = "https://github.com/FGiesemann/ChessGame.git"
+    homepage = "https://github.com/FGiesemann/ChessGame"
 
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False], "fPIC": [True, False]}
