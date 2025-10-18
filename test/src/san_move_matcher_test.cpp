@@ -19,7 +19,7 @@ auto check_single_move(const std::string &san_str, Color side_to_move, const Mov
     const auto expected_san_move = parse_san(san_str, side_to_move);
     CAPTURE(san_str);
     REQUIRE(expected_san_move.has_value());
-    const auto matched_moves = match_san_move(*expected_san_move, moves);
+    const auto matched_moves = match_move(*expected_san_move, moves);
     CHECK(matched_moves.size() == 1);
     CHECK(move_list_contains(matched_moves, expected_move));
 }
@@ -90,19 +90,19 @@ TEST_CASE("SAN.Move Matcher.List.Unambiguous Moves", "[san][move_matcher]") {
         Move{.from = Square::G5, .to = Square::F3, .piece = Piece::BlackKnight}, // Nf3
     };
 
-    const auto moves1 = match_san_move(SANMove{.san_string = "Ra5", .moving_piece = Piece::WhiteRook, .target_square = Square::A5}, moves);
+    const auto moves1 = match_move(SANMove{.san_string = "Ra5", .moving_piece = Piece::WhiteRook, .target_square = Square::A5}, moves);
     CHECK(moves1.size() == 1);
     CHECK(move_list_contains(moves1, Move{.from = Square::A1, .to = Square::A5, .piece = Piece::WhiteRook}));
 
-    const auto moves2 = match_san_move(SANMove{.san_string = "Ne3", .moving_piece = Piece::BlackKnight, .target_square = Square::E3}, moves);
+    const auto moves2 = match_move(SANMove{.san_string = "Ne3", .moving_piece = Piece::BlackKnight, .target_square = Square::E3}, moves);
     CHECK(moves2.size() == 1);
     CHECK(move_list_contains(moves2, Move{.from = Square::C4, .to = Square::E3, .piece = Piece::BlackKnight}));
 
-    const auto moves3 = match_san_move(SANMove{.san_string = "Bf3", .moving_piece = Piece::BlackBishop, .target_square = Square::F3}, moves);
+    const auto moves3 = match_move(SANMove{.san_string = "Bf3", .moving_piece = Piece::BlackBishop, .target_square = Square::F3}, moves);
     CHECK(moves3.size() == 1);
     CHECK(move_list_contains(moves3, Move{.from = Square::B7, .to = Square::F3, .piece = Piece::BlackBishop}));
 
-    const auto moves4 = match_san_move(SANMove{.san_string = "Nf3", .moving_piece = Piece::BlackKnight, .target_square = Square::F3}, moves);
+    const auto moves4 = match_move(SANMove{.san_string = "Nf3", .moving_piece = Piece::BlackKnight, .target_square = Square::F3}, moves);
     CHECK(moves4.size() == 1);
     CHECK(move_list_contains(moves4, Move{.from = Square::G5, .to = Square::F3, .piece = Piece::BlackKnight}));
 }
@@ -115,29 +115,29 @@ TEST_CASE("SAN.Move Matcher.List.Disambiguations", "[san][move_matcher]") {
         Move{.from = Square::F6, .to = Square::F4, .piece = Piece::BlackRook},   // R6f4
     };
 
-    const auto moves1_1 = match_san_move(SANMove{.san_string = "Nd5", .moving_piece = Piece::WhiteKnight, .target_square = Square::D5}, moves);
+    const auto moves1_1 = match_move(SANMove{.san_string = "Nd5", .moving_piece = Piece::WhiteKnight, .target_square = Square::D5}, moves);
     CHECK(moves1_1.size() == 2);
     CHECK(move_list_contains(moves1_1, Move{.from = Square::B4, .to = Square::D5, .piece = Piece::WhiteKnight}));
     CHECK(move_list_contains(moves1_1, Move{.from = Square::E3, .to = Square::D5, .piece = Piece::WhiteKnight}));
 
-    const auto moves1_2 = match_san_move(SANMove{.san_string = "Nbd5", .moving_piece = Piece::WhiteKnight, .target_square = Square::D5, .disambiguation_file = File{'b'}}, moves);
+    const auto moves1_2 = match_move(SANMove{.san_string = "Nbd5", .moving_piece = Piece::WhiteKnight, .target_square = Square::D5, .disambiguation_file = File{'b'}}, moves);
     CHECK(moves1_2.size() == 1);
     CHECK(move_list_contains(moves1_2, Move{.from = Square::B4, .to = Square::D5, .piece = Piece::WhiteKnight}));
 
-    const auto moves1_3 = match_san_move(SANMove{.san_string = "Ned5", .moving_piece = Piece::WhiteKnight, .target_square = Square::D5, .disambiguation_file = File{'e'}}, moves);
+    const auto moves1_3 = match_move(SANMove{.san_string = "Ned5", .moving_piece = Piece::WhiteKnight, .target_square = Square::D5, .disambiguation_file = File{'e'}}, moves);
     CHECK(moves1_3.size() == 1);
     CHECK(move_list_contains(moves1_3, Move{.from = Square::E3, .to = Square::D5, .piece = Piece::WhiteKnight}));
 
-    const auto moves2_1 = match_san_move(SANMove{.san_string = "Rf4", .moving_piece = Piece::BlackRook, .target_square = Square::F4}, moves);
+    const auto moves2_1 = match_move(SANMove{.san_string = "Rf4", .moving_piece = Piece::BlackRook, .target_square = Square::F4}, moves);
     CHECK(moves2_1.size() == 2);
     CHECK(move_list_contains(moves2_1, Move{.from = Square::F2, .to = Square::F4, .piece = Piece::BlackRook}));
     CHECK(move_list_contains(moves2_1, Move{.from = Square::F6, .to = Square::F4, .piece = Piece::BlackRook}));
 
-    const auto moves2_2 = match_san_move(SANMove{.san_string = "R2f4", .moving_piece = Piece::BlackRook, .target_square = Square::F4, .disambiguation_rank = Rank{2}}, moves);
+    const auto moves2_2 = match_move(SANMove{.san_string = "R2f4", .moving_piece = Piece::BlackRook, .target_square = Square::F4, .disambiguation_rank = Rank{2}}, moves);
     CHECK(moves2_2.size() == 1);
     CHECK(move_list_contains(moves2_2, Move{.from = Square::F2, .to = Square::F4, .piece = Piece::BlackRook}));
 
-    const auto moves2_3 = match_san_move(SANMove{.san_string = "R6f4", .moving_piece = Piece::BlackRook, .target_square = Square::F4, .disambiguation_rank = Rank{6}}, moves);
+    const auto moves2_3 = match_move(SANMove{.san_string = "R6f4", .moving_piece = Piece::BlackRook, .target_square = Square::F4, .disambiguation_rank = Rank{6}}, moves);
     CHECK(moves2_3.size() == 1);
     CHECK(move_list_contains(moves2_3, Move{.from = Square::F6, .to = Square::F4, .piece = Piece::BlackRook}));
 }
@@ -149,11 +149,11 @@ TEST_CASE("SAN.Move Matcher.List.Capture", "[san][move_matcher]") {
         Move{.from = Square::E3, .to = Square::C4, .piece = Piece::BlackKnight},                                // Nc4
     };
 
-    const auto moves1 = match_san_move(SANMove{.san_string = "Bxg5", .moving_piece = Piece::WhiteBishop, .target_square = Square::G5, .capturing = true}, moves);
+    const auto moves1 = match_move(SANMove{.san_string = "Bxg5", .moving_piece = Piece::WhiteBishop, .target_square = Square::G5, .capturing = true}, moves);
     CHECK(moves1.size() == 1);
     CHECK(move_list_contains(moves1, Move{.from = Square::C1, .to = Square::G5, .piece = Piece::WhiteBishop, .captured = Piece::BlackQueen}));
 
-    const auto moves2 = match_san_move(SANMove{.san_string = "Nxc4", .moving_piece = Piece::BlackKnight, .target_square = Square::C4, .capturing = true}, moves);
+    const auto moves2 = match_move(SANMove{.san_string = "Nxc4", .moving_piece = Piece::BlackKnight, .target_square = Square::C4, .capturing = true}, moves);
     CHECK(moves2.size() == 1);
     CHECK(move_list_contains(moves2, Move{.from = Square::E5, .to = Square::C4, .piece = Piece::BlackKnight, .captured = Piece::WhitePawn}));
 }
@@ -167,18 +167,18 @@ TEST_CASE("SAN.Move Matcher.List.Promotion", "[san][move_matcher]") {
         Move{.from = Square::C7, .to = Square::C8, .piece = Piece::WhitePawn, .promoted = Piece::WhiteQueen},                                // c8=Q
     };
 
-    const auto moves1 = match_san_move(SANMove{.san_string = "e8=Q", .moving_piece = Piece::WhitePawn, .target_square = Square::E8, .promotion = Piece::WhiteQueen}, moves);
+    const auto moves1 = match_move(SANMove{.san_string = "e8=Q", .moving_piece = Piece::WhitePawn, .target_square = Square::E8, .promotion = Piece::WhiteQueen}, moves);
     CHECK(moves1.size() == 1);
     CHECK(move_list_contains(moves1, Move{.from = Square::E7, .to = Square::E8, .piece = Piece::WhitePawn, .promoted = Piece::WhiteQueen}));
 
-    const auto moves2 = match_san_move(SANMove{.san_string = "e8=Q", .moving_piece = Piece::WhitePawn, .target_square = Square::E8, .promotion = Piece::WhiteBishop}, moves);
+    const auto moves2 = match_move(SANMove{.san_string = "e8=Q", .moving_piece = Piece::WhitePawn, .target_square = Square::E8, .promotion = Piece::WhiteBishop}, moves);
     CHECK(moves2.size() == 0);
 
-    const auto moves3 = match_san_move(SANMove{.san_string = "c1=N", .moving_piece = Piece::BlackPawn, .target_square = Square::C1, .promotion = Piece::BlackKnight}, moves);
+    const auto moves3 = match_move(SANMove{.san_string = "c1=N", .moving_piece = Piece::BlackPawn, .target_square = Square::C1, .promotion = Piece::BlackKnight}, moves);
     CHECK(moves3.size() == 1);
     CHECK(move_list_contains(moves3, Move{.from = Square::C2, .to = Square::C1, .piece = Piece::BlackPawn, .promoted = Piece::BlackKnight}));
 
-    const auto moves4 = match_san_move(
+    const auto moves4 = match_move(
         SANMove{
             .san_string = "exd1=B",
             .moving_piece = Piece::BlackPawn,
@@ -192,7 +192,7 @@ TEST_CASE("SAN.Move Matcher.List.Promotion", "[san][move_matcher]") {
     CHECK(moves4.size() == 1);
     CHECK(move_list_contains(moves4, Move{.from = Square::E2, .to = Square::D1, .piece = Piece::BlackPawn, .captured = Piece::BlackRook, .promoted = Piece::WhiteBishop}));
 
-    const auto moves5 = match_san_move(
+    const auto moves5 = match_move(
         SANMove{
             .san_string = "axb8=R",
             .moving_piece = Piece::WhitePawn,
@@ -206,10 +206,10 @@ TEST_CASE("SAN.Move Matcher.List.Promotion", "[san][move_matcher]") {
     CHECK(moves5.size() == 1);
     CHECK(move_list_contains(moves5, Move{.from = Square::A7, .to = Square::B8, .piece = Piece::WhitePawn, .captured = Piece::BlackQueen, .promoted = Piece::WhiteRook}));
 
-    const auto moves6 = match_san_move(SANMove{.san_string = "axb8", .moving_piece = Piece::WhitePawn, .target_square = Square::B8, .capturing = true}, moves);
+    const auto moves6 = match_move(SANMove{.san_string = "axb8", .moving_piece = Piece::WhitePawn, .target_square = Square::B8, .capturing = true}, moves);
     CHECK(moves6.size() == 0);
 
-    const auto moves7 = match_san_move(SANMove{.san_string = "c8=Q", .moving_piece = Piece::WhitePawn, .target_square = Square::C8, .promotion = Piece::WhiteQueen}, moves);
+    const auto moves7 = match_move(SANMove{.san_string = "c8=Q", .moving_piece = Piece::WhitePawn, .target_square = Square::C8, .promotion = Piece::WhiteQueen}, moves);
     CHECK(moves7.size() == 1);
     CHECK(move_list_contains(moves7, Move{.from = Square::C7, .to = Square::C8, .piece = Piece::WhitePawn, .promoted = Piece::WhiteQueen}));
 }

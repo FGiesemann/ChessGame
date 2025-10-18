@@ -431,7 +431,7 @@ auto PGNParser::find_legal_move(const SANMove &san_move) const -> chesscore::Mov
     if (legal_moves.empty()) {
         throw PGNError{PGNErrorType::IllegalMove, m_token.line, san_move.san_string};
     }
-    const auto matched_moves = match_san_move(san_move, legal_moves);
+    const auto matched_moves = match_move(san_move, legal_moves);
     if (matched_moves.size() == 1) {
         return matched_moves[0];
     }
@@ -449,7 +449,7 @@ auto PGNParser::find_legal_move(const SANMove &san_move) const -> chesscore::Mov
     if (!san_move.capturing) {
         auto try_move = san_move;
         try_move.capturing = true;
-        const auto matched_captures = match_san_move(try_move, legal_moves);
+        const auto matched_captures = match_move(try_move, legal_moves);
         if (matched_captures.size() == 1) {
             m_warnings.emplace_back(PGNWarningType::MoveMissingCapture, m_token.line, san_move.san_string);
             return matched_captures[0];
