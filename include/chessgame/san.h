@@ -111,7 +111,7 @@ auto san_move_matches(const SANMove &san_move, const chesscore::Move &move) -> b
  * \param moves The move list.
  * \return List of all matching moves.
  */
-auto match_san_move(const SANMove &san_move, const chesscore::MoveList &moves) -> chesscore::MoveList;
+auto match_move(const SANMove &san_move, const chesscore::MoveList &moves) -> chesscore::MoveList;
 
 /**
  * \brief Match a move list against a SAN move, ignoring the piece type.

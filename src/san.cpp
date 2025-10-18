@@ -383,7 +383,7 @@ auto san_move_matches(const SANMove &san_move, const chesscore::Move &move) -> b
     return san_move_matches_any_piece_type(san_move, move);
 }
 
-auto match_san_move(const SANMove &san_move, const chesscore::MoveList &moves) -> chesscore::MoveList {
+auto match_move(const SANMove &san_move, const chesscore::MoveList &moves) -> chesscore::MoveList {
     return moves | std::views::filter([&san_move](const chesscore::Move &move) { return san_move_matches(san_move, move); }) | std::ranges::to<chesscore::MoveList>();
 }
 
