@@ -33,6 +33,12 @@ auto split_into_words(std::string string, std::string delimiter) -> std::vector<
     return words;
 }
 
+auto lower_case(const std::string &str) -> std::string {
+    std::string result{str};
+    std::transform(result.begin(), result.end(), result.begin(), [](unsigned char c) { return std::tolower(c); });
+    return result;
+}
+
 } // namespace
 
 auto to_string(PGNLexer::TokenType type) -> std::string {
@@ -284,16 +290,22 @@ auto PGNParser::setup_game() -> void {
 }
 
 auto PGNParser::read_game() -> std::optional<Game> {
-    reset();
-    next_token();
-    if (m_token.type == PGNLexer::TokenType::EndOfInput) {
-        return std::nullopt;
+    while (true) {
+        reset();
+        next_token();
+        if (m_token.type == PGNLexer::TokenType::EndOfInput) {
+            return std::nullopt;
+        }
+        check_token_type(PGNLexer::TokenType::OpenBracket, "Metadata tags expected");
+        read_metadata();
+        if (lower_case(m_metadata.get("Variant").value_or("")) == "chess960") {
+            skip_to_next_game();
+            continue;
+        }
+        setup_game();
+        read_movetext();
+        return m_game;
     }
-    check_token_type(PGNLexer::TokenType::OpenBracket, "Metadata tags expected");
-    read_metadata();
-    setup_game();
-    read_movetext();
-    return m_game;
 }
 
 auto PGNParser::skip_to_next_game() -> void {
