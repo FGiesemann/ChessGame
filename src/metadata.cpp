@@ -10,7 +10,7 @@ namespace chessgame {
 const std::array<std::string, 7> GameMetadata::str_tags{"Event", "Site", "Date", "Round", "White", "Black", "Result"};
 
 auto GameMetadata::is_str_tag(const std::string &name) -> bool {
-    return std::ranges::find(str_tags, name) != str_tags.end();
+    return std::find(std::begin(str_tags), std::end(str_tags), name) != str_tags.end();
 }
 
 auto GameMetadata::is_str_tag(const metadata_tag &tag) -> bool {
@@ -18,7 +18,7 @@ auto GameMetadata::is_str_tag(const metadata_tag &tag) -> bool {
 }
 
 auto GameMetadata::get(const std::string &name) const -> std::optional<std::string> {
-    const auto tag = std::ranges::find_if(*this, [&name](const metadata_tag &search_tag) { return search_tag.name == name; });
+    const auto tag = std::find_if(std::begin(*this), std::end(*this), [&name](const metadata_tag &search_tag) { return search_tag.name == name; });
     if (tag == end()) {
         return std::nullopt;
     }
