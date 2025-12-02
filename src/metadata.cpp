@@ -5,6 +5,8 @@
 
 #include "chessgame/metadata.h"
 
+#include <algorithm>
+
 namespace chessgame {
 
 const std::array<std::string, 7> GameMetadata::str_tags{"Event", "Site", "Date", "Round", "White", "Black", "Result"};
