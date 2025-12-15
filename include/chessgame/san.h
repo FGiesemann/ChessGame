@@ -66,6 +66,10 @@ struct SANMove {
     auto operator==(const SANMove &rhs) const -> bool = default;
 };
 
+auto to_string(const SANMove &move) -> std::string {
+    return move.san_string;
+}
+
 enum class SANParserErrorType {
     UnexpectedToken,
     UnexpectedCharsAtEnd,
