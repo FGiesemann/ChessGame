@@ -344,7 +344,7 @@ auto PGNParser::read_movetext() -> void {
             break;
         case PGNLexer::TokenType::Invalid:
             if (m_token.value == "," || m_token.value == "}") {
-                m_warnings.emplace_back(PGNWarningType::UnexpectedChar, m_token.line, "Unexpected char in movetext: " + m_token.value);
+                m_warnings.emplace_back(PGNWarningType::UnexpectedChar, m_token.line, std::string{"Unexpected char in movetext: "} + m_token.value);
                 next_token();
                 break;
             }
