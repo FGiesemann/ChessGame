@@ -13,6 +13,7 @@ target_link_libraries(chessgame_tests
   ChessGame 
   Catch2::Catch2WithMain
 )
+add_optimization_settings(chessgame_tests)
 
 include(Catch)
 catch_discover_tests(chessgame_tests)
