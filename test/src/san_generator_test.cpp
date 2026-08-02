@@ -5,7 +5,6 @@
 
 #include <catch2/catch_all.hpp>
 
-#include "chesscore/bitboard.h"
 #include "chesscore/fen.h"
 #include "chesscore/position.h"
 #include "chesscore_io/chesscore_io.h"
@@ -99,11 +98,11 @@ TEST_CASE("SAN.Generator.Disambiguation", "[san]") {
     );
     check_san_move( // rank disambiguation
         Move{.from = Square::A3, .to = Square::C2, .piece = Piece::BlackKnight},
-        SANMove{.san_string{"N3c2"}, .moving_piece = Piece::BlackKnight, .target_square = Square::C2, .disambiguation_rank = Rank{3}}, moves
+        SANMove{.san_string{"N3c2"}, .moving_piece = Piece::BlackKnight, .target_square = Square::C2, .disambiguation_rank = Rank{2}}, moves
     );
     check_san_move( // square disambiguation
         Move{.from = Square::H5, .to = Square::E5, .piece = Piece::BlackQueen, .captured = Piece::WhitePawn},
-        SANMove{.san_string{"Qh5xe5"}, .moving_piece = Piece::BlackQueen, .target_square = Square::E5, .capturing = true, .disambiguation_file = File{'h'}, .disambiguation_rank = Rank{5}}, moves
+        SANMove{.san_string{"Qh5xe5"}, .moving_piece = Piece::BlackQueen, .target_square = Square::E5, .capturing = true, .disambiguation_file = File{'h'}, .disambiguation_rank = Rank{4}}, moves
     );
 }
 

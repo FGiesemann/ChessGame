@@ -8,7 +8,7 @@
 #include <catch2/internal/catch_string_manip.hpp>
 
 #include "chesscore/move.h"
-#include "chessgame/types.h"
+#include "chesscore/position.h"
 
 using namespace chessgame;
 using namespace chesscore;
@@ -55,7 +55,7 @@ TEST_CASE("SAN.Move Matcher.Move.Simple", "[san][move_matcher]") {
         SANMove{.san_string = "Nce5", .moving_piece = Piece::WhiteKnight, .target_square = Square::E5}, Move{.from = Square::D3, .to = Square::E6, .piece = Piece::WhiteKnight}
     ));
     CHECK(san_move_matches(
-        SANMove{.san_string = "R2e4", .moving_piece = Piece::WhiteRook, .target_square = Square::E4, .disambiguation_rank = Rank{2}},
+        SANMove{.san_string = "R2e4", .moving_piece = Piece::WhiteRook, .target_square = Square::E4, .disambiguation_rank = Rank{1}},
         Move{.from = Square::E2, .to = Square::E4, .piece = Piece::WhiteRook}
     ));
     CHECK_FALSE(san_move_matches(
@@ -133,11 +133,11 @@ TEST_CASE("SAN.Move Matcher.List.Disambiguations", "[san][move_matcher]") {
     CHECK(move_list_contains(moves2_1, Move{.from = Square::F2, .to = Square::F4, .piece = Piece::BlackRook}));
     CHECK(move_list_contains(moves2_1, Move{.from = Square::F6, .to = Square::F4, .piece = Piece::BlackRook}));
 
-    const auto moves2_2 = match_move(SANMove{.san_string = "R2f4", .moving_piece = Piece::BlackRook, .target_square = Square::F4, .disambiguation_rank = Rank{2}}, moves);
+    const auto moves2_2 = match_move(SANMove{.san_string = "R2f4", .moving_piece = Piece::BlackRook, .target_square = Square::F4, .disambiguation_rank = Rank{1}}, moves);
     CHECK(moves2_2.size() == 1);
     CHECK(move_list_contains(moves2_2, Move{.from = Square::F2, .to = Square::F4, .piece = Piece::BlackRook}));
 
-    const auto moves2_3 = match_move(SANMove{.san_string = "R6f4", .moving_piece = Piece::BlackRook, .target_square = Square::F4, .disambiguation_rank = Rank{6}}, moves);
+    const auto moves2_3 = match_move(SANMove{.san_string = "R6f4", .moving_piece = Piece::BlackRook, .target_square = Square::F4, .disambiguation_rank = Rank{5}}, moves);
     CHECK(moves2_3.size() == 1);
     CHECK(move_list_contains(moves2_3, Move{.from = Square::F6, .to = Square::F4, .piece = Piece::BlackRook}));
 }

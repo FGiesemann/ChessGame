@@ -87,7 +87,7 @@ auto get_token(std::string_view san_str) -> SANToken {
 }
 
 auto extract_rank(std::string_view str) -> chesscore::Rank {
-    return chesscore::Rank{str[0] - '0'};
+    return chesscore::Rank{str[0] - '1'};
 }
 
 auto get_suffix_annotation(std::string_view str) -> std::expected<SuffixAnnotation, SANParserError> {
@@ -419,7 +419,7 @@ auto generate_san_move(const chesscore::Move &move, const chesscore::MoveList &m
             san_string << disambiguation.first.value().name();
         }
         if (disambiguation.second.has_value()) {
-            san_string << std::to_string(disambiguation.second.value().rank);
+            san_string << std::to_string(disambiguation.second.value().rank + 1);
         }
     }
     if (move.captured.has_value()) {
