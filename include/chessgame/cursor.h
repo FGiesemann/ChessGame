@@ -289,7 +289,7 @@ public:
      * referenced by this cursor.
      * \return Color of the player that created this position.
      */
-    auto player_color() const -> chesscore::Color { return move().piece.color; }
+    auto player_color() const -> chesscore::Color { return move().piece.color(); }
 
     /**
      * \brief Equality comparison of cursors.

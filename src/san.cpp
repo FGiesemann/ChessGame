@@ -152,7 +152,7 @@ auto parse_promotions(const std::string &san, chesscore::Color &side_to_move, SA
         if (token.type != TokenType::PieceType) {
             return SANParserError{.error_type = SANParserErrorType::MissingPieceType, .san = san};
         }
-        move.promotion = chesscore::Piece{.type = chesscore::piece_type_from_char(token.value[0]), .color = side_to_move};
+        move.promotion = chesscore::Piece{chesscore::piece_type_from_char(token.value[0]), side_to_move};
         san_str = san_str.substr(1);
         token = get_token(san_str);
     }
@@ -161,11 +161,11 @@ auto parse_promotions(const std::string &san, chesscore::Color &side_to_move, SA
 
 auto parse_piece_type(chesscore::Color &side_to_move, SANMove &move, std::string_view &san_str, SANToken &token) -> void {
     if (token.type == TokenType::PieceType) {
-        move.moving_piece = chesscore::Piece{.type = chesscore::piece_type_from_char(token.value[0]), .color = side_to_move};
+        move.moving_piece = chesscore::Piece{chesscore::piece_type_from_char(token.value[0]), side_to_move};
         san_str = san_str.substr(1);
         token = get_token(san_str);
     } else {
-        move.moving_piece = chesscore::Piece{.type = chesscore::PieceType::Pawn, .color = side_to_move};
+        move.moving_piece = chesscore::Piece{chesscore::PieceType::Pawn, side_to_move};
     }
 }
 
@@ -234,7 +234,7 @@ const std::string long_castling{"O-O-O"};
 const std::string short_castling{"O-O"};
 
 auto parse_castling_move(const std::string &san, chesscore::Color side_to_move, SANMove &move, std::string_view san_str) -> std::optional<SANParserError> {
-    move.moving_piece = chesscore::Piece{.type = chesscore::PieceType::King, .color = side_to_move};
+    move.moving_piece = chesscore::Piece{chesscore::PieceType::King, side_to_move};
     chesscore::Square target_square;
     SANToken token;
     if (san_str.starts_with(long_castling)) {
@@ -406,10 +406,10 @@ auto generate_san_move(const chesscore::Move &move, const chesscore::MoveList &m
     }
     Disambiguation disambiguation{};
 
-    if (move.piece.type != chesscore::PieceType::Pawn) {
+    if (move.piece.type() != chesscore::PieceType::Pawn) {
         san_string << move.piece.piece_char_colorless();
     }
-    if (move.piece.type == chesscore::PieceType::Pawn) {
+    if (move.piece.type() == chesscore::PieceType::Pawn) {
         if (move.captured.has_value()) {
             san_string << move.from.file().name();
         }
